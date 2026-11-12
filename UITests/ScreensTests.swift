@@ -116,7 +116,8 @@ final class ScreensTests: XCTestCase {
         expectation(for: keyboardGone, evaluatedWith: app.keyboards)
         waitForExpectations(timeout: 5)
         app.swipeUp()
-        XCTAssertTrue(app.staticTexts["Правила в этой фразе"].waitForExistence(timeout: 5) || app.staticTexts["ПРАВИЛА В ЭТОЙ ФРАЗЕ"].exists)
+        // "Un ami": only a rule found in this very phrase can name the n of a nasal vowel.
+        XCTAssertTrue(app.staticTexts["Связывание после носового гласного"].waitForExistence(timeout: 5))
         shot("20b-reader-rules")
 
         app.buttons["Слово"].tap()
@@ -135,7 +136,9 @@ final class ScreensTests: XCTestCase {
         XCTAssertTrue(feminine.isSelected, "the typed form is feminine")
         shot("21b-word-two-genders")
         app.swipeUp()
-        XCTAssertTrue(app.staticTexts["Примеры"].waitForExistence(timeout: 5) || app.staticTexts["ПРИМЕРЫ"].exists)
+        // Each example names its source under the translation.
+        let source = app.staticTexts.matching(NSPredicate(format: "label == 'Tatoeba' OR label BEGINSWITH 'Урок '")).firstMatch
+        XCTAssertTrue(source.waitForExistence(timeout: 5))
         shot("21c-word-examples")
 
         app.tabBars.buttons["Поиск"].tap()
