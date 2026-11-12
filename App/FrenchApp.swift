@@ -14,6 +14,8 @@ struct FrenchApp: App {
                 .environment(store)
                 .environment(speech)
                 .environment(navigator)
+                // UI tests ask for dark mode this way: the simulator ignores XCUIDevice.appearance.
+                .preferredColorScheme(ProcessInfo.processInfo.arguments.contains("-uitest-dark") ? .dark : nil)
         }
     }
 }

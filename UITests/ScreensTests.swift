@@ -38,9 +38,9 @@ final class ScreensTests: XCTestCase {
         XCTAssertTrue(app.buttons["notes-button"].waitForExistence(timeout: 5))
         XCTAssertEqual(app.buttons["notes-button"].label, "Заметки: 1")
 
-        app.buttons["pronunciation-toggle"].tap()
+        app.switches["pronunciation-toggle"].tap()
         shot("05-lesson-text-plain")
-        app.buttons["pronunciation-toggle"].tap()
+        app.switches["pronunciation-toggle"].tap()
 
         app.buttons["Правила"].tap()
         shot("06-lesson-rules")
@@ -120,13 +120,12 @@ final class ScreensTests: XCTestCase {
 
     @MainActor
     func testDarkAppearance() {
-        XCUIDevice.shared.appearance = .dark
-        defer { XCUIDevice.shared.appearance = .light }
+        app.launchArguments.append("-uitest-dark")
         app.launch()
         XCTAssertTrue(app.navigationBars["Уроки"].waitForExistence(timeout: 15))
         shot("30-dark-lessons")
         app.buttons["lesson-2"].firstMatch.tap()
-        XCTAssertTrue(app.buttons["pronunciation-toggle"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.switches["pronunciation-toggle"].waitForExistence(timeout: 10))
         shot("31-dark-lesson-text")
         app.tabBars.buttons["Практика"].tap()
         shot("32-dark-practice")
