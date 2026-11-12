@@ -37,7 +37,9 @@ jobs:
 
       - name: Export screenshots
         if: always()
-        run: xcrun xcresulttool export attachments --path build/ui.xcresult --output-path build/screenshots
+        run: |
+          test -d build/ui.xcresult || { echo 'No UI test results: an earlier step failed.'; exit 0; }
+          xcrun xcresulttool export attachments --path build/ui.xcresult --output-path build/screenshots
 
       - uses: actions/upload-artifact@v7
         if: always()

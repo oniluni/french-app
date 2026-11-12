@@ -17,7 +17,9 @@ enum Spelling {
     /// Whether elision and liaison apply before the word: a vowel letter, or a mute h.
     static func opensWithVowel(_ word: String) -> Bool {
         let lowered = word.lowercased()
-        guard let first = lowered.first, !blocking.contains(lowered) else { return false }
+        // Plurals of the listed words block too: les haricots.
+        let singular = lowered.hasSuffix("s") || lowered.hasSuffix("x") ? String(lowered.dropLast()) : lowered
+        guard let first = lowered.first, !blocking.contains(lowered), !blocking.contains(singular) else { return false }
         if first == "y" { return lowered == "y" || lowered == "yeux" }
         if first == "h" { return lowered.dropFirst().first.map(vowels.contains) ?? false }
         return vowels.contains(first)
@@ -85,7 +87,13 @@ public struct Reader: Sendable {
         for (index, word) in words.enumerated() {
             let (lead, core, tail) = Reader.frame(word)
             frames.append((lead, tail))
-            pieces += self.pieces(of: core, word: index)
+            // Brackets typed by the learner would read as pronunciation marks: leave such words unmarked.
+            let hasMarkCharacters = (lead + tail).contains { "()[]{}‿".contains($0) }
+            pieces += self.pieces(of: core, word: index).map { piece in
+                var piece = piece
+                if hasMarkCharacters { piece.parts = nil }
+                return piece
+            }
         }
 
         for index in pieces.indices.dropLast() {

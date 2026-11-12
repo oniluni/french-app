@@ -10,3 +10,6 @@ DerivedData/
 
 .claude/settings.local.json
 .DS_Store
+
+# Local knowledge graph (/graphify)
+graphify-out/

@@ -22,7 +22,10 @@ final class BundledDataTests: XCTestCase {
         for lesson in content.lessons {
             XCTAssertFalse(lesson.topic.isEmpty, "lesson \(lesson.id) has no topic")
             XCTAssertFalse(lesson.words.isEmpty, "lesson \(lesson.id) has no words")
-            for word in lesson.words { XCTAssertEqual(Markup.plain(word.marked), word.fr, "marks change the spelling in lesson \(lesson.id)") }
+            for word in lesson.words {
+                guard let marked = word.m else { continue }
+                XCTAssertEqual(Markup.plain(marked), word.fr, "marks change the spelling in lesson \(lesson.id)")
+            }
             for case .sentence(let sentence) in lesson.sections.flatMap(\.items) {
                 XCTAssertFalse(sentence.tokens.isEmpty)
                 for token in sentence.tokens {

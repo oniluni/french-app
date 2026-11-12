@@ -57,7 +57,6 @@ public struct Word: Codable, Hashable, Sendable {
         self.pos = pos
     }
 
-    public var marked: String { m ?? fr }
 }
 
 /// A word as a card: the same spelling taught in two lessons is two cards.
@@ -129,8 +128,9 @@ public struct Token: Decodable, Hashable, Sendable {
         self.rule = rule
     }
 
-    /// With pronunciation marks; plain text for a word that could not be aligned.
-    public var marked: String { m ?? t ?? "" }
+    /// With pronunciation marks. Nil for a word that could not be aligned: its text may hold
+    /// brackets of its own ("(te)"), which must not be read as marks.
+    public var marked: String? { m }
     public var plain: String { m.map(Markup.plain) ?? t ?? "" }
     /// Said together with the previous word: a liaison or a carried-over consonant.
     public var isTied: Bool { tie ?? false }

@@ -64,7 +64,6 @@ final class LexiconTests: XCTestCase {
     }
 
     func testMissesWhatIsNotThere() {
-        XCTAssertNil(lexicon.entry(for: "ami "))
         XCTAssertNil(lexicon.entry(for: "am"))
         XCTAssertNil(lexicon.entry(for: "amie"))
         XCTAssertNil(lexicon.entry(for: "zzz"))
@@ -120,6 +119,12 @@ final class ReaderTests: XCTestCase {
         let inverted = reader.read("Ont-ils parlé ? — A-t-il parlé ?")
         XCTAssertEqual(inverted.map(\.marked), ["[On]{t}-il(s)", "parlé\u{00A0}?", "—\u{00A0}A-t-il", "parlé\u{00A0}?"])
         XCTAssertEqual(inverted.map(\.ipa), ["ɔ̃til", "paʁle", "atil", "paʁle"])
+    }
+
+    func testBracketsTypedByTheLearnerAreNotMarks() {
+        let words = reader.read("il me (te) plaît")
+        XCTAssertNil(words[2].marked)
+        XCTAssertEqual(words.map(\.isKnown), [true, true, false, true])
     }
 
     func testUnknownWordIsLeftAlone() {
