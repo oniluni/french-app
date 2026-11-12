@@ -186,7 +186,7 @@ private struct ReaderView: View {
                 ipa: chosen.ipa, translation: nil, isPhrase: true, rule: nil, word: nil)
         }
         let bare = word.marked?.withoutOuterPunctuation
-        let gloss = library.entry(for: plain)?.word.ru
+        let gloss = library.translation(of: plain)
         let content = library.content
         let rule = words.ruleSubjects.first { $0.index == range.lowerBound }
             .flatMap { content.readingRule(for: $0.subject) }

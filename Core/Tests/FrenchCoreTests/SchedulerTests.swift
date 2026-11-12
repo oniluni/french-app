@@ -65,12 +65,12 @@ final class UserDataTests: XCTestCase {
         data.cards["5:la sœur"] = CardState(interval: 4, ease: 2.5, due: created, lapses: 1)
         data.sets = [StudySet(first: 10, last: 5)]
         data.notes = [Note(target: "text-5", text: "проверить", fragment: .init(quote: "ils prennent", section: 1, item: 2, first: 3, last: 4), created: created)]
-        data.addedWords = [Word(fr: "matin", m: "mat[in]", ipa: "matɛ̃", ru: "")]
+        data.favorites = [Word(fr: "matin", m: "mat[in]", ipa: "matɛ̃", ru: "")]
         data.lastLesson = 5
 
         XCTAssertEqual(try UserData.decode(data.encoded()), data)
         XCTAssertEqual(data.sets[0].lessons, 5...10)
-        XCTAssertEqual(data.addedEntries.map(\.id), ["0:matin"])
+        XCTAssertTrue(String(decoding: try data.encoded(), as: UTF8.self).contains(#""addedWords":[{"#), "the backup keeps the field name older versions read")
     }
 
     func testOlderBackupWithoutNewerFieldsStillLoads() throws {

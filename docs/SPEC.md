@@ -291,6 +291,20 @@ Taken by the owner on 2026-11-12.
 - Form drills show a translation under the question: the lesson's own translation of that form
   («je vais» → «я иду») when there is one, otherwise the person and the infinitive's translation
   («я · идти, ехать»). Russian verbs are not conjugated by rule.
+- The reader makes a liaison after a subject pronoun (nous, vous, ils, elles, on) only into a
+  verb or into y/en: "nous‿avons", "vous‿en", but "chez nous | à six heures".
+- «Избранное»: a star on a word in the text popover, the reader and word analysis. The starred
+  words are a part of «Словарь» («Все слова · Избранное»): each with its translation, what kind of
+  word it is («сущ., ж. р.», «глагол, от aller») and its CEFR level; a tap opens its analysis.
+  They also form the practice set «Избранное», which replaced «Добавленные слова» (stored in the
+  same field, so older backups load). A starred lesson word keeps its lesson card.
+- Translations outside the lessons come from WikDict (Wiktionary, CC BY-SA); levels A1–C2 from
+  FLELex (UCLouvain, CC BY-NC-SA 4.0): the first level at which the word occurs in FLE textbooks.
+- A fourth tab, «Справочник»: prepositions, conjunctions, articles, pronouns, determiners and
+  numbers, built from Lexique by part of speech, each with translation and level; cards for every
+  kind, and «Вставь слово» for prepositions and conjunctions (a lesson or Tatoeba sentence with the
+  word taken out, four words of the same kind to choose from). «Правила уроков» lists every rule
+  of every lesson by kind.
 - Haptics: the hold that starts a phrase selection and each word it adds, card grades, drill
   answers (success or error), finished sessions, the lesson range grid, the `[ə]` switch, adding a
   card, saving a note, saving or restoring a backup.

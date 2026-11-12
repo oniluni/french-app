@@ -90,19 +90,27 @@ struct WordAnalysisBody: View {
             if let entry = library.entry(for: analysis.lemma) {
                 lessonSection(entry, heading: base.marked, ipa: base.ipa)
             } else {
-                Section { title(base.marked, ipa: base.ipa) }
+                Section {
+                    title(base.marked, plain: analysis.lemma, ipa: base.ipa)
+                    if let translation = library.translation(of: analysis.lemma) { Text(translation) }
+                }
             }
         }
     }
 
-    private func title(_ marked: String?, plain: String = "", ipa: String) -> some View {
+    /// The word large, its sound and level, with the buttons to hear it and to star it.
+    private func title(_ marked: String?, plain: String, ipa: String) -> some View {
         HStack(alignment: .top) {
             VStack(alignment: .leading, spacing: 4) {
                 MarkedText(marked: marked, plain: plain, style: .largeTitle)
-                if !ipa.isEmpty { Text("[\(ipa)]").font(.body).foregroundStyle(.secondary) }
+                HStack(spacing: 8) {
+                    if !ipa.isEmpty { Text("[\(ipa)]").font(.body).foregroundStyle(.secondary) }
+                    if let level = library.level(of: plain) { LevelTag(level: level) }
+                }
             }
             Spacer()
             SpeakButton(text: marked ?? plain)
+            FavoriteButton(word: Word(fr: plain, m: marked, ipa: ipa, ru: library.translation(of: plain) ?? ""))
         }
         .padding(.vertical, 4)
     }

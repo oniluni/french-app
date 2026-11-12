@@ -69,12 +69,21 @@ final class Store {
         Scheduler.status(data.cards[entry.id], now: now)
     }
 
-    /// Adds a word met in a text or in the reader to the cards. Returns false if it is already there.
-    @discardableResult
-    func add(_ word: Word) -> Bool {
-        guard !data.addedWords.contains(where: { $0.fr == word.fr }) else { return false }
-        update { $0.addedWords.append(word) }
-        return true
+    func isFavorite(_ word: String) -> Bool {
+        let key = Content.bare(word)
+        return data.favorites.contains { Content.bare($0.fr) == key }
+    }
+
+    /// Stars the word, or unstars it if it is starred.
+    func toggleFavorite(_ word: Word) {
+        let key = Content.bare(word.fr)
+        update { data in
+            if data.favorites.contains(where: { Content.bare($0.fr) == key }) {
+                data.favorites.removeAll { Content.bare($0.fr) == key }
+            } else {
+                data.favorites.append(word)
+            }
+        }
     }
 
     // MARK: Sets and notes

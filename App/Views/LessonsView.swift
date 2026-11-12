@@ -9,7 +9,8 @@ struct LessonsView: View {
 
     var body: some View {
         let cards = store.data.cards
-        let due = Session.due(in: library.content.entries + store.data.addedEntries, cards: cards, now: .now).count
+        let starred = library.content.entries(forWords: store.data.favorites).filter { $0.lesson == 0 }
+        let due = Session.due(in: library.content.entries + starred, cards: cards, now: .now).count
         List {
             if let current = library.lesson(store.data.lastLesson ?? 1) ?? library.content.lessons.first {
                 Section {
@@ -65,7 +66,7 @@ struct LessonsView: View {
             } header: {
                 Text("Данные")
             } footer: {
-                Text("Прогресс и заметки хранятся только на этом устройстве. Сохраните копию перед переустановкой приложения.\n\nСловарь форм: Lexique 3.83, лицензия CC BY-SA 4.0. Примеры вне уроков: Tatoeba (tatoeba.org), лицензия CC BY 2.0 FR.")
+                Text("Прогресс и заметки хранятся только на этом устройстве. Сохраните копию перед переустановкой приложения.\n\nСловарь форм: Lexique 3.83, лицензия CC BY-SA 4.0. Примеры вне уроков: Tatoeba (tatoeba.org), лицензия CC BY 2.0 FR. Переводы вне уроков: WikDict (wikdict.com, по Викисловарю), CC BY-SA. Уровни A1–C2: FLELex (UCLouvain), CC BY-NC-SA 4.0.")
             }
         }
         .navigationTitle("Уроки")

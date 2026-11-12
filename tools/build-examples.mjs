@@ -17,7 +17,7 @@ import { download as downloadLexique, indexByForm, keyOf, loadRows } from './lex
 const RESOURCES = new URL('../App/Resources/', import.meta.url).pathname;
 const CACHE = new URL('../.cache/tatoeba/', import.meta.url).pathname;
 const TATOEBA = 'https://downloads.tatoeba.org/exports/per_language/';
-const FILES = { fra: 'fra/fra_sentences.tsv', rus: 'rus/rus_sentences.tsv', links: 'fra/fra-rus_links.tsv' };
+export const FILES = { fra: 'fra/fra_sentences.tsv', rus: 'rus/rus_sentences.tsv', links: 'fra/fra-rus_links.tsv' };
 
 const PER_SOURCE = 3;
 const MIN_LENGTH = 15;
@@ -27,7 +27,7 @@ const IDEAL_LENGTH = 40;
 const MIN_RELATIVE_FREQUENCY = 0.1;
 
 /** Downloads and unpacks one Tatoeba export into the cache. Returns its text. */
-async function tatoeba(name) {
+export async function tatoeba(name) {
   const path = `${CACHE}${name.split('/')[1]}`;
   if (!existsSync(path)) {
     mkdirSync(CACHE, { recursive: true });

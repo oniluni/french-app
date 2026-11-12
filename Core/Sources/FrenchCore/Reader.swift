@@ -60,6 +60,9 @@ public struct Reader: Sendable {
         "petit", "petits", "petites", "grand", "grands", "grandes", "bon", "bons", "bonnes", "mauvais", "gros",
         "premier", "dernier", "beaux", "belles", "nouveaux", "nouvelles", "vieux", "jeunes", "autres", "mêmes",
     ]
+    /// Subject pronouns link only into their verb or into y/en: "nous‿avons", "vous‿en", but
+    /// "chez nous | à six heures" and "elles | aussi" have no liaison.
+    static let subjectPronouns: Set<String> = ["nous", "vous", "ils", "elles", "on"]
     /// Pronouns that take a liaison from the verb before them: ont-ils, allez-y.
     static let inverted: Set<String> = ["il", "elle", "on", "ils", "elles", "y", "en"]
     /// Words that lose their vowel before a vowel, with what is left of their sound: l'ami, qu'il.
@@ -100,6 +103,7 @@ public struct Reader: Sendable {
             let next = pieces[index + 1]
             let sameWord = pieces[index].word == next.word
             if sameWord ? pieces[index].joiner != "-" : (!frames[pieces[index].word].tail.isEmpty || !frames[next.word].lead.isEmpty) { continue }
+            if !sameWord, Reader.subjectPronouns.contains(pieces[index].text.lowercased()), !opensVerbGroup(next.text) { continue }
             guard let sound = Reader.liaison(&pieces[index], before: next, inverted: sameWord) else { continue }
             pieces[index + 1].link = sound
         }
@@ -116,6 +120,15 @@ public struct Reader: Sendable {
             marked += frames[index].tail
             return ReadWord(text: words[index], marked: isKnown ? marked : nil, ipa: isKnown ? ipa : "", link: isKnown ? mine[0].link : "")
         }
+    }
+
+    /// Whether a word can follow a subject pronoun inside its verb group: a verb form, y or en.
+    /// shortcut: any verb reading counts ("nous avions" and the noun "avions" alike); tag by context
+    /// if a wrong liaison shows up.
+    private func opensVerbGroup(_ word: String) -> Bool {
+        let lowered = word.lowercased()
+        if lowered == "y" || lowered == "en" { return true }
+        return lexicon.entry(for: lowered)?.analyses.contains { $0.pos == "VER" } ?? false
     }
 
     /// "Je lis ce livre ." → words with their punctuation attached.

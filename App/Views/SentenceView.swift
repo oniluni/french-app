@@ -195,7 +195,7 @@ struct SentenceView: View {
         }
         let rule = token.rule.flatMap { library.content.readingRules.indices.contains($0) ? library.content.readingRules[$0] : nil }
         return Picked(
-            range: range, marked: marked, plain: plain, ipa: token.ipa ?? "", translation: token.gloss, isPhrase: false, rule: rule,
+            range: range, marked: marked, plain: plain, ipa: token.ipa ?? "", translation: token.gloss ?? library.translation(of: plain), isPhrase: false, rule: rule,
             word: Word(fr: plain, m: marked, ipa: token.ipa ?? "", ru: token.gloss ?? ""))
     }
 }

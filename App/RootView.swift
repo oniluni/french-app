@@ -3,7 +3,7 @@ import Observation
 import SwiftUI
 
 enum AppTab: Hashable {
-    case lessons, practice, analysis, dictionary
+    case lessons, practice, analysis, reference, dictionary
 }
 
 /// A screen pushed onto the stack of a tab.
@@ -12,6 +12,10 @@ enum Route: Hashable {
     case rule(String)
     /// Analysis of a word; the string is what the learner typed or tapped.
     case word(String)
+    /// A kind of function word in the reference, by `ReferenceCategory.id`.
+    case category(String)
+    /// Every rule of every lesson.
+    case rules
 }
 
 /// Which tab is shown and what is pushed in each. Every tab keeps its own stack.
@@ -49,6 +53,9 @@ struct RootView: View {
             }
             Tab("Разбор", systemImage: "text.magnifyingglass", value: AppTab.analysis) {
                 stack(.analysis) { AnalysisView() }
+            }
+            Tab("Справочник", systemImage: "books.vertical", value: AppTab.reference) {
+                stack(.reference) { ReferenceView() }
             }
             Tab(value: AppTab.dictionary, role: .search) {
                 stack(.dictionary) { DictionaryView(query: query) }
@@ -89,6 +96,14 @@ struct RootView: View {
                     }
                 case .word(let query):
                     WordAnalysisView(query: query)
+                case .category(let id):
+                    if let category = library.reference.categories.first(where: { $0.id == id }) {
+                        CategoryView(category: category)
+                    } else {
+                        ContentUnavailableView("Раздел не найден", systemImage: "books.vertical")
+                    }
+                case .rules:
+                    AllRulesView()
                 }
             }
         }

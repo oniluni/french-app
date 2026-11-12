@@ -57,21 +57,22 @@ struct WordPopover: View {
         .frame(width: 300, alignment: .leading)
         .fixedSize(horizontal: false, vertical: true)
         .presentationCompactAdaptation(.popover)
-        .sensoryFeedback(.success, trigger: store.data.addedWords.count)
+        .sensoryFeedback(.success, trigger: store.data.favorites.count)
     }
 
     @ViewBuilder private var actions: some View {
         let word = picked.word
-        let isInCards = word.map { library.entry(for: $0.fr) != nil || store.data.addedWords.contains { $0.fr == word?.fr } } ?? false
         let hasForms = word.map { !library.grammar.analyses(of: $0.fr).isEmpty } ?? false
         if word != nil || onNote != nil {
             HStack(spacing: 8) {
                 if let word {
-                    if isInCards {
-                        Button {} label: { Label("В словаре", systemImage: "checkmark") }.disabled(true)
-                    } else {
-                        Button { store.add(word) } label: { Label("В карточки", systemImage: "plus") }
+                    let isFavorite = store.isFavorite(word.fr)
+                    Button {
+                        store.toggleFavorite(library.favorite(word))
+                    } label: {
+                        Label(isFavorite ? "В избранном" : "В избранное", systemImage: isFavorite ? "star.fill" : "star")
                     }
+                    .accessibilityIdentifier("favorite-toggle")
                     if hasForms {
                         Button {
                             onLeave()

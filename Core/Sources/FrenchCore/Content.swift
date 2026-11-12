@@ -46,6 +46,13 @@ public struct Content: Decodable, Sendable {
         return entries.first { Content.bare($0.word.fr) == wanted }
     }
 
+    /// Cards for words from outside a lesson (favourites, the reference): a word the lessons teach
+    /// keeps its lesson card and progress,
+    /// any other word is a card of its own (lesson 0).
+    public func entries(forWords words: [Word]) -> [Entry] {
+        words.map { entry(for: $0.fr) ?? Entry(lesson: 0, word: $0) }
+    }
+
     /// The translation of a form, as the vocabulary gives it.
     ///
     /// The form itself when the lessons teach it ("je vais" → «я иду»; an entry "a, b" counts as

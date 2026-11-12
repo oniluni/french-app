@@ -11,11 +11,18 @@ public struct UserData: Codable, Equatable, Sendable {
     public var cards: [String: CardState] = [:]
     public var sets: [StudySet] = []
     public var notes: [Note] = []
-    /// Words added to the cards from a text or the reader. They belong to lesson 0.
-    public var addedWords: [Word] = []
+    /// Words starred by the learner, in the order they were added.
+    public var favorites: [Word] = []
     public var lastLesson: Int?
 
     public init() {}
+
+    /// "addedWords" is the name favourites had when they were words added to the cards; backups
+    /// made then keep loading.
+    private enum CodingKeys: String, CodingKey {
+        case version, cards, sets, notes, lastLesson
+        case favorites = "addedWords"
+    }
 
     /// Fields added by later versions are optional in older backups.
     public init(from decoder: Decoder) throws {
@@ -24,7 +31,7 @@ public struct UserData: Codable, Equatable, Sendable {
         cards = try container.decodeIfPresent([String: CardState].self, forKey: .cards) ?? [:]
         sets = try container.decodeIfPresent([StudySet].self, forKey: .sets) ?? []
         notes = try container.decodeIfPresent([Note].self, forKey: .notes) ?? []
-        addedWords = try container.decodeIfPresent([Word].self, forKey: .addedWords) ?? []
+        favorites = try container.decodeIfPresent([Word].self, forKey: .favorites) ?? []
         lastLesson = try container.decodeIfPresent(Int.self, forKey: .lastLesson)
     }
 
@@ -52,8 +59,6 @@ public struct UserData: Codable, Equatable, Sendable {
         guard decoded.version <= currentVersion else { throw Failure.newerVersion(decoded.version) }
         return decoded
     }
-
-    public var addedEntries: [Entry] { addedWords.map { Entry(lesson: 0, word: $0) } }
 }
 
 /// A saved range of lessons. Its progress is derived from the card states.

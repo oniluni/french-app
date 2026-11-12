@@ -146,14 +146,63 @@ final class ScreensTests: XCTestCase {
         XCTAssertTrue(source.waitForExistence(timeout: 5))
         shot("21c-word-examples")
 
+        // Star the word; it shows in «Избранное» with its translation and level, and leads back here.
+        app.swipeDown()
+        app.swipeDown()
+        let star = app.buttons["favorite-toggle"]
+        XCTAssertTrue(star.waitForExistence(timeout: 5))
+        star.tap()
+        XCTAssertEqual(star.label, "Убрать из избранного")
+
         app.tabBars.buttons["Поиск"].tap()
         XCTAssertTrue(app.navigationBars["Словарь"].waitForExistence(timeout: 10))
         shot("22-dictionary")
+        app.buttons["Избранное"].tap()
+        XCTAssertTrue(app.staticTexts["Уровень A1"].waitForExistence(timeout: 5), "the starred word shows its level")
+        XCTAssertTrue(app.staticTexts["друг"].exists, "and its translation")
+        shot("22b-favorites")
+        app.staticTexts["друг"].tap()
+        XCTAssertTrue(app.navigationBars["Разбор слова"].waitForExistence(timeout: 5))
+        app.navigationBars.buttons["BackButton"].tap()
+        app.buttons["Все слова"].tap()
+
+        app.tabBars.buttons["Практика"].tap()
+        XCTAssertTrue(app.staticTexts["Избранное"].waitForExistence(timeout: 5), "starred words are a practice set")
+        shot("22c-favorites-set")
+
+        app.tabBars.buttons["Поиск"].tap()
         let search = app.searchFields.firstMatch
         search.tap()
         dismissKeyboardTip()
         search.typeText("семья")
         shot("23-dictionary-search")
+    }
+
+    @MainActor
+    func testReference() {
+        app.launch()
+        app.tabBars.buttons["Справочник"].tap()
+        XCTAssertTrue(app.navigationBars["Справочник"].waitForExistence(timeout: 10))
+        shot("40-reference")
+
+        app.staticTexts["Предлоги"].tap()
+        let gaps = app.buttons["Вставь слово"]
+        XCTAssertTrue(gaps.waitForExistence(timeout: 5))
+        shot("41-prepositions")
+        gaps.tap()
+        XCTAssertTrue(app.buttons["option-0"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["gap-sentence"].exists)
+        shot("42-gap-question")
+        app.buttons["option-0"].tap()
+        let verdict = app.staticTexts.matching(NSPredicate(format: "label == 'Верно' OR label BEGINSWITH 'Правильный ответ'")).firstMatch
+        XCTAssertTrue(verdict.waitForExistence(timeout: 5))
+        shot("43-gap-answered")
+        app.buttons["Закрыть"].tap()
+
+        app.navigationBars.buttons["BackButton"].tap()
+        app.staticTexts["Правила уроков"].tap()
+        XCTAssertTrue(app.navigationBars["Правила уроков"].waitForExistence(timeout: 5))
+        shot("44-all-rules")
     }
 
     @MainActor

@@ -59,7 +59,9 @@ private struct WordsPractice: View {
 
     var body: some View {
         let cards = store.data.cards
-        let everything = library.content.entries + store.data.addedEntries
+        let favorites = library.content.entries(forWords: store.data.favorites)
+        // Starred lesson words already are lesson cards; only the others are added.
+        let everything = library.content.entries + favorites.filter { $0.lesson == 0 }
         let due = Session.due(in: everything, cards: cards, now: .now)
         List {
             Section("Сегодня") {
@@ -119,7 +121,7 @@ private struct WordsPractice: View {
                 Text("Новый набор")
             }
 
-            if !store.data.sets.isEmpty || !store.data.addedWords.isEmpty {
+            if !store.data.sets.isEmpty || !favorites.isEmpty {
                 Section("Мои наборы") {
                     ForEach(store.data.sets) { set in
                         setRow(title: title(of: set), entries: library.content.entries(in: set.lessons)) { start(set) }
@@ -127,9 +129,9 @@ private struct WordsPractice: View {
                     .onDelete { offsets in
                         for set in offsets.map({ store.data.sets[$0] }) { store.delete(set) }
                     }
-                    if !store.data.addedWords.isEmpty {
-                        setRow(title: "Добавленные слова", entries: store.data.addedEntries) {
-                            session = SessionRequest(title: "Добавленные слова", entries: store.data.addedEntries)
+                    if !favorites.isEmpty {
+                        setRow(title: "Избранное", entries: favorites) {
+                            session = SessionRequest(title: "Избранное", entries: favorites)
                         }
                     }
                 }

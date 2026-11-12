@@ -166,6 +166,45 @@ func plural(_ count: Int, _ one: String, _ few: String, _ many: String) -> Strin
     return "\(count) \(word)"
 }
 
+/// CEFR level of a word: «A1» … «C2».
+struct LevelTag: View {
+    let level: String
+
+    var body: some View {
+        Text(level)
+            .font(.caption2.weight(.bold))
+            .monospaced()
+            .foregroundStyle(Color.accentColor)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .overlay(Capsule().stroke(Color.accentColor.opacity(0.5), lineWidth: 1))
+            .accessibilityLabel("Уровень \(level)")
+    }
+}
+
+/// The star that adds a word to «Избранное» or takes it out.
+struct FavoriteButton: View {
+    let word: Word
+    @Environment(Store.self) private var store
+    @Environment(Library.self) private var library
+
+    var body: some View {
+        let isFavorite = store.isFavorite(word.fr)
+        Button {
+            store.toggleFavorite(library.favorite(word))
+        } label: {
+            Image(systemName: isFavorite ? "star.fill" : "star")
+                .frame(minWidth: 28, minHeight: 28)
+        }
+        .buttonStyle(.bordered)
+        .buttonBorderShape(.circle)
+        .tint(isFavorite ? Theme.hard : .accentColor)
+        .accessibilityLabel(isFavorite ? "Убрать из избранного" : "В избранное")
+        .accessibilityIdentifier("favorite-toggle")
+        .sensoryFeedback(.success, trigger: isFavorite)
+    }
+}
+
 /// A small label that names the kind of something: «Чтение», «Грамматика».
 struct Tag: View {
     let text: String

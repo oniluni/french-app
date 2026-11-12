@@ -13,7 +13,8 @@ IPA that the owner signs and sideloads with ESign. There is no Mac and no Apple 
 - `Core/`: Swift package `FrenchCore`, Foundation only. All logic that can be tested without UI.
 - `UITests/`: walks every screen and attaches screenshots; they are how the UI gets reviewed.
 - `tools/`: Node scripts, no dependencies, that turn the lesson vault and Lexique into
-  `App/Resources/` (`content.json`, `lexicon.tsv`, `lemmas.tsv`, `examples.tsv`). The outputs are committed.
+  `App/Resources/` (`content.json`, `lexicon.tsv`, `lemmas.tsv`, `examples.tsv`, `dictionary.tsv`,
+  `reference.json`). The outputs are committed.
 - `prototype/`: clickable HTML design. The app follows its look and interaction.
 - `docs/SPEC.md`: what the app does, the decisions taken, where it departs from the prototype.
 
@@ -23,6 +24,8 @@ IPA that the owner signs and sideloads with ESign. There is no Mac and no Apple 
   by any certificate. CI checks the IPA for this.
 - Learner data is one JSON file (`UserData`), and it is the backup format. A change to it must
   still decode older files (new fields optional) and bump `UserData.currentVersion` only when it cannot.
+  JSON key names never change: `favorites` is stored as `addedWords`.
+- FLELex is CC BY-NC-SA: the app must stay non-commercial while it ships `dictionary.tsv` levels.
 - `Core/` imports no SwiftUI or UIKit. New logic goes there with a test.
 - Reading rules are data (`readingRules[].pattern` in `content.json`), applied by
   `applies()` in `tools/import-vault.mjs` and by `ReadingPattern.applies` in Core. A new kind of
@@ -41,9 +44,10 @@ IPA that the owner signs and sideloads with ESign. There is no Mac and no Apple 
 
 ## Commands
 
-- Regenerate content: `node tools/import-vault.mjs <vault dir>`, then `node tools/build-lexicon.mjs`
-  and `node tools/build-examples.mjs` (they download Lexique and Tatoeba to `.cache/` on first run;
-  Tatoeba needs `bunzip2`).
+- Regenerate content, in this order: `node tools/import-vault.mjs <vault dir>`, `build-lexicon.mjs`,
+  `build-examples.mjs`, `build-dictionary.mjs`, `build-reference.mjs` (all in `tools/`). They download
+  Lexique, Tatoeba, WikDict and FLELex to `.cache/` on first run; Tatoeba needs `bunzip2`, WikDict
+  is read with `node:sqlite`.
 - Tool tests: `node --test tools/*.test.mjs`
 - Core build and tests on this machine: Swift from nixpkgs, run inside
   `nix develop --impure --expr '<mkShell with swift, swiftpm, swiftPackages.{Foundation,XCTest,Dispatch}, LD_LIBRARY_PATH=Dispatch/lib>'`.

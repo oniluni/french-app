@@ -11,6 +11,8 @@ final class Library {
     let reader: Reader
     let grammar: Grammar
     let examples: Examples
+    let glossary: Glossary
+    let reference: ReferenceBook
 
     init(bundle: Bundle = .main) {
         // A missing or broken bundled file is a build mistake; no screen can work without it.
@@ -33,6 +35,57 @@ final class Library {
         reader = Reader(lexicon: lexicon)
         grammar = Grammar(lexicon: lexicon)
         examples = Examples(data: resource("examples", "tsv"))
+        glossary = Glossary(data: resource("dictionary", "tsv"))
+        do {
+            reference = try ReferenceBook.decode(resource("reference", "json"))
+        } catch {
+            fatalError("reference.json does not match the app's model: \(error)")
+        }
+    }
+
+    /// The dictionary form of a word as typed or tapped: "amies" → "ami".
+    func lemma(of word: String) -> String {
+        grammar.analyses(of: word).first?.analysis.lemma ?? Content.bare(word)
+    }
+
+    /// The lessons' translation, else the dictionary's for the word, else for its lemma.
+    func translation(of word: String) -> String? {
+        content.entry(for: word)?.word.ru
+            ?? glossary.info(of: Content.bare(word))?.translation
+            ?? glossary.info(of: lemma(of: word))?.translation
+    }
+
+    /// CEFR level of the word's lemma: "A1" … "C2".
+    func level(of word: String) -> String? {
+        glossary.info(of: lemma(of: word))?.level ?? glossary.info(of: Content.bare(word))?.level
+    }
+
+    /// What kind of word it is, briefly: «сущ., ж. р.», «глагол, от aller».
+    func shortForm(of word: String) -> String? {
+        guard let found = grammar.analyses(of: word).first else { return nil }
+        let analysis = found.analysis
+        var parts: [String]
+        switch analysis.pos {
+        case "NOM": parts = ["сущ."] + (analysis.gender == "m" ? ["м. р."] : analysis.gender == "f" ? ["ж. р."] : [])
+        case "VER": parts = ["глагол"]
+        case "ADJ": parts = ["прил."]
+        case "ADV": parts = ["нареч."]
+        case "PRE": parts = ["предлог"]
+        case "CON": parts = ["союз"]
+        case "ADJ:num": parts = ["числит."]
+        case let pos where pos.hasPrefix("PRO"): parts = ["местоим."]
+        case let pos where pos.hasPrefix("ART"): parts = ["артикль"]
+        default: return nil
+        }
+        if analysis.number == "p" { parts.append("мн. ч.") }
+        if Lexicon.key(found.form) != Lexicon.key(analysis.lemma) { parts.append("от \(analysis.lemma)") }
+        return parts.joined(separator: ", ")
+    }
+
+    /// The word as it is starred: the lesson's entry when there is one, so it keeps its marks and translation.
+    func favorite(_ word: Word) -> Word {
+        if let entry = content.entry(for: word.fr) { return entry.word }
+        return Word(fr: word.fr, m: word.m, ipa: word.ipa, ru: word.ru.isEmpty ? translation(of: word.fr) ?? "" : word.ru, pos: word.pos)
     }
 
     func lesson(_ id: Int) -> Lesson? {

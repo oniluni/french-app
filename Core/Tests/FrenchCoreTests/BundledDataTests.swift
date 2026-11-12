@@ -89,6 +89,20 @@ final class BundledDataTests: XCTestCase {
         XCTAssertTrue(ami.contains { $0.lesson == nil }, "Tatoeba sentences follow the lesson phrases")
     }
 
+    func testReferenceAndGlossary() throws {
+        let book = try ReferenceBook.decode(load("reference.json"))
+        XCTAssertEqual(book.categories.first?.title, "Предлоги")
+        for category in book.categories { XCTAssertGreaterThanOrEqual(category.words.count, 5, category.title) }
+        let prepositions = try XCTUnwrap(book.categories.first)
+        XCTAssertGreaterThan(prepositions.gaps?.count ?? 0, 50)
+        for gap in prepositions.gaps ?? [] {
+            XCTAssertTrue(prepositions.words.contains { $0.fr.lowercased() == gap.answer.lowercased() }, "\(gap.answer) is a preposition of the list")
+        }
+        let glossary = Glossary(data: try load("dictionary.tsv"))
+        XCTAssertEqual(glossary.info(of: "ami")?.level, "A1")
+        XCTAssertNotNil(glossary.info(of: "voiture")?.translation)
+    }
+
     func testEveryLessonWordWithFormsHasAParadigm() throws {
         let lexicon = Lexicon(forms: try load("lexicon.tsv"), lemmas: try load("lemmas.tsv"))
         let grammar = Grammar(lexicon: lexicon)

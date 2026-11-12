@@ -16,7 +16,9 @@ private let forms = """
 a\ta=a\tavoir;VER;;;ind:pre:3s;0
 ami\tami=ami\tami;NOM;m;s;;0
 amis\tami(s)=ami\tami;NOM;m;p;;0
+avons\tav[on](s)=avɔ̃\tavoir;VER;;;ind:pre:1p;0
 bon\tb[on]=bɔ̃\tbon;ADJ;m;s;;0
+chez\tche(z)=ʃe\tchez;PRE;;;;0
 enfant\t[en]f[an](t)=ɑ̃fɑ̃\tenfant;NOM;;s;;0
 enfants\t[en]f[an](ts)=ɑ̃fɑ̃\tenfant;NOM;m;p;;0
 est\te(st)=ɛ|est=ɛst\têtre;VER;;;ind:pre:3s;0|est;NOM;m;s;;1
@@ -28,6 +30,7 @@ heures\t(h)eur(es)=œʁ\theure;NOM;f;p;;0
 il\til=il\til;PRO:per;m;s;;0
 ils\til(s)=il\til;PRO:per;m;p;;0
 les\tle(s)=le\tles;ART:def;;p;;0
+nous\tnou(s)=nu\tnous;PRO:per;;p;;0
 ont\t[on](t)=ɔ̃\tavoir;VER;;;ind:pre:3p;0
 parle\tparl(e)=paʁl\tparler;VER;;;ind:pre:1s,ind:pre:3s;0
 parlent\tparl(ent)=paʁl\tparler;VER;;;ind:pre:3p;0
@@ -43,6 +46,7 @@ petits\tpeti(ts)=pəti\tpetit;ADJ;m;p;;0
 six\tsix=sis\tsix;ADJ:num;;;;0
 soeur\tsœur=sœʁ\tsœur;NOM;f;s;;0
 un\t[un]=œ̃\tun;ART:ind;m;s;;0
+à\tà=a\tà;PRE;;;;0
 
 """
 
@@ -126,6 +130,12 @@ final class ReaderTests: XCTestCase {
         let words = reader.read("les (amis) ont")
         XCTAssertEqual(words.map(\.isKnown), [true, false, true])
         XCTAssertEqual(words.marked, "le(s) (amis) [on](t)")
+    }
+
+    func testSubjectPronounLinksOnlyIntoItsVerb() {
+        XCTAssertEqual(reader.read("nous avons").marked, "nou{s}‿av[on](s)")
+        XCTAssertEqual(reader.read("chez nous à six heures").marked, "che(z) nou(s) à si{x}‿(h)eur(es)")
+        XCTAssertEqual(reader.read("chez nous à six heures").ipa, "ʃe nu a si z‿œʁ")
     }
 
     func testUnknownWordIsLeftAlone() {

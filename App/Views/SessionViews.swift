@@ -284,3 +284,111 @@ struct DrillSessionView: View {
         }
     }
 }
+
+/// Gap-fill sentences to go through in one sitting.
+struct GapRequest: Identifiable {
+    let id = UUID()
+    let title: String
+    let questions: [GapQuestion]
+}
+
+/// «Вставь слово»: a sentence with one preposition or conjunction taken out, and four to choose from.
+struct GapSessionView: View {
+    let request: GapRequest
+
+    @Environment(\.dismiss) private var dismiss
+    @State private var index = 0
+    @State private var chosen: Int?
+    @State private var right = 0
+
+    var body: some View {
+        SessionFrame(title: request.title, done: index, total: request.questions.count) {
+            if index < request.questions.count {
+                question(request.questions[index])
+            } else {
+                summary
+            }
+        }
+        .sensoryFeedback(trigger: chosen) { _, picked in
+            guard let picked, index < request.questions.count else { return nil }
+            return picked == request.questions[index].answer ? .success : .error
+        }
+        .sensoryFeedback(.success, trigger: index == request.questions.count)
+    }
+
+    private func question(_ question: GapQuestion) -> some View {
+        let gap = question.gap
+        let filled = chosen.map { _ in gap.answer } ?? "____"
+        return VStack(spacing: 14) {
+            VStack(spacing: 14) {
+                Spacer()
+                Text(sentence(gap, filled: filled))
+                    .font(Theme.french(.title2))
+                    .multilineTextAlignment(.center)
+                    .environment(\.locale, Locale(identifier: "fr"))
+                    .accessibilityIdentifier("gap-sentence")
+                Text(gap.ru).font(.subheadline).foregroundStyle(.secondary).multilineTextAlignment(.center)
+                if let chosen {
+                    let isRight = chosen == question.answer
+                    Label(isRight ? "Верно" : "Правильный ответ: \(gap.answer)", systemImage: isRight ? "checkmark.circle.fill" : "xmark.circle.fill")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(isRight ? Theme.good : Theme.again)
+                    SpeakButton(text: gap.before + gap.answer + gap.after)
+                }
+                Spacer()
+                Text(gap.src.hasPrefix("L") ? "Урок \(gap.src.dropFirst())" : "Tatoeba").font(.caption2).foregroundStyle(.tertiary)
+            }
+            .padding(20)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 28))
+
+            LazyVGrid(columns: [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)], spacing: 8) {
+                ForEach(Array(question.options.enumerated()), id: \.offset) { option, text in
+                    Button {
+                        guard chosen == nil else { return }
+                        chosen = option
+                        if option == question.answer { right += 1 }
+                    } label: {
+                        Text(text).font(Theme.french(.title3)).frame(maxWidth: .infinity, minHeight: 40)
+                    }
+                    .buttonStyle(.bordered)
+                    .tint(chosen == nil ? .accentColor : option == question.answer ? Theme.good : option == chosen ? Theme.again : .secondary)
+                    .accessibilityIdentifier("option-\(option)")
+                }
+            }
+
+            Button {
+                chosen = nil
+                index += 1
+            } label: {
+                Text("Дальше").font(.headline).frame(maxWidth: .infinity, minHeight: 36)
+            }
+            .buttonStyle(.borderedProminent)
+            .buttonBorderShape(.capsule)
+            .disabled(chosen == nil)
+        }
+    }
+
+    /// The sentence with the gap, or with the answer in place once chosen.
+    private func sentence(_ gap: Gap, filled: String) -> AttributedString {
+        var middle = AttributedString(filled)
+        middle.swiftUI.foregroundColor = chosen == nil ? .secondary : .accentColor
+        middle.swiftUI.font = Theme.french(.title2).bold()
+        return AttributedString(gap.before) + middle + AttributedString(gap.after)
+    }
+
+    private var summary: some View {
+        let total = request.questions.count
+        return VStack(spacing: 14) {
+            Spacer()
+            Text("\(right) из \(total)").font(.system(size: 54, weight: .bold)).monospacedDigit()
+            Text(right == total ? "Без ошибок" : plural(total - right, "ошибка", "ошибки", "ошибок")).font(.title3).foregroundStyle(.secondary)
+            Spacer()
+            Button { dismiss() } label: {
+                Text("Готово").font(.headline).frame(maxWidth: .infinity, minHeight: 36)
+            }
+            .buttonStyle(.borderedProminent)
+            .buttonBorderShape(.capsule)
+        }
+    }
+}

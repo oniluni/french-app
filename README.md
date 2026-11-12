@@ -12,7 +12,10 @@ material is French. Native SwiftUI with Liquid Glass, iOS 26 or later.
   lessons saved as a set, and drills of conjugation, gender and number.
 - **Analysis.** A reader that marks up any French phrase, and a word analysis that turns any form
   (`buvons`, `petites`) into its lemma and the table of all its forms.
-- **Dictionary.** Every word of the lessons, searchable in French and Russian.
+- **Dictionary.** Every word of the lessons, searchable in French and Russian, and the starred
+  words («Избранное») with translation, kind of word and CEFR level.
+- **Reference.** Prepositions, conjunctions, articles, pronouns and numbers, with cards and
+  gap-fill practice; every rule of the lessons in one list.
 
 Everything works offline. Progress lives on the phone only.
 
@@ -59,6 +62,8 @@ Content is generated, then committed, because CI has no access to the lesson vau
 node tools/import-vault.mjs <path to french-vault>   # → App/Resources/content.json
 node tools/build-lexicon.mjs                         # → App/Resources/lexicon.tsv, lemmas.tsv
 node tools/build-examples.mjs                        # → App/Resources/examples.tsv (downloads Tatoeba)
+node tools/build-dictionary.mjs                      # → App/Resources/dictionary.tsv (WikDict, FLELex)
+node tools/build-reference.mjs                       # → App/Resources/reference.json
 node --test tools/*.test.mjs
 ```
 
@@ -70,5 +75,10 @@ The word form dictionary (`App/Resources/lexicon.tsv`, `lemmas.tsv`) is derived 
 under the same licence. Example sentences outside the lessons (`App/Resources/examples.tsv`) come
 from [Tatoeba](https://tatoeba.org), licensed under
 [CC BY 2.0 FR](https://creativecommons.org/licenses/by/2.0/fr/); each keeps its Tatoeba sentence
-number (`T123` → https://tatoeba.org/sentences/show/123). The lesson texts, vocabulary and rules
+number (`T123` → https://tatoeba.org/sentences/show/123). Translations outside the lessons
+(`dictionary.tsv`, `reference.json`) come from [WikDict](https://www.wikdict.com), built from
+Wiktionary, [CC BY-SA](https://creativecommons.org/licenses/by-sa/3.0/). CEFR levels come from
+[FLELex](https://cental.uclouvain.be/cefrlex/flelex/) (François, Gala, Watrin & Fairon, LREC 2014),
+[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/): the app may not be sold.
+The lesson texts, vocabulary and rules
 come from a French textbook through the owner's study notes.
