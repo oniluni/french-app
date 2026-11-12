@@ -32,11 +32,14 @@ final class ScreensTests: XCTestCase {
         // A multi-line TextField is a text view to accessibility.
         let field = app.descendants(matching: .any)["note-field"].firstMatch
         XCTAssertTrue(field.waitForExistence(timeout: 5))
+        dismissKeyboardTip()
         field.typeText("Проверить произношение")
         shot("04-note-sheet")
         app.buttons["Сохранить"].tap()
         XCTAssertTrue(app.buttons["notes-button"].waitForExistence(timeout: 5))
-        XCTAssertEqual(app.buttons["notes-button"].label, "Заметки: 1")
+        let counted = NSPredicate(format: "label == 'Заметки: 1'")
+        expectation(for: counted, evaluatedWith: app.buttons["notes-button"])
+        waitForExpectations(timeout: 5)
 
         app.switches["pronunciation-toggle"].tap()
         shot("05-lesson-text-plain")
@@ -111,6 +114,7 @@ final class ScreensTests: XCTestCase {
         // Return analyses the phrase and puts the keyboard away.
         let phrase = app.textViews["reader-field"].exists ? app.textViews["reader-field"] : app.textFields["reader-field"]
         phrase.tap()
+        dismissKeyboardTip()
         phrase.typeText(" Un ami arrive à six heures.\n")
         let keyboardGone = NSPredicate(format: "count == 0")
         expectation(for: keyboardGone, evaluatedWith: app.keyboards)
@@ -124,6 +128,7 @@ final class ScreensTests: XCTestCase {
         let field = app.textFields["word-field"]
         XCTAssertTrue(field.waitForExistence(timeout: 5))
         field.tap()
+        dismissKeyboardTip()
         field.typeText("buvons\n")
         XCTAssertTrue(app.staticTexts["Présent"].waitForExistence(timeout: 5) || app.buttons["Présent"].exists)
         shot("21-word-analysis")
@@ -146,6 +151,7 @@ final class ScreensTests: XCTestCase {
         shot("22-dictionary")
         let search = app.searchFields.firstMatch
         search.tap()
+        dismissKeyboardTip()
         search.typeText("семья")
         shot("23-dictionary-search")
     }
@@ -161,6 +167,14 @@ final class ScreensTests: XCTestCase {
         shot("31-dark-lesson-text")
         app.tabBars.buttons["Практика"].tap()
         shot("32-dark-practice")
+    }
+
+    /// A fresh simulator shows a one-time keyboard tip («Speed up your typing…») shortly after the
+    /// keyboard first appears; it swallows whatever is typed meanwhile.
+    @MainActor
+    private func dismissKeyboardTip() {
+        let tip = app.buttons["Continue"]
+        if tip.waitForExistence(timeout: 2) { tip.tap() }
     }
 
     @MainActor
