@@ -89,6 +89,35 @@ final class BundledDataTests: XCTestCase {
         XCTAssertTrue(ami.contains { $0.lesson == nil }, "Tatoeba sentences follow the lesson phrases")
     }
 
+    /// Every rule of the lessons can be found in a phrase: a trigger of its own, or items of
+    /// «Правила чтения»; notes aside.
+    func testEveryRuleCanBeFoundInAPhrase() throws {
+        let content = try Content.decode(load("content.json"))
+        let itemized = Set(content.readingRules.map(\.rule))
+        for rule in content.lessons.flatMap(\.rules) where rule.kind != "Примечания" {
+            XCTAssertTrue(rule.trigger != nil || itemized.contains(rule.id), "\(rule.id) «\(rule.title)» can never be shown")
+        }
+    }
+
+    func testGrammarRulesOfSamplePhrases() throws {
+        let content = try Content.decode(load("content.json"))
+        let lexicon = Lexicon(forms: try load("lexicon.tsv"), lemmas: try load("lemmas.tsv"))
+        let reader = Reader(lexicon: lexicon)
+        func ids(_ phrase: String) -> Set<String> {
+            Set(content.rulesTriggered(by: reader.read(phrase), lexicon: lexicon).map(\.rule.id))
+        }
+        let negation = ids("Je ne vais pas au cinéma.")
+        XCTAssertTrue(negation.isSuperset(of: ["5-10", "9-3", "13-4"]), "ne… pas, au, aller: \(negation.sorted())")
+        let table = ids("Il y a du pain sur la table.")
+        XCTAssertTrue(table.isSuperset(of: ["13-3", "8-5"]), "il y a, du: \(table.sorted())")
+        XCTAssertFalse(table.contains("9-5"), "la table: an article, not the pronoun la")
+        XCTAssertFalse(table.contains("3-3"), "table is a noun here, not a verb of group I")
+        XCTAssertTrue(ids("Je n'ai pas de frère.").contains("15-3"))
+        XCTAssertTrue(ids("Lucie est Russe.").contains("7-4"))
+        XCTAssertTrue(ids("Qu'est-ce que tu fais ?").isSuperset(of: ["7-5", "8-3", "14-6", "7-3"]))
+        XCTAssertTrue(ids("Je ne vais pas au cinéma.").contains("11-1") == false, "no [ɔ̃] in the phrase")
+    }
+
     func testReferenceAndGlossary() throws {
         let book = try ReferenceBook.decode(load("reference.json"))
         XCTAssertEqual(book.categories.first?.title, "Предлоги")

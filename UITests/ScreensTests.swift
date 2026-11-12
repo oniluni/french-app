@@ -119,10 +119,12 @@ final class ScreensTests: XCTestCase {
         let keyboardGone = NSPredicate(format: "count == 0")
         expectation(for: keyboardGone, evaluatedWith: app.keyboards)
         waitForExpectations(timeout: 5)
-        app.swipeUp()
-        // "Un ami": only a rule found in this very phrase can name the n of a nasal vowel.
-        XCTAssertTrue(app.staticTexts["Связывание после носового гласного"].waitForExistence(timeout: 5))
+        // Grammar of the phrase: «à» is a preposition the lessons explain.
+        XCTAssertTrue(scroll(to: app.staticTexts["Предлог à"]), "the reader lists the grammar rules of the phrase")
         shot("20b-reader-rules")
+        // "Un ami": only a rule found in this very phrase can name the n of a nasal vowel.
+        XCTAssertTrue(scroll(to: app.staticTexts["Связывание после носового гласного"]))
+        shot("20c-reader-reading-rules")
 
         app.buttons["Слово"].tap()
         let field = app.textFields["word-field"]
@@ -216,6 +218,16 @@ final class ScreensTests: XCTestCase {
         shot("31-dark-lesson-text")
         app.tabBars.buttons["Практика"].tap()
         shot("32-dark-practice")
+    }
+
+    /// Scrolls the screen up until the element is there; lists only build the rows they show.
+    @MainActor
+    private func scroll(to element: XCUIElement, swipes: Int = 8) -> Bool {
+        for _ in 0..<swipes {
+            if element.exists, element.isHittable { return true }
+            app.swipeUp()
+        }
+        return element.waitForExistence(timeout: 2)
     }
 
     /// A fresh simulator shows a one-time keyboard tip («Speed up your typing…») shortly after the

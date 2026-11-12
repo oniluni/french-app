@@ -11,6 +11,7 @@ import { pathToFileURL } from 'node:url';
 import { align, joinMarked, phonemesOf } from './align.mjs';
 import { download, endsWithFrom, indexByForm, keyOf, loadRows } from './lexique.mjs';
 import { parseBlocks, plainText } from './markdown.mjs';
+import { attachTriggers } from './rule-triggers.mjs';
 
 const OUTPUT = new URL('../App/Resources/content.json', import.meta.url).pathname;
 const MIN_ALIGNED = 0.97;
@@ -355,7 +356,7 @@ function readLesson(directory) {
   return { id, topic, ...stage('Слова', parseVocabulary), sections: stage('Тексты', parseTexts), rules: stage('Правила', (text) => parseRules(text, id)) };
 }
 
-export function importVault(vault, lexiqueRows) {
+export function importVault(vault, lexiqueRows, { triggers } = {}) {
   const lessons = readdirSync(vault, { withFileTypes: true })
     .filter((entry) => entry.isDirectory() && /^Урок \d+$/.test(entry.name))
     .map((entry) => readLesson(join(vault, entry.name)))
@@ -370,6 +371,7 @@ export function importVault(vault, lexiqueRows) {
   const endsWith = (word, phoneme) => (said.has(keyOf(word)) ? said.get(keyOf(word)).endsWith(phoneme) : fromLexique(word, phoneme));
 
   const readingRules = readingRulesOf(lessons);
+  attachTriggers(lessons, readingRules, triggers);
   const context = { endsWith, gloss: glossFinder(lessons, byKey), readingRules };
   const report = { words: 0, alignedWords: 0, singleWords: 0, alignedSingleWords: 0, failedWords: [], sentences: 0, alignedSentences: 0, failedSentences: [], skippedTokens: [], duplicates: 0 };
   const taught = new Map(); // French entry → translations already given by earlier lessons

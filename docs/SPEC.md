@@ -282,6 +282,13 @@ Taken by the owner on 2026-11-12.
   word of the phrase, with those words; a tapped word links its rule too. The rules are stored as
   data (`readingRules[].pattern`) so the importer and the app apply the same ones; on the lesson
   texts both pick the same rule for 97.8 % of the words.
+- The reader shows every rule of the lessons that applies to the phrase, in three groups:
+  «Грамматика в этой фразе» (ne… pas, du, au, il y a, c'est, verb groups and persons…), «Чтение»
+  (the items of «Правила чтения», plus «Сочетание qu», «t в группе ti») and «Произношение» (the
+  sounds of the phrase). Each of the 99 rules of kind Произношение, Грамматика or a reading page
+  without items has a trigger in `tools/rule-triggers.mjs`; the 30 «Примечания» are notes, not
+  rules, and are not shown. A word's reading is chosen from its neighbours (a verb after a subject
+  pronoun, a noun after an article), so «la table» is not taken for a pronoun and a verb.
 - Return in the reader analyses the phrase and closes the keyboard; a scroll closes it too.
   Keyboard suggestions are on; their language follows the active keyboard.
 - A noun with forms of both genders (`ami`/`amie`, `acteur`/`actrice`) shows «Мужской род» and

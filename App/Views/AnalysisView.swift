@@ -135,19 +135,42 @@ private struct ReaderView: View {
         .scrollDismissesKeyboard(.interactively)
     }
 
-    /// Reading rules of the lessons that explain something in the phrase, each with its words.
+    /// One rule found in the phrase: where it leads, its name, and the words it is about.
+    private struct FoundRule: Identifiable {
+        let id: String
+        let rule: String
+        let title: String
+        let words: [Int]
+    }
+
+    /// Every rule of the lessons that applies to the phrase: grammar, reading (item by item, as
+    /// in the lesson texts), and the sounds the phrase has.
     @ViewBuilder private var rulesSection: some View {
         let subjects = words.ruleSubjects
-        let found = library.content.rulesApplying(to: subjects.map(\.subject))
-        if !found.isEmpty {
-            Section("Правила в этой фразе") {
-                ForEach(Array(found.enumerated()), id: \.offset) { _, item in
-                    NavigationLink(value: Route.rule(item.rule.rule)) {
+        let items = library.content.rulesApplying(to: subjects.map(\.subject)).map { item in
+            FoundRule(id: "item-\(item.rule.label)", rule: item.rule.rule, title: item.rule.label, words: item.words.map { subjects[$0].index })
+        }
+        let triggered = library.content.rulesTriggered(by: words, lexicon: library.lexicon)
+        let byKind = { (kind: String) in
+            triggered.filter { $0.rule.kind == kind }.map { FoundRule(id: $0.rule.id, rule: $0.rule.id, title: $0.rule.title, words: $0.words) }
+        }
+        rulesGroup("Грамматика в этой фразе", byKind("Грамматика"))
+        rulesGroup("Чтение", items + byKind("Чтение"))
+        rulesGroup("Произношение", byKind("Произношение"))
+    }
+
+    @ViewBuilder private func rulesGroup(_ title: String, _ rules: [FoundRule]) -> some View {
+        if !rules.isEmpty {
+            Section(title) {
+                ForEach(rules) { item in
+                    NavigationLink(value: Route.rule(item.rule)) {
                         VStack(alignment: .leading, spacing: 3) {
-                            Text(item.rule.label).font(.subheadline).multilineTextAlignment(.leading)
-                            Text(item.words.map { words[subjects[$0].index].text.withoutOuterPunctuation }.joined(separator: ", "))
-                                .font(Theme.french(.subheadline))
-                                .foregroundStyle(.secondary)
+                            Text(item.title).font(.subheadline).multilineTextAlignment(.leading)
+                            if !item.words.isEmpty {
+                                Text(item.words.map { words[$0].text.withoutOuterPunctuation }.joined(separator: ", "))
+                                    .font(Theme.french(.subheadline))
+                                    .foregroundStyle(.secondary)
+                            }
                         }
                     }
                 }

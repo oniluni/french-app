@@ -187,6 +187,8 @@ public struct Rule: Decodable, Identifiable, Hashable, Sendable {
     public let title: String
     public let summary: String
     public let blocks: [Block]
+    /// When the rule applies to a phrase in the reader; nil for notes.
+    public let trigger: RuleTrigger?
 
     public var lesson: Int { Int(id.prefix { $0 != "-" }) ?? 0 }
 }

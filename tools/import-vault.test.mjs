@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { test } from 'node:test';
 import { buildLexicon, readingOf, serialize } from './build-lexicon.mjs';
 import { importVault, parseRules, parseTexts, parseVocabulary, plainOf, tokenize } from './import-vault.mjs';
+import { attachTriggers } from './rule-triggers.mjs';
 
 const row = (ortho, ipa, lemma, pos, extra = {}) => ({ ortho, ipa, lemma, pos, gender: '', number: '', tags: [], frequency: 1, ...extra });
 const LEXIQUE = [
@@ -162,7 +163,12 @@ test('a whole vault: marks, sounds, glosses and links to reading rules', () => {
   writeFileSync(join(lesson, 'Тексты.md'), TEXTS);
   writeFileSync(join(lesson, 'Правила.md'), RULES);
 
-  const { content, report } = importVault(vault, LEXIQUE);
+  const triggers = {
+    '3-1': { title: 'Гласный [e]', trigger: { ipa: ['e'] } },
+    '3-3': { title: 'Глаголы I группы', trigger: { token: { group: 1 } } },
+  };
+  const { content, report } = importVault(vault, LEXIQUE, { triggers });
+  assert.deepEqual(content.lessons[0].rules.map((rule) => rule.trigger ?? null), [{ ipa: ['e'] }, null, { token: { group: 1 } }, null]);
   assert.equal(content.lessons.length, 1);
   const [three] = content.lessons;
   assert.deepEqual([three.id, three.topic], [3, 'Гласный [e]; глаголы I группы']);
@@ -192,4 +198,18 @@ test('lexicon: the frequent reading first, schwa restored, lesson sound preferre
   const keys = lexicon.trim().split('\n').map((line) => line.split('\t')[0]);
   assert.deepEqual(keys, [...keys].sort((a, b) => Buffer.compare(Buffer.from(a), Buffer.from(b))));
   assert.ok(lexicon.includes('lit\tli(t)=li\tlit;NOM;m;s;;0|lire;VER;;;ind:pre:3s;0\n'));
+});
+
+test('every rule needs a trigger with the right title, so a changed vault fails the import', () => {
+  const lessons = () => [{ rules: [
+    { id: '3-1', kind: 'Произношение', title: 'Гласный [e]' },
+    { id: '3-2', kind: 'Чтение', title: 'Правила чтения' },
+    { id: '3-3', kind: 'Примечания', title: 'Частые ошибки' },
+  ] }];
+  const itemized = [{ rule: '3-2' }];
+  assert.throws(() => attachTriggers(lessons(), itemized, {}), /3-1 «Гласный \[e\]»/);
+  assert.throws(() => attachTriggers(lessons(), itemized, { '3-1': { title: 'Гласный [a]', trigger: {} } }), /now «Гласный \[e\]»/);
+  const done = lessons();
+  attachTriggers(done, itemized, { '3-1': { title: 'Гласный [e]', trigger: { ipa: ['e'] } } });
+  assert.deepEqual(done[0].rules[0].trigger, { ipa: ['e'] });
 });
