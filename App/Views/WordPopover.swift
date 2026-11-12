@@ -57,6 +57,7 @@ struct WordPopover: View {
         .frame(width: 300, alignment: .leading)
         .fixedSize(horizontal: false, vertical: true)
         .presentationCompactAdaptation(.popover)
+        .sensoryFeedback(.success, trigger: store.data.addedWords.count)
     }
 
     @ViewBuilder private var actions: some View {

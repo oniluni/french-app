@@ -34,6 +34,8 @@ Sign and install it with ESign or any other sideloading tool, with your own cert
 - If Apple revokes the certificate, the app stops opening until it is signed again.
 - Speech uses the French system voice. If there is none, add it in Settings → Accessibility →
   Spoken Content → Voices → French.
+- Keyboard suggestions follow the active keyboard: add the French keyboard (Settings → General →
+  Keyboard → Keyboards) and switch to it with the globe key to get French suggestions in the reader.
 
 ## Build
 
@@ -56,6 +58,7 @@ Content is generated, then committed, because CI has no access to the lesson vau
 ```sh
 node tools/import-vault.mjs <path to french-vault>   # → App/Resources/content.json
 node tools/build-lexicon.mjs                         # → App/Resources/lexicon.tsv, lemmas.tsv
+node tools/build-examples.mjs                        # → App/Resources/examples.tsv (downloads Tatoeba)
 node --test tools/*.test.mjs
 ```
 
@@ -64,5 +67,8 @@ node --test tools/*.test.mjs
 The word form dictionary (`App/Resources/lexicon.tsv`, `lemmas.tsv`) is derived from
 [Lexique 3.83](http://www.lexique.org) by Boris New and Christophe Pallier, licensed under
 [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/); the derived files are shared
-under the same licence. The lesson texts, vocabulary and rules come from a French textbook through
-the owner's study notes.
+under the same licence. Example sentences outside the lessons (`App/Resources/examples.tsv`) come
+from [Tatoeba](https://tatoeba.org), licensed under
+[CC BY 2.0 FR](https://creativecommons.org/licenses/by/2.0/fr/); each keeps its Tatoeba sentence
+number (`T123` → https://tatoeba.org/sentences/show/123). The lesson texts, vocabulary and rules
+come from a French textbook through the owner's study notes.

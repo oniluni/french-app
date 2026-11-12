@@ -10,6 +10,7 @@ final class Library {
     let lexicon: Lexicon
     let reader: Reader
     let grammar: Grammar
+    let examples: Examples
 
     init(bundle: Bundle = .main) {
         // A missing or broken bundled file is a build mistake; no screen can work without it.
@@ -31,6 +32,7 @@ final class Library {
         lexicon = Lexicon(forms: resource("lexicon", "tsv"), lemmas: resource("lemmas", "tsv"))
         reader = Reader(lexicon: lexicon)
         grammar = Grammar(lexicon: lexicon)
+        examples = Examples(data: resource("examples", "tsv"))
     }
 
     func lesson(_ id: Int) -> Lesson? {
@@ -39,17 +41,7 @@ final class Library {
 
     /// The vocabulary entry for a word of a text, ignoring case, punctuation and its article.
     func entry(for text: String) -> Entry? {
-        let wanted = Library.bare(text)
-        guard !wanted.isEmpty else { return nil }
-        return content.entries.first { Library.bare($0.word.fr) == wanted }
-    }
-
-    private static let articles = ["le ", "la ", "les ", "un ", "une ", "l'", "l’"]
-
-    static func bare(_ text: String) -> String {
-        var word = text.lowercased().trimmingCharacters(in: .punctuationCharacters.union(.whitespaces))
-        if let article = articles.first(where: { word.hasPrefix($0) }) { word.removeFirst(article.count) }
-        return word
+        content.entry(for: text)
     }
 
     /// Words of the lessons that have forms to drill, one per lemma and word class.
@@ -57,7 +49,7 @@ final class Library {
         var seen = Set<String>()
         var found: [FormWord] = []
         for entry in content.entries {
-            let word = Library.bare(entry.word.fr)
+            let word = Content.bare(entry.word.fr)
             guard !word.contains(" "), let analysis = grammar.analyses(of: word).first?.analysis, let wordClass = analysis.wordClass else { continue }
             // Only the dictionary form itself: "je lis" is listed under "lire".
             guard Lexicon.key(analysis.lemma) == Lexicon.key(word), seen.insert("\(analysis.lemma)|\(wordClass.rawValue)").inserted else { continue }

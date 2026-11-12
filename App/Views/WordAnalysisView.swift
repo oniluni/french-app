@@ -1,4 +1,5 @@
 import FrenchCore
+import os
 import SwiftUI
 
 /// The pushed «Разбор слова» screen.
@@ -23,7 +24,8 @@ struct WordAnalysisBody: View {
     @Environment(Speech.self) private var speech
     /// Which of the readings of the form is shown: "lit" is a verb form and a noun.
     @State private var choice = 0
-    @State private var tense = 0
+    /// Nil until the learner picks a set: then the set holding the typed form is shown.
+    @State private var tense: Int?
     @State private var drill: DrillRequest?
 
     private static let partsOfSpeech: [String: String] = [
@@ -59,6 +61,7 @@ struct WordAnalysisBody: View {
                 header(current.analysis, paradigm: paradigm)
                 facts(current, paradigm: paradigm)
                 if let paradigm, !paradigm.sets.isEmpty { forms(paradigm, typed: Lexicon.key(current.form)) }
+                examplesSection(lemma: current.analysis.lemma, form: current.form)
                 if let paradigm, !paradigm.sets.isEmpty {
                     Section {
                         Button {
@@ -72,6 +75,12 @@ struct WordAnalysisBody: View {
                 }
             }
             .fullScreenCover(item: $drill) { DrillSessionView(request: $0) }
+            // The «Слово» tool reuses this view for the next word: start from its own defaults.
+            .onChange(of: query) {
+                choice = 0
+                tense = nil
+            }
+            .onChange(of: choice) { tense = nil }
         }
     }
 
@@ -155,12 +164,54 @@ struct WordAnalysisBody: View {
         }
     }
 
+    private static let log = Logger(subsystem: "io.github.oniluni.french", category: "examples")
+
+    /// Lesson phrases first, then Tatoeba; phrases with the typed form first within each.
+    @ViewBuilder private func examplesSection(lemma: String, form: String) -> some View {
+        let found: [Example] = {
+            do {
+                return Array(try library.examples.of(lemma: lemma, preferring: form).prefix(6))
+            } catch {
+                WordAnalysisBody.log.error("Broken examples line for \(lemma, privacy: .public): \(String(describing: error), privacy: .public)")
+                return []
+            }
+        }()
+        if !found.isEmpty {
+            Section {
+                ForEach(Array(found.enumerated()), id: \.offset) { _, example in
+                    Button {
+                        speech.speak(example.fr)
+                    } label: {
+                        VStack(alignment: .leading, spacing: 4) {
+                            MarkedText(marked: example.m ?? readerMarks(example.fr), plain: example.fr)
+                                .foregroundStyle(Color.primary)
+                                .multilineTextAlignment(.leading)
+                            Text(example.ru).font(.subheadline).foregroundStyle(.secondary)
+                            Text(example.lesson.map { "Урок \($0)" } ?? "Tatoeba").font(.caption2).foregroundStyle(.tertiary)
+                        }
+                    }
+                    .accessibilityHint("Прослушать")
+                }
+            } header: {
+                Text("Примеры")
+            }
+        }
+    }
+
+    /// Marks for a sentence outside the lessons, if the dictionary knows every word of it.
+    private func readerMarks(_ sentence: String) -> String? {
+        let words = library.reader.read(sentence)
+        return words.allSatisfy(\.isKnown) ? words.marked : nil
+    }
+
     private func forms(_ paradigm: Paradigm, typed: String) -> some View {
-        let set = paradigm.sets[min(tense, paradigm.sets.count - 1)]
+        let holdingTyped = paradigm.sets.firstIndex { $0.forms.contains { Lexicon.key($0.bodyPlain) == typed } } ?? 0
+        let shown = min(tense ?? holdingTyped, paradigm.sets.count - 1)
+        let set = paradigm.sets[shown]
         let labels = paradigm.wordClass.cellLabels
         return Section {
             if paradigm.sets.count > 1 {
-                Picker("Время", selection: $tense) {
+                Picker("Набор форм", selection: Binding { shown } set: { tense = $0 }) {
                     ForEach(Array(paradigm.sets.enumerated()), id: \.offset) { index, item in Text(item.name).tag(index) }
                 }
                 .pickerStyle(.segmented)

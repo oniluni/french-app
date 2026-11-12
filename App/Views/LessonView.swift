@@ -45,6 +45,7 @@ struct LessonView: View {
             }
         }
         .fullScreenCover(item: $session) { CardSessionView(request: $0) }
+        .sensoryFeedback(.selection, trigger: showsPronunciation)
         .onAppear {
             if store.data.lastLesson != lesson.id { store.update { $0.lastLesson = lesson.id } }
         }

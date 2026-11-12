@@ -136,6 +136,7 @@ private struct WordsPractice: View {
             }
         }
         .fullScreenCover(item: $session) { CardSessionView(request: $0) }
+        .sensoryFeedback(.selection, trigger: range)
     }
 
     private func choose(_ lesson: Int) {

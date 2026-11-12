@@ -28,6 +28,43 @@ public struct Content: Decodable, Sendable {
     public func rule(id: String) -> Rule? {
         lessons.lazy.flatMap(\.rules).first { $0.id == id }
     }
+
+    private static let articles = ["le ", "la ", "les ", "un ", "une ", "l'", "l’"]
+
+    /// A word or phrase compared without case, surrounding punctuation or a leading article:
+    /// "La famille." and "famille" are the same entry.
+    public static func bare(_ text: String) -> String {
+        var word = text.lowercased().trimmingCharacters(in: CharacterSet.punctuationCharacters.union(.whitespaces))
+        if let article = articles.first(where: { word.hasPrefix($0) }) { word.removeFirst(article.count) }
+        return word
+    }
+
+    /// The vocabulary entry for a word of a text.
+    public func entry(for text: String) -> Entry? {
+        let wanted = Content.bare(text)
+        guard !wanted.isEmpty else { return nil }
+        return entries.first { Content.bare($0.word.fr) == wanted }
+    }
+
+    /// The translation of a form, as the vocabulary gives it.
+    ///
+    /// The form itself when the lessons teach it ("je vais" → «я иду»; an entry "a, b" counts as
+    /// both), otherwise the lemma's translation, marked as such. Russian verbs are not conjugated
+    /// by rule: aspect makes that unreliable.
+    public func translation(ofForm form: String, lemma: String) -> Translation? {
+        let wanted = Content.bare(form)
+        for entry in entries where entry.word.fr.split(separator: ",").contains(where: { Content.bare(String($0)) == wanted }) {
+            return .form(entry.word.ru)
+        }
+        return entry(for: lemma).map { .lemma($0.word.ru) }
+    }
+
+    public enum Translation: Equatable, Sendable {
+        /// Translates exactly this form: «я иду».
+        case form(String)
+        /// Translates the dictionary form only: «идти, ехать».
+        case lemma(String)
+    }
 }
 
 public struct Lesson: Decodable, Identifiable, Sendable {
@@ -148,8 +185,61 @@ public struct Rule: Decodable, Identifiable, Hashable, Sendable {
 }
 
 public struct ReadingRule: Decodable, Hashable, Sendable {
+    /// Id of the «Правила чтения» page that explains it.
     public let rule: String
     public let label: String
+    public let pattern: ReadingPattern
+}
+
+/// What a reading rule says, as written by `tools/import-vault.mjs` (`patternFor`).
+public enum ReadingPattern: Decodable, Hashable, Sendable {
+    /// "un ami": n heard after a nasal vowel.
+    case nasalLink
+    /// A silent final consonant heard before the next word.
+    case liaison
+    case nasal
+    /// Letters read as a sound: "ch" as [ʃ].
+    case sound(letters: String, sound: String)
+    /// A silent h.
+    case h
+    /// A final letter that is not pronounced.
+    case silentFinal(String)
+    /// A final letter that is pronounced.
+    case heardFinal(String)
+    /// A pronounced final consonant carried over to the next word.
+    case tie
+
+    /// When several rules explain a word, the lowest rank is the one shown.
+    public var rank: Int {
+        switch self {
+        case .nasalLink: 0
+        case .liaison: 1
+        case .nasal: 2
+        case .sound, .h: 3
+        case .silentFinal: 4
+        case .heardFinal: 5
+        case .tie: 6
+        }
+    }
+
+    private enum CodingKeys: String, CodingKey { case kind, letters, sound, letter }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let kind = try container.decode(String.self, forKey: .kind)
+        switch kind {
+        case "nasal-link": self = .nasalLink
+        case "liaison": self = .liaison
+        case "nasal": self = .nasal
+        case "sound": self = .sound(letters: try container.decode(String.self, forKey: .letters), sound: try container.decode(String.self, forKey: .sound))
+        case "h": self = .h
+        case "silent-final": self = .silentFinal(try container.decode(String.self, forKey: .letter))
+        case "heard-final": self = .heardFinal(try container.decode(String.self, forKey: .letter))
+        case "tie": self = .tie
+        default:
+            throw DecodingError.dataCorruptedError(forKey: .kind, in: container, debugDescription: "Unknown reading rule kind \"\(kind)\"")
+        }
+    }
 }
 
 /// A piece of formatted lesson text. Inline markup inside `md` strings is Markdown.

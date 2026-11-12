@@ -147,49 +147,65 @@ export function parseRules(markdown, lesson) {
 
 const sound = (text) => phonemesOf(text).map((item) => item.p).join('');
 
-/** A test on an aligned token for one item of a «Правила чтения» list, or null. */
-function matcherFor(lead) {
+/**
+ * Kinds of reading rule, most specific first: when several rules explain a word, the lowest rank
+ * is linked. The same descriptions are evaluated by the app's reader (FrenchCore/ReadingRules.swift).
+ */
+const RANK = { 'nasal-link': 0, liaison: 1, nasal: 2, sound: 3, h: 3, 'silent-final': 4, 'heard-final': 5, tie: 6 };
+
+/** The description of the rule one item of a «Правила чтения» list states, or null. */
+function patternFor(lead) {
   let found;
-  if (/^Связывание после носового/.test(lead)) return { rank: 0, test: (token) => token.before?.chunks.some((chunk) => chunk.kind === 'link' && chunk.letters === 'n') };
-  if (/^Носовые гласные/.test(lead)) return { rank: 2, test: (token) => token.chunks.some((chunk) => chunk.kind === 'nasal') };
+  if (/^Связывание после носового/.test(lead)) return { kind: 'nasal-link' };
+  if (/^Носовые гласные/.test(lead)) return { kind: 'nasal' };
   if ((found = /^(?:Буквенное сочетание )?(\p{L}{1,3})(?: перед гласными)? (?:в большинстве случаев |обычно )?(?:читается(?: обычно)?(?: как)?|=) \[([^\]]+)\]/u.exec(lead))) {
-    const [, letters, heard] = found;
-    return {
-      rank: 3,
-      test: (token) => token.chunks.some((chunk, i) => [chunk, { letters: chunk.letters + (token.chunks[i + 1]?.letters ?? ''), sounds: chunk.sounds + (token.chunks[i + 1]?.sounds ?? '') }]
-        .some((span) => span.letters === letters && span.sounds === sound(heard))),
-    };
+    return { kind: 'sound', letters: found[1], sound: sound(found[2]) };
   }
   if ((found = /^(\p{L}) (?:[^.:]*? )?(?:на конце|в окончании) [^.:]*?(не читается|читается)/u.exec(lead))) {
-    const [, letter, verdict] = found;
-    return verdict === 'не читается'
-      ? { rank: 4, test: (token) => token.chunks.some((chunk) => chunk.final && chunk.kind === 'silent' && chunk.letters.includes(letter)) }
-      : { rank: 5, test: (token) => token.chunks.at(-1)?.letters === letter && token.chunks.at(-1).sounds !== '' };
+    return { kind: found[2] === 'не читается' ? 'silent-final' : 'heard-final', letter: found[1] };
   }
-  if (/^Сцепление/.test(lead)) return { rank: 6, test: (token) => token.tie && !token.link };
+  if (/^Сцепление/.test(lead)) return { kind: 'tie' };
   return null;
+}
+
+const linkedByNasal = (token) => Boolean(token.before?.chunks.some((chunk) => chunk.kind === 'link' && chunk.letters === 'n'));
+
+/** Whether a rule applies to an aligned token (`before` is the previous token). */
+export function applies(pattern, token) {
+  switch (pattern.kind) {
+    case 'nasal-link': return linkedByNasal(token);
+    case 'liaison': return Boolean(token.link) && !linkedByNasal(token);
+    case 'nasal': return token.chunks.some((chunk) => chunk.kind === 'nasal');
+    case 'sound':
+      return token.chunks.some((chunk, i) => [chunk, { letters: chunk.letters + (token.chunks[i + 1]?.letters ?? ''), sounds: chunk.sounds + (token.chunks[i + 1]?.sounds ?? '') }]
+        .some((span) => span.letters === pattern.letters && span.sounds === pattern.sound));
+    case 'h': return token.chunks.some((chunk) => chunk.letters === 'h' && chunk.kind === 'silent');
+    case 'silent-final': return token.chunks.some((chunk) => chunk.final && chunk.kind === 'silent' && chunk.letters.includes(pattern.letter));
+    case 'heard-final': return token.chunks.at(-1)?.letters === pattern.letter && token.chunks.at(-1).sounds !== '';
+    case 'tie': return Boolean(token.tie) && !token.link;
+    default: throw new Error(`Unknown reading rule kind "${pattern.kind}"`);
+  }
 }
 
 /** Every reading rule a word can be linked to, in lesson order. */
 function readingRulesOf(lessons) {
   const found = [];
+  const add = (rule, label, pattern) => found.push({ rule, label, pattern, rank: RANK[pattern.kind] });
   // The item that says a silent final consonant wakes up before a vowel, not the one on vowel linking.
   const explainsLiaison = (item) => /связывание.{0,40}согласный/.test(JSON.stringify(item));
   for (const lesson of lessons) {
     for (const rule of lesson.rules.filter((item) => item.kind === 'Чтение')) {
-      if (/^Буква h/.test(rule.title)) {
-        found.push({ rule: rule.id, label: rule.title, rank: 3, test: (token) => token.chunks.some((chunk) => chunk.letters === 'h' && chunk.kind === 'silent') });
-      }
+      if (/^Буква h/.test(rule.title)) add(rule.id, rule.title, { kind: 'h' });
       for (const item of rule.blocks.filter((block) => block.t === 'list').flatMap((block) => block.items)) {
         const lead = plainText(item.md.split('\n')[0]);
         const start = lead.split(':')[0].replace(/\.$/, '');
         const label = start.length <= 60 ? start : plainText(/^\*\*(.+?)\*\*/.exec(item.md)?.[1] ?? start).replace(/[.:]$/, '');
-        const matcher = matcherFor(lead);
-        if (matcher) found.push({ rule: rule.id, label, ...matcher });
+        const pattern = patternFor(lead);
+        if (pattern) add(rule.id, label, pattern);
       }
       // Liaison has no item of its own: it is explained next to the first silent final letter.
-      if (explainsLiaison(rule.blocks) && !found.some((entry) => entry.rank === 1)) {
-        found.push({ rule: rule.id, label: 'Связывание', rank: 1, test: (token) => Boolean(token.link) && !token.before?.chunks.some((chunk) => chunk.letters === 'n' && chunk.kind === 'link') });
+      if (explainsLiaison(rule.blocks) && !found.some((entry) => entry.pattern.kind === 'liaison')) {
+        add(rule.id, 'Связывание', { kind: 'liaison' });
       }
     }
   }
@@ -310,7 +326,7 @@ function enrichSentence(raw, lesson, context, report) {
     const subject = { ...item, before: aligned[i - 1] };
     const rule = item.marked === null ? -1 : context.readingRules
       .map((entry, index) => ({ ...entry, index }))
-      .filter((entry) => entry.test(subject))
+      .filter((entry) => applies(entry.pattern, subject))
       .sort((a, b) => a.rank - b.rank)[0]?.index ?? -1;
     if (rule >= 0) token.r = rule;
     return token;
@@ -390,7 +406,7 @@ export function importVault(vault, lexiqueRows) {
   });
 
   return {
-    content: { version: 1, lessons: content, readingRules: readingRules.map(({ rule, label }) => ({ rule, label })), verbNotes },
+    content: { version: 1, lessons: content, readingRules: readingRules.map(({ rule, label, pattern }) => ({ rule, label, pattern })), verbNotes },
     report,
   };
 }

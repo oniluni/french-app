@@ -21,7 +21,6 @@ struct AnalysisView: View {
                     HStack {
                         TextField("Любая форма: buvons, petites", text: $word)
                             .textInputAutocapitalization(.never)
-                            .autocorrectionDisabled()
                             .submitLabel(.search)
                             .onSubmit { analysed = word }
                             .accessibilityIdentifier("word-field")
@@ -57,10 +56,12 @@ struct AnalysisView: View {
 /// Type a phrase, get its pronunciation marks, its sounds and what to notice in it.
 private struct ReaderView: View {
     @Environment(Library.self) private var library
+    @Environment(Navigator.self) private var navigator
     @State private var phrase = ""
     @State private var words: [ReadWord] = []
     @State private var picked: Picked?
     @State private var anchor = CGRect.zero
+    @FocusState private var isEditing: Bool
 
     private static let samples = ["Les enfants habitent à Paris.", "Ils ont beaucoup de temps.", "Vous êtes très aimables."]
 
@@ -70,9 +71,15 @@ private struct ReaderView: View {
                 TextField("Фраза по-французски", text: $phrase, axis: .vertical)
                     .lineLimit(1...4)
                     .textInputAutocapitalization(.sentences)
-                    .autocorrectionDisabled()
-                    .environment(\.locale, Locale(identifier: "fr"))
+                    .focused($isEditing)
+                    .submitLabel(.done)
                     .accessibilityIdentifier("reader-field")
+                    // A multi-line field takes Return as a new line; here Return means «Разобрать».
+                    .onChange(of: phrase) { _, typed in
+                        guard typed.contains("\n") else { return }
+                        phrase = typed.replacingOccurrences(of: "\n", with: " ").trimmingCharacters(in: .whitespaces)
+                        read(phrase)
+                    }
                 Button("Разобрать") { read(phrase) }
                     .disabled(phrase.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
@@ -106,6 +113,7 @@ private struct ReaderView: View {
                             .foregroundStyle(.secondary)
                     }
                 }
+                rulesSection
             }
 
             Section("Обозначения") {
@@ -125,9 +133,33 @@ private struct ReaderView: View {
                 }
             }
         }
+        .scrollDismissesKeyboard(.interactively)
+    }
+
+    /// Reading rules of the lessons that explain something in the phrase, each with its words.
+    @ViewBuilder private var rulesSection: some View {
+        let subjects = words.ruleSubjects
+        let found = library.content.rulesApplying(to: subjects.map(\.subject))
+        if !found.isEmpty {
+            Section("Правила в этой фразе") {
+                ForEach(Array(found.enumerated()), id: \.offset) { _, item in
+                    Button {
+                        navigator.push(.rule(item.rule.rule))
+                    } label: {
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text(item.rule.label).font(.subheadline).foregroundStyle(Color.primary).multilineTextAlignment(.leading)
+                            Text(item.words.map { words[subjects[$0].index].text.withoutOuterPunctuation }.joined(separator: ", "))
+                                .font(Theme.french(.subheadline))
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private func read(_ text: String) {
+        isEditing = false
         picked = nil
         words = library.reader.read(text)
     }
@@ -158,8 +190,12 @@ private struct ReaderView: View {
         }
         let bare = word.marked?.withoutOuterPunctuation
         let gloss = library.entry(for: plain)?.word.ru
+        let content = library.content
+        let rule = words.ruleSubjects.first { $0.index == range.lowerBound }
+            .flatMap { content.readingRule(for: $0.subject) }
+            .map { content.readingRules[$0] }
         return Picked(
-            range: range, marked: bare, plain: plain, ipa: word.ipa, translation: gloss, isPhrase: false, rule: nil,
+            range: range, marked: bare, plain: plain, ipa: word.ipa, translation: gloss, isPhrase: false, rule: rule,
             word: bare.map { Word(fr: plain, m: $0, ipa: word.ipa, ru: gloss ?? "") })
     }
 }

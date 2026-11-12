@@ -62,6 +62,11 @@ struct SelectableWords: View {
             if let index = index(at: tap.location) { pick(index...index) }
         })
         .environment(\.locale, Locale(identifier: "fr"))
+        // The hold is felt when it starts a phrase, and each word the sweep adds is felt too.
+        .sensoryFeedback(trigger: sweeping) { old, new in
+            guard let new else { return nil }
+            return old == nil ? .impact(weight: .light) : old != new ? .selection : nil
+        }
     }
 
     private func wordView(_ word: TextWord, index: Int) -> some View {

@@ -92,12 +92,17 @@ struct BackupButtons: View {
     @State private var isImporting = false
     @State private var pending: Data?
     @State private var message: String?
+    /// Counts finished saves and restores, for the success haptic.
+    @State private var successes = 0
+    /// Counts failed ones, for the error haptic.
+    @State private var failures = 0
 
     var body: some View {
         Button {
             do {
                 exported = BackupDocument(data: try store.backup())
             } catch {
+                failures += 1
                 message = "Не удалось подготовить копию: \(error.localizedDescription)"
             }
         } label: {
@@ -110,7 +115,12 @@ struct BackupButtons: View {
         }
         .fileExporter(isPresented: Binding { exported != nil } set: { if !$0 { exported = nil } },
                       document: exported, contentType: .json, defaultFilename: "Français — прогресс") { result in
-            if case .failure(let error) = result { message = "Копия не сохранена: \(error.localizedDescription)" }
+            switch result {
+            case .success: successes += 1
+            case .failure(let error):
+                failures += 1
+                message = "Копия не сохранена: \(error.localizedDescription)"
+            }
         }
         .fileImporter(isPresented: $isImporting, allowedContentTypes: [.json]) { result in
             do {
@@ -119,6 +129,7 @@ struct BackupButtons: View {
                 defer { if isScoped { url.stopAccessingSecurityScopedResource() } }
                 pending = try Data(contentsOf: url)
             } catch {
+                failures += 1
                 message = "Не удалось открыть файл: \(error.localizedDescription)"
             }
         }
@@ -128,10 +139,13 @@ struct BackupButtons: View {
                 guard let pending else { return }
                 do {
                     try store.restore(from: pending)
+                    successes += 1
                     message = "Прогресс восстановлен."
                 } catch UserData.Failure.newerVersion {
+                    failures += 1
                     message = "Копия сделана более новой версией приложения. Обновите приложение и повторите."
                 } catch {
+                    failures += 1
                     message = "Это не копия прогресса этого приложения. Выберите файл, сохранённый кнопкой «Сохранить копию в Файлы»."
                 }
                 self.pending = nil
@@ -139,6 +153,8 @@ struct BackupButtons: View {
         } message: {
             Text("Карточки, наборы и заметки на этом устройстве будут заменены содержимым файла.")
         }
+        .sensoryFeedback(.success, trigger: successes)
+        .sensoryFeedback(.error, trigger: failures)
         .alert(message ?? "", isPresented: Binding { message != nil } set: { if !$0 { message = nil } }) {
             Button("Понятно", role: .cancel) {}
         }

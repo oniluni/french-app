@@ -278,6 +278,22 @@ Taken by the owner on 2026-11-12.
   tenses Présent, Imparfait, Futur.
 - Notes can be deleted (swipe). Saved sets can be deleted (swipe). Words added from texts form
   their own set, «Добавленные слова».
+- The reader lists «Правила в этой фразе»: every reading rule of the lessons that explains a
+  word of the phrase, with those words; a tapped word links its rule too. The rules are stored as
+  data (`readingRules[].pattern`) so the importer and the app apply the same ones; on the lesson
+  texts both pick the same rule for 97.8 % of the words.
+- Return in the reader analyses the phrase and closes the keyboard; a scroll closes it too.
+  Keyboard suggestions are on; their language follows the active keyboard.
+- A noun with forms of both genders (`ami`/`amie`, `acteur`/`actrice`) shows «Мужской род» and
+  «Женский род», opening on the gender that was typed.
+- Word analysis shows «Примеры»: lesson phrases first, then up to three sentences from Tatoeba
+  (CC BY 2.0 FR) with their Russian translation.
+- Form drills show a translation under the question: the lesson's own translation of that form
+  («je vais» → «я иду») when there is one, otherwise the person and the infinitive's translation
+  («я · идти, ехать»). Russian verbs are not conjugated by rule.
+- Haptics: the hold that starts a phrase selection and each word it adds, card grades, drill
+  answers (success or error), finished sessions, the lesson range grid, the `[ə]` switch, adding a
+  card, saving a note, saving or restoring a backup.
 
 ## 9. Build order
 

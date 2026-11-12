@@ -93,21 +93,39 @@ public struct Grammar: Sendable {
             }
             facts.append(.init(label: "Вспом. глагол", value: Grammar.withEtre.contains(spelling) ? "être" : "avoir", isFrench: true))
         case .noun:
-            let gender = forms.map(\.gender).first { !$0.isEmpty } ?? "m"
-            let singular = forms.first { $0.number != "p" && $0.text == spelling } ?? forms.first { $0.number != "p" }
-            // "héros" also lists "héroïnes": the plural has to be of the same gender.
-            let matchesGender: (LemmaForm) -> Bool = { $0.gender == singular?.gender || $0.gender.isEmpty || singular?.gender.isEmpty == true }
-            let plural = forms.first { $0.number == "p" && matchesGender($0) } ?? (singular?.number.isEmpty == true ? singular : nil)
-            let cells: [(LemmaForm?, Bool, Bool)] = [(singular, true, false), (plural, true, true), (singular, false, false), (plural, false, true)]
-            let rows = cells.enumerated().compactMap { cell, item -> Paradigm.Form? in
-                guard let form = item.0, let said = sound(form.text) else { return nil }
-                return Grammar.nounForm(cell: cell, form: form.text, said: said, isFeminine: gender == "f", isDefinite: item.1, isPlural: item.2)
+            /// Articles by number for the forms of one gender.
+            func articles(_ name: String, from candidates: [LemmaForm], isFeminine: Bool) -> Paradigm.FormSet? {
+                let singular = candidates.first { $0.number != "p" && $0.text == spelling } ?? candidates.first { $0.number != "p" }
+                let matchesGender: (LemmaForm) -> Bool = { $0.gender == singular?.gender || $0.gender.isEmpty || singular?.gender.isEmpty == true }
+                let plural = candidates.first { $0.number == "p" && matchesGender($0) } ?? (singular?.number.isEmpty == true ? singular : nil)
+                let cells: [(LemmaForm?, Bool, Bool)] = [(singular, true, false), (plural, true, true), (singular, false, false), (plural, false, true)]
+                let rows = cells.enumerated().compactMap { cell, item -> Paradigm.Form? in
+                    guard let form = item.0, let said = sound(form.text) else { return nil }
+                    return Grammar.nounForm(cell: cell, form: form.text, said: said, isFeminine: isFeminine, isDefinite: item.1, isPlural: item.2)
+                }
+                return rows.isEmpty ? nil : Paradigm.FormSet(name: name, forms: rows)
             }
-            sets = rows.isEmpty ? [] : [Paradigm.FormSet(name: "Артикль и число", forms: rows)]
-            facts = [
-                .init(label: "Часть речи", value: "существительное", isFrench: false),
-                .init(label: "Род", value: gender == "f" ? "женский" : "мужской", isFrench: false),
-            ]
+            // "ami" also lists "amie", "acteur" lists "actrice": one set per gender. A word whose two
+            // genders are spelled alike ("élève") has one set.
+            let masculine = forms.filter { $0.gender == "m" }.map(\.text)
+            let feminine = forms.filter { $0.gender == "f" }.map(\.text)
+            if !masculine.isEmpty, !feminine.isEmpty, Set(masculine).isDisjoint(with: feminine) {
+                sets = [
+                    articles("Мужской род", from: forms.filter { $0.gender != "f" }, isFeminine: false),
+                    articles("Женский род", from: forms.filter { $0.gender != "m" }, isFeminine: true),
+                ].compactMap { $0 }
+                facts = [
+                    .init(label: "Часть речи", value: "существительное", isFrench: false),
+                    .init(label: "Род", value: "мужской и женский", isFrench: false),
+                ]
+            } else {
+                let gender = forms.map(\.gender).first { !$0.isEmpty } ?? "m"
+                sets = [articles("Артикль и число", from: forms, isFeminine: gender == "f")].compactMap { $0 }
+                facts = [
+                    .init(label: "Часть речи", value: "существительное", isFrench: false),
+                    .init(label: "Род", value: gender == "f" ? "женский" : "мужской", isFrench: false),
+                ]
+            }
         case .adjective:
             let cells = [("m", "s"), ("f", "s"), ("m", "p"), ("f", "p")]
             let rows = cells.enumerated().compactMap { cell, wanted -> Paradigm.Form? in
@@ -204,7 +222,8 @@ public enum Drill {
                     candidates.append(DrillQuestion(
                         lemma: paradigm.lemma, wordClass: paradigm.wordClass,
                         prompt: isVerb ? form.lead : paradigm.lemma,
-                        task: isVerb ? "\(label) · \(set.name)" : label,
+                        // A noun of two genders says which one is asked: «женский род, определённый, ед. ч.».
+                        task: isVerb ? "\(label) · \(set.name)" : paradigm.sets.count > 1 ? "\(set.name.lowercased()), \(label)" : label,
                         options: options, answer: options.firstIndex(of: right) ?? 0, solution: form))
                 }
             }

@@ -91,6 +91,7 @@ final class ScreensTests: XCTestCase {
         shot("15-practice-forms")
         mixed.tap()
         XCTAssertTrue(app.buttons["option-0"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["drill-translation"].exists, "every lesson word has a translation under the question")
         shot("16-drill-question")
         app.buttons["option-0"].tap()
         XCTAssertTrue(app.staticTexts["Верно"].exists || app.staticTexts["Правильный ответ"].exists, "the verdict is written out")
@@ -107,6 +108,17 @@ final class ScreensTests: XCTestCase {
         XCTAssertTrue(app.staticTexts["немых букв"].waitForExistence(timeout: 5))
         shot("20-reader")
 
+        // Return analyses the phrase and puts the keyboard away.
+        let phrase = app.textViews["reader-field"].exists ? app.textViews["reader-field"] : app.textFields["reader-field"]
+        phrase.tap()
+        phrase.typeText(" Un ami arrive à six heures.\n")
+        let keyboardGone = NSPredicate(format: "count == 0")
+        expectation(for: keyboardGone, evaluatedWith: app.keyboards)
+        waitForExpectations(timeout: 5)
+        app.swipeUp()
+        XCTAssertTrue(app.staticTexts["Правила в этой фразе"].waitForExistence(timeout: 5) || app.staticTexts["ПРАВИЛА В ЭТОЙ ФРАЗЕ"].exists)
+        shot("20b-reader-rules")
+
         app.buttons["Слово"].tap()
         let field = app.textFields["word-field"]
         XCTAssertTrue(field.waitForExistence(timeout: 5))
@@ -114,6 +126,17 @@ final class ScreensTests: XCTestCase {
         field.typeText("buvons\n")
         XCTAssertTrue(app.staticTexts["Présent"].waitForExistence(timeout: 5) || app.buttons["Présent"].exists)
         shot("21-word-analysis")
+
+        // A noun of two genders opens on the gender that was typed, and has examples.
+        field.tap()
+        field.clearAndType("amie\n")
+        let feminine = app.buttons["Женский род"]
+        XCTAssertTrue(feminine.waitForExistence(timeout: 5))
+        XCTAssertTrue(feminine.isSelected, "the typed form is feminine")
+        shot("21b-word-two-genders")
+        app.swipeUp()
+        XCTAssertTrue(app.staticTexts["Примеры"].waitForExistence(timeout: 5) || app.staticTexts["ПРИМЕРЫ"].exists)
+        shot("21c-word-examples")
 
         app.tabBars.buttons["Поиск"].tap()
         XCTAssertTrue(app.navigationBars["Словарь"].waitForExistence(timeout: 10))
@@ -143,5 +166,15 @@ final class ScreensTests: XCTestCase {
         attachment.name = name
         attachment.lifetime = .keepAlways
         add(attachment)
+    }
+}
+
+private extension XCUIElement {
+    /// Replaces the field's text: deletes what it holds, then types.
+    func clearAndType(_ text: String) {
+        if let current = value as? String, !current.isEmpty {
+            typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: current.count))
+        }
+        typeText(text)
     }
 }

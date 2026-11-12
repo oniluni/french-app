@@ -99,6 +99,7 @@ struct NotesSheet: View {
             }
         }
         .presentationDetents([.medium, .large])
+        .sensoryFeedback(trigger: store.notes(for: request.target).count) { old, new in new > old ? .success : nil }
         .onAppear { isWriting = request.fragment != nil }
     }
 }

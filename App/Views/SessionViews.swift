@@ -62,6 +62,9 @@ struct CardSessionView: View {
             queue = Session.queue(from: request.entries, cards: store.data.cards, now: .now)
             total = queue.count
         }
+        // A light tap per grade, and success when the last card is done.
+        .sensoryFeedback(.impact(weight: .light), trigger: counts)
+        .sensoryFeedback(trigger: queue.isEmpty) { wasEmpty, isEmpty in !wasEmpty && isEmpty && total > 0 ? .success : nil }
     }
 
     private func card(_ entry: Entry) -> some View {
@@ -161,6 +164,7 @@ struct CardSessionView: View {
 struct DrillSessionView: View {
     let request: DrillRequest
 
+    @Environment(Library.self) private var library
     @Environment(\.dismiss) private var dismiss
     @State private var index = 0
     @State private var chosen: Int?
@@ -173,6 +177,21 @@ struct DrillSessionView: View {
             } else {
                 summary
             }
+        }
+        .sensoryFeedback(trigger: chosen) { _, picked in
+            guard let picked, index < request.questions.count else { return nil }
+            return picked == request.questions[index].answer ? .success : .error
+        }
+        .sensoryFeedback(.success, trigger: index == request.questions.count)
+    }
+
+    /// «я иду» when the lessons teach this very form, otherwise «я · идти, ехать».
+    private func translation(of question: DrillQuestion) -> String? {
+        switch library.content.translation(ofForm: question.solution.plain, lemma: question.lemma) {
+        case .form(let russian): russian
+        case .lemma(let russian) where question.wordClass == .verb: "\(question.wordClass.cellLabels[question.solution.cell]) · \(russian)"
+        case .lemma(let russian): russian
+        case nil: nil
         }
     }
 
@@ -189,6 +208,13 @@ struct DrillSessionView: View {
                 } else {
                     Text(question.prompt).font(Theme.french(.largeTitle))
                     Text(question.task).font(.subheadline).foregroundStyle(.secondary)
+                }
+                if let translation = translation(of: question) {
+                    Text(translation)
+                        .font(.title3)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 16)
+                        .accessibilityIdentifier("drill-translation")
                 }
                 if let chosen {
                     let isRight = chosen == question.answer

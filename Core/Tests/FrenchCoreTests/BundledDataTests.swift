@@ -51,6 +51,44 @@ final class BundledDataTests: XCTestCase {
         }
     }
 
+    /// The reader links rules with marks and sounds only; the importer had letters aligned with
+    /// sounds. On the lesson texts both must agree almost everywhere.
+    func testReaderLinksTheSameRulesAsTheLessonTexts() throws {
+        let content = try Content.decode(load("content.json"))
+        var compared = 0
+        var agreed = 0
+        for lesson in content.lessons {
+            for case .sentence(let sentence) in lesson.sections.flatMap(\.items) {
+                for (index, token) in sentence.tokens.enumerated() {
+                    guard let marked = token.marked else { continue }
+                    let previous = index > 0 ? sentence.tokens[index - 1].marked : nil
+                    let subject = RuleSubject(marked: marked, ipa: token.ipa ?? "", link: token.link ?? "", isTied: token.isTied, previous: previous)
+                    compared += 1
+                    if content.readingRule(for: subject) == token.rule { agreed += 1 }
+                }
+            }
+        }
+        XCTAssertGreaterThan(compared, 1000)
+        XCTAssertGreaterThanOrEqual(Double(agreed) / Double(compared), 0.95, "\(agreed) of \(compared) words agree")
+    }
+
+    func testReaderFindsTheRulesOfASamplePhrase() throws {
+        let content = try Content.decode(load("content.json"))
+        let reader = Reader(lexicon: Lexicon(forms: try load("lexicon.tsv"), lemmas: try load("lemmas.tsv")))
+        let labels = content.rulesApplying(to: reader.read("Les enfants habitent à Paris.").ruleSubjects.map(\.subject)).map(\.rule.label)
+        XCTAssertTrue(labels.contains("Связывание"), "\(labels)")
+        XCTAssertTrue(labels.contains("Носовые гласные"), "\(labels)")
+        XCTAssertTrue(labels.contains("Буква h"), "\(labels)")
+        XCTAssertTrue(labels.contains { $0.hasPrefix("s на конце") }, "\(labels)")
+    }
+
+    func testExamplesFileHasLessonPhrasesFirst() throws {
+        let examples = Examples(data: try load("examples.tsv"))
+        let ami = try examples.of(lemma: "ami")
+        XCTAssertEqual(ami.first?.lesson.map { $0 > 0 }, true)
+        XCTAssertTrue(ami.contains { $0.lesson == nil }, "Tatoeba sentences follow the lesson phrases")
+    }
+
     func testEveryLessonWordWithFormsHasAParadigm() throws {
         let lexicon = Lexicon(forms: try load("lexicon.tsv"), lemmas: try load("lemmas.tsv"))
         let grammar = Grammar(lexicon: lexicon)
