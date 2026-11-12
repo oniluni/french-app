@@ -168,6 +168,9 @@ final class ScreensTests: XCTestCase {
         app.navigationBars.buttons["BackButton"].tap()
         app.buttons["Все слова"].tap()
 
+        // While search is open the tab bar folds into the tab it came from: unfold it first.
+        app.tabBars.buttons["Разбор"].tap()
+        XCTAssertTrue(app.tabBars.buttons["Практика"].waitForExistence(timeout: 5))
         app.tabBars.buttons["Практика"].tap()
         XCTAssertTrue(app.staticTexts["Избранное"].waitForExistence(timeout: 5), "starred words are a practice set")
         shot("22c-favorites-set")
