@@ -54,6 +54,19 @@ public enum Markup {
         return parts
     }
 
+    /// The inverse of `parse`.
+    public static func string(from parts: [MarkedPart]) -> String {
+        parts.map { part in
+            switch part.kind {
+            case .plain: part.text
+            case .silent: "(\(part.text))"
+            case .nasal: "[\(part.text)]"
+            case .link: "{\(part.text)}"
+            case .arc: "‿"
+            }
+        }.joined()
+    }
+
     /// The string without marks, as it is spelled and spoken. A liaison becomes a word gap.
     public static func plain(_ source: String) -> String {
         parse(source).map { $0.kind == .arc ? " " : $0.text }.joined()
