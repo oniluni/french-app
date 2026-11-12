@@ -1,0 +1,53 @@
+# XcodeGen spec. There is no Mac in this project, so the .xcodeproj is generated in CI and never committed.
+name: French
+options:
+  bundleIdPrefix: io.github.oniluni
+  developmentLanguage: ru
+  deploymentTarget:
+    iOS: "26.0"
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+packages:
+  FrenchCore:
+    path: Core
+targets:
+  French:
+    type: application
+    platform: iOS
+    sources:
+      - App
+    dependencies:
+      - package: FrenchCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.oniluni.french
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: Français
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
+        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.education
+        TARGETED_DEVICE_FAMILY: "1"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+  FrenchUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - UITests
+    dependencies:
+      - target: French
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+schemes:
+  French:
+    build:
+      targets:
+        French: all
+        FrenchUITests: [test]
+    test:
+      targets:
+        - FrenchUITests

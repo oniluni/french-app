@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+</head>
+<body>
+<!-- page: everything from here to the closing body tag is what gets published as the artifact -->
+<title>Français для iPhone</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,300..600&display=swap">
+<link rel="stylesheet" href="styles.css">
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M12 6.6C10 5 7.4 4.6 4 4.6v13c3.4 0 6 .4 8 2 2-1.6 4.6-2 8-2v-13c-3.4 0-6 .4-8 2zM12 6.6v13"/></symbol>
+    <symbol id="i-cards" viewBox="0 0 24 24"><rect x="4.5" y="8.5" width="15" height="11" rx="2.8"/><path d="M7 5.6h10M9 2.9h6"/></symbol>
+    <symbol id="i-wave" viewBox="0 0 24 24"><path d="M4 10v4M8 7v10M12 4v16M16 8v8M20 10.5v3"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="M14.5 5l-7 7 7 7"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="M9.5 5.5L16 12l-6.5 6.5"/></symbol>
+    <symbol id="i-speaker" viewBox="0 0 24 24"><path d="M4 9.6v4.8h3.4l4.6 4V5.6l-4.6 4H4zM15.4 9.2a4 4 0 0 1 0 5.6M17.9 6.6a7.6 7.6 0 0 1 0 10.8"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="i-note" viewBox="0 0 24 24"><path d="M12.5 4.5H7A2.5 2.5 0 0 0 4.5 7v10A2.5 2.5 0 0 0 7 19.5h10a2.5 2.5 0 0 0 2.5-2.5v-5.5"/><path d="M18 3.9a1.7 1.7 0 0 1 2.4 2.4l-7.7 7.7-3.2.8.8-3.2L18 3.9z"/></symbol>
+  </defs>
+</svg>
+
+<div class="stage">
+  <aside class="rail">
+    <div class="rail-intro">
+      <h1 class="rail-name" lang="fr">Français</h1>
+      <p>Прототип приложения для iPhone: уроки, карточки и читалка с разбором произношения.</p>
+    </div>
+    <div class="segmented" id="theme" role="group" aria-label="Тема">
+      <button data-theme-set="">Авто</button>
+      <button data-theme-set="light">Светлая</button>
+      <button data-theme-set="dark">Тёмная</button>
+    </div>
+    <div class="rail-list" id="jumps">
+      <span class="rail-label">Перейти к экрану</span>
+      <button data-jump="lessons">Уроки</button>
+      <button data-jump="text">Текст урока</button>
+      <button data-jump="notes">Заметки к тексту</button>
+      <button data-jump="rule">Правило</button>
+      <button data-jump="sets">Выбор уроков для карточек</button>
+      <button data-jump="card">Карточка</button>
+      <button data-jump="drill">Тренировка форм</button>
+      <button data-jump="reader">Читалка</button>
+      <button data-jump="word">Разбор слова</button>
+      <button data-jump="dict">Словарь</button>
+    </div>
+    <p>Транскрипции и формы слов написаны вручную для примеров. Интервалы повторения условные.</p>
+  </aside>
+
+  <div class="phone">
+    <div class="app" id="app">
+      <div class="statusbar" aria-hidden="true"><span>9:41</span><span class="island"></span><span class="battery"></span></div>
+      <main class="screens" id="screens"></main>
+      <nav class="tabbar" id="tabbar" aria-label="Разделы">
+        <div class="tabs glass">
+          <button class="tab" data-tab="lessons"><svg class="icon" aria-hidden="true"><use href="#i-book"/></svg><span>Уроки</span></button>
+          <button class="tab" data-tab="practice"><svg class="icon" aria-hidden="true"><use href="#i-cards"/></svg><span>Практика</span></button>
+          <button class="tab" data-tab="tools"><svg class="icon" aria-hidden="true"><use href="#i-wave"/></svg><span>Разбор</span></button>
+        </div>
+        <button class="tab-search glass" id="search-open" data-tab="dict" aria-label="Словарь"><svg class="icon" aria-hidden="true"><use href="#i-search"/></svg></button>
+        <label class="searchfield glass" id="searchfield" hidden>
+          <svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>
+          <input id="dict-query" type="search" placeholder="Слово или перевод" autocomplete="off" aria-label="Поиск по словарю">
+        </label>
+      </nav>
+    </div>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+<script src="pronunciation.js"></script>
+<script src="lessons.js"></script>
+<script src="practice.js"></script>
+<script src="forms.js"></script>
+<script src="tools.js"></script>
+<script src="dictionary.js"></script>
+</body>
+</html>
