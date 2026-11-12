@@ -33,7 +33,7 @@ final class Store {
         }
     }
 
-    static var defaultURL: URL {
+    nonisolated static var defaultURL: URL {
         let folder = URL.applicationSupportDirectory
         if ProcessInfo.processInfo.arguments.contains("-uitest") {
             // UI tests start from an empty profile every time.
