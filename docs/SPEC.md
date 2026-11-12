@@ -1,7 +1,8 @@
 # French learning app: product spec
 
 Derived from the clickable prototype in `prototype/`. It tells whoever builds the real app
-what the prototype shows, which parts of it are fake, and what is still undecided.
+what the prototype shows, which parts of it are fake, what was decided (section 8) and where
+the app departs from the prototype (section 8a).
 
 Interface text is Russian, study material is French. Screen and button names below are quoted
 as they appear in the UI.
@@ -242,22 +243,41 @@ are Russian. Where real lesson content comes from is undecided (section 8).
 - Both themes are designed. Motion is disabled under the reduced-motion setting.
 - Touch targets are at least 44 pt.
 
-## 8. Open decisions
+## 8. Decisions
 
-Blocked on the project owner. Asked on 2026-11-12, not answered yet.
+Taken by the owner on 2026-11-12.
 
-1. **Stack.** This machine is NixOS without Xcode.
-   - Expo / React Native (recommended): developed here, runs on the iPhone through Expo Go,
-     store builds in the cloud. Checked against the official docs on 2026-11-12: `expo-glass-effect`
-     exists, is listed as included in Expo Go, needs iOS 26 and falls back to a plain view below it.
-     Not checked: the native tab bar API in Expo Router, reported as unstable.
-   - SwiftUI: real Liquid Glass, but nothing can be compiled or run here; needs a Mac.
-   - PWA: grow the prototype into an installable web app; verifiable here, not a native app.
-2. **Content source.** Files prepared from the owner's materials, an editor inside the app, or
-   the sample lessons for now.
-3. **Engine for 6.3 and 6.4.** A bundled offline dictionary (recommended: no network, no cost,
-   limited to the words it has), a language-model API, or lesson content only, with the reader
-   and free word lookup left out of the first version.
+1. **Stack: SwiftUI, iOS 26, sideloaded.** The owner has no Mac and no Apple developer account
+   and installs IPAs with ESign and a third-party certificate. GitHub Actions (`macos-26`, Xcode 26)
+   builds an unsigned IPA on every push and publishes it as the `latest` release. Consequences:
+   - No entitlements, extensions or embedded frameworks, so any certificate can sign the app.
+     No iCloud, sync, push or widgets.
+   - An update installs over the old app only when signed by a certificate of the same team.
+     Otherwise the app is deleted with its data, hence «Сохранить копию в Файлы» and
+     «Восстановить из копии» on the lesson list (not in the prototype).
+   - Nobody can run a simulator; UI tests attach screenshots of every screen instead.
+2. **Content: the owner's lesson vault**, lessons 1–15. Lessons 16–29 there are raw OCR and are
+   skipped until they are brought to the format of 1–15 (`lesson: N` front matter); the importer
+   then picks them up.
+3. **Engine: Lexique 3.83** (CC BY-SA 4.0), bundled. Gives IPA, lemma, part of speech, gender,
+   number, tense and person for about 125 000 spellings. The pronunciation marks are derived by
+   aligning spelling with IPA (`tools/align.mjs`, 99 % of Lexique forms align). Lexique has no
+   translations: the reader translates only words that the lessons teach.
+
+## 8a. Where the app departs from the prototype
+
+- Lessons have no French title in the vault: the list shows «Урок N» and the Russian topic.
+- «Текст» is the vault's sections (phonetic drills, Phrases, Texte, dialogues) made of separate
+  phrases. Each phrase folds its translation and explanation under «Перевод»; a selection stays
+  inside one phrase.
+- Rules are the vault's own Markdown (paragraphs, lists, tables, callouts), not a fixed card of
+  paragraphs, table and examples. French in italics is marked up and plays when tapped.
+- «Почему так читается» links to the lesson's «Правила чтения» page, chosen by matching the word's
+  letters against each reading rule.
+- Word analysis and form drills work for any verb, noun or adjective in the dictionary, with the
+  tenses Présent, Imparfait, Futur.
+- Notes can be deleted (swipe). Saved sets can be deleted (swipe). Words added from texts form
+  their own set, «Добавленные слова».
 
 ## 9. Build order
 

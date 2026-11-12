@@ -122,9 +122,10 @@ final class ReaderTests: XCTestCase {
     }
 
     func testBracketsTypedByTheLearnerAreNotMarks() {
-        let words = reader.read("il me (te) plaît")
-        XCTAssertNil(words[2].marked)
-        XCTAssertEqual(words.map(\.isKnown), [true, true, false, true])
+        // "(amis)" is a word the dictionary knows, but its brackets would read as silent letters.
+        let words = reader.read("les (amis) ont")
+        XCTAssertEqual(words.map(\.isKnown), [true, false, true])
+        XCTAssertEqual(words.marked, "le(s) (amis) [on](t)")
     }
 
     func testUnknownWordIsLeftAlone() {
