@@ -56,7 +56,6 @@ struct AnalysisView: View {
 /// Type a phrase, get its pronunciation marks, its sounds and what to notice in it.
 private struct ReaderView: View {
     @Environment(Library.self) private var library
-    @Environment(Navigator.self) private var navigator
     @State private var phrase = ""
     @State private var words: [ReadWord] = []
     @State private var picked: Picked?
@@ -143,11 +142,9 @@ private struct ReaderView: View {
         if !found.isEmpty {
             Section("Правила в этой фразе") {
                 ForEach(Array(found.enumerated()), id: \.offset) { _, item in
-                    Button {
-                        navigator.push(.rule(item.rule.rule))
-                    } label: {
+                    NavigationLink(value: Route.rule(item.rule.rule)) {
                         VStack(alignment: .leading, spacing: 3) {
-                            Text(item.rule.label).font(.subheadline).foregroundStyle(Color.primary).multilineTextAlignment(.leading)
+                            Text(item.rule.label).font(.subheadline).multilineTextAlignment(.leading)
                             Text(item.words.map { words[subjects[$0].index].text.withoutOuterPunctuation }.joined(separator: ", "))
                                 .font(Theme.french(.subheadline))
                                 .foregroundStyle(.secondary)

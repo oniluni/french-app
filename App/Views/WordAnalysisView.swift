@@ -190,6 +190,8 @@ struct WordAnalysisBody: View {
                             Text(example.lesson.map { "Урок \($0)" } ?? "Tatoeba").font(.caption2).foregroundStyle(.tertiary)
                         }
                     }
+                    // Plain: the translation and the source keep their own colours instead of the tint.
+                    .buttonStyle(.plain)
                     .accessibilityHint("Прослушать")
                 }
             } header: {
