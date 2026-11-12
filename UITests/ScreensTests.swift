@@ -44,7 +44,11 @@ final class ScreensTests: XCTestCase {
 
         app.buttons["Правила"].tap()
         shot("06-lesson-rules")
-        app.cells.firstMatch.tap()
+        // By title: the lesson list's cells stay in the tree under the pushed lesson.
+        let rule = app.staticTexts["Правила чтения"].firstMatch
+        XCTAssertTrue(rule.waitForExistence(timeout: 5))
+        rule.tap()
+        XCTAssertTrue(app.navigationBars["Урок 5"].staticTexts["Урок 5"].waitForExistence(timeout: 5) || app.staticTexts["j читается [ʒ]:"].exists)
         shot("07-rule")
         app.navigationBars.buttons["BackButton"].tap()
 
