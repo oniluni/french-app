@@ -151,7 +151,7 @@ struct SentenceView: View {
                 anchor = rect
                 picked = pickedWords(range)
             }
-            .popover(item: $picked, attachmentAnchor: .rect(.rect(anchor)), arrowEdge: .top) { item in
+            .popover(item: $picked, attachmentAnchor: .rect(.rect(anchor))) { item in
                 WordPopover(picked: item, onNote: {
                     picked = nil
                     onNote(item.plain, item.range)

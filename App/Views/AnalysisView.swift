@@ -86,7 +86,7 @@ private struct ReaderView: View {
                         anchor = rect
                         picked = pickedWords(range)
                     }
-                    .popover(item: $picked, attachmentAnchor: .rect(.rect(anchor)), arrowEdge: .top) { item in
+                    .popover(item: $picked, attachmentAnchor: .rect(.rect(anchor))) { item in
                         WordPopover(picked: item, onLeave: { picked = nil })
                     }
                     .padding(.vertical, 6)

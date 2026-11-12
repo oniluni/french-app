@@ -29,7 +29,8 @@ final class ScreensTests: XCTestCase {
         XCTAssertTrue(app.buttons["Заметка"].exists)
         app.buttons["Заметка"].tap()
 
-        let field = app.textFields["note-field"].firstMatch
+        // A multi-line TextField is a text view to accessibility.
+        let field = app.descendants(matching: .any)["note-field"].firstMatch
         XCTAssertTrue(field.waitForExistence(timeout: 5))
         field.typeText("Проверить произношение")
         shot("04-note-sheet")
@@ -67,9 +68,11 @@ final class ScreensTests: XCTestCase {
         XCTAssertTrue(card.waitForExistence(timeout: 5))
         shot("12-card-front")
         card.tap()
-        XCTAssertTrue(app.buttons["Хорошо"].waitForExistence(timeout: 5))
+        // A grade button reads its interval too: «Хорошо, 1 дн».
+        let good = app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Хорошо'")).firstMatch
+        XCTAssertTrue(good.waitForExistence(timeout: 5))
         shot("13-card-back")
-        app.buttons["Хорошо"].tap()
+        good.tap()
         XCTAssertTrue(app.staticTexts["1 / 10"].waitForExistence(timeout: 5), "one of ten cards is done")
         app.buttons["Закрыть"].tap()
 
@@ -122,7 +125,7 @@ final class ScreensTests: XCTestCase {
         app.launch()
         XCTAssertTrue(app.navigationBars["Уроки"].waitForExistence(timeout: 15))
         shot("30-dark-lessons")
-        app.buttons["lesson-7"].firstMatch.tap()
+        app.buttons["lesson-2"].firstMatch.tap()
         XCTAssertTrue(app.buttons["pronunciation-toggle"].waitForExistence(timeout: 10))
         shot("31-dark-lesson-text")
         app.tabBars.buttons["Практика"].tap()
