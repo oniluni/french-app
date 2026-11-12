@@ -46,9 +46,11 @@ final class ScreensTests: XCTestCase {
         shot("06-lesson-rules")
         app.cells.firstMatch.tap()
         shot("07-rule")
-        app.navigationBars.buttons.element(boundBy: 0).tap()
+        app.navigationBars.buttons["BackButton"].tap()
 
-        app.buttons["Слова"].tap()
+        let words = app.buttons["Слова"]
+        XCTAssertTrue(words.waitForExistence(timeout: 5), "back from the rule lands on the lesson")
+        words.tap()
         shot("08-lesson-words")
     }
 
