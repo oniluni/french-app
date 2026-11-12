@@ -166,11 +166,12 @@ private struct ReaderView: View {
                     NavigationLink(value: Route.rule(item.rule)) {
                         VStack(alignment: .leading, spacing: 3) {
                             Text(item.title).font(.subheadline).multilineTextAlignment(.leading)
-                            if !item.words.isEmpty {
-                                Text(item.words.map { words[$0].text.withoutOuterPunctuation }.joined(separator: ", "))
-                                    .font(Theme.french(.subheadline))
-                                    .foregroundStyle(.secondary)
-                            }
+                            // Two lessons may name a rule alike («Определённый артикль»): the lesson tells them apart.
+                            let lesson = "Урок \(item.rule.prefix { $0 != "-" })"
+                            let said = item.words.map { words[$0].text.withoutOuterPunctuation }.reduce(into: [String]()) { if !$0.contains($1) { $0.append($1) } }
+                            Text(([lesson] + said).joined(separator: " · "))
+                                .font(Theme.french(.subheadline))
+                                .foregroundStyle(.secondary)
                         }
                     }
                 }
