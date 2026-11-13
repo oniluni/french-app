@@ -14,8 +14,8 @@ enum Route: Hashable {
     case word(String)
     /// A kind of function word in the reference, by `ReferenceCategory.id`.
     case category(String)
-    /// Every rule of every lesson.
-    case rules
+    /// Every rule of the lessons of one kind: «Грамматика».
+    case rules(String)
 }
 
 /// Which tab is shown and what is pushed in each. Every tab keeps its own stack.
@@ -102,8 +102,8 @@ struct RootView: View {
                     } else {
                         ContentUnavailableView("Раздел не найден", systemImage: "books.vertical")
                     }
-                case .rules:
-                    AllRulesView()
+                case .rules(let kind):
+                    AllRulesView(kind: kind)
                 }
             }
         }

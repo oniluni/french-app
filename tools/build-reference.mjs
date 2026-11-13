@@ -1,17 +1,20 @@
 #!/usr/bin/env node
-// The «Справочник» tab: function words of French by kind, with gap-fill sentences
-// → App/Resources/reference.json.
+// The «Справочник» tab: function words of French by kind, with gap-fill sentences, and kinds of
+// expression → App/Resources/reference.json.
 //
 //   node tools/build-reference.mjs     (after import-vault, build-examples and build-dictionary)
 //
-// Words come from Lexique by part of speech. A word is kept when it is common and has a
-// translation: the lessons' own first, then WikDict for the form, then WikDict for its lemma.
+// Function words come from Lexique by part of speech. A word is kept when it is common and has a
+// translation: the hand-written one of reference-own.mjs first (it is written for the kind, and
+// says what the word is for), then the lessons' own, then WikDict for the form, then for its lemma. reference-own.mjs also has what no source
+// has: what a function word is for, compound prepositions and conjunctions, and every expression.
 import { readFileSync, statSync, writeFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { loadDictionary } from './build-dictionary.mjs';
 import { FILES, tatoeba, tatoebaPairs } from './build-examples.mjs';
 import { readingOf } from './build-lexicon.mjs';
-import { download, keyOf, loadRows } from './lexique.mjs';
+import { download, indexByForm, keyOf, loadRows } from './lexique.mjs';
+import { EXTRA_WORDS, OWN_WORDS, PHRASES } from './reference-own.mjs';
 
 const RESOURCES = new URL('../App/Resources/', import.meta.url).pathname;
 
@@ -27,9 +30,11 @@ export const CATEGORIES = [
   { id: 'numbers', title: 'Числительные', pos: ['ADJ:num'] },
 ];
 
+/** The two parts of the tab. */
+const SECTIONS = { words: 'Служебные слова', phrases: 'Выражения' };
+
 /** Occurrences per million (films and books together) below which a form is not listed. */
 const MIN_FREQUENCY = 5;
-const MAX_WORDS = 40;
 /** Lexique artefacts: letters and fragments tagged as function words. */
 const NOT_WORDS = new Set(['c', 't', 'x', 'con', 'force', 'plein']);
 const GAPS_PER_WORD = 4;
@@ -83,26 +88,48 @@ export function translator(content, { byPos }) {
   };
 }
 
-/** The common words of each kind, most frequent first. */
-export function categoryWords(rows, translate, levels) {
+/** A form of Lexique as the tab lists it: with its marks, sound and level. */
+function listed(row, ru, levels) {
+  const { marked, ipa } = readingOf(row.ortho, row.ipa);
+  const level = levels.get(keyOf(row.ortho)) ?? levels.get(keyOf(row.lemma));
+  return { fr: row.ortho, ...(marked !== row.ortho ? { m: marked } : {}), ipa, ru, ...(level ? { level } : {}) };
+}
+
+/**
+ * The words of each kind: the common ones of Lexique, most frequent first, then the hand-written
+ * ones Lexique does not list under the kind (`own.extra`). `own.words` are the hand-written
+ * translations of listed words, with what the word is for; both are by category id.
+ *
+ * An added word has a reading only when Lexique has that very form: the app reads the others
+ * ("à cause de") itself, and has no analysis of them.
+ */
+export function categoryWords(rows, translate, levels, own = {}) {
+  const byForm = indexByForm(rows);
   return CATEGORIES.map((category) => {
+    const written = new Map((own.words?.[category.id] ?? []).map((entry) => [keyOf(entry.fr), entry]));
     const best = new Map();
     for (const row of rows) {
       if (!category.pos.includes(row.pos) || row.frequency < MIN_FREQUENCY || NOT_WORDS.has(row.ortho)) continue;
       const previous = best.get(row.ortho);
       if (!previous || row.frequency > previous.frequency) best.set(row.ortho, row);
     }
-    const words = [...best.values()]
+    const common = [...best.values()]
       .sort((a, b) => b.frequency - a.frequency)
-      .map((row) => ({ row, ru: translate(row) }))
+      .map((row) => ({ row, ...(written.get(keyOf(row.ortho)) ?? { ru: translate(row) }) }))
       .filter(({ ru }) => ru)
-      .slice(0, MAX_WORDS)
-      .map(({ row, ru }) => {
-        const { marked, ipa } = readingOf(row.ortho, row.ipa);
-        const level = levels.get(keyOf(row.ortho)) ?? levels.get(keyOf(row.lemma));
-        return { fr: row.ortho, ...(marked !== row.ortho ? { m: marked } : {}), ipa, ru, ...(level ? { level } : {}) };
-      });
-    return { ...category, words };
+      .map(({ row, ru, use }) => ({ ...listed(row, ru, levels), ...(use ? { use } : {}) }));
+    const seen = new Set(common.map((word) => keyOf(word.fr)));
+    const unlisted = [...written.keys()].filter((key) => !seen.has(key));
+    if (unlisted.length) throw new Error(`${category.title}: OWN_WORDS has words the kind does not list from Lexique; move them to EXTRA_WORDS: ${unlisted.join(', ')}`);
+
+    const extra = own.extra?.[category.id] ?? [];
+    const twice = extra.filter(({ fr }) => seen.has(keyOf(fr))).map(({ fr }) => fr);
+    if (twice.length) throw new Error(`${category.title}: EXTRA_WORDS has words the kind already lists from Lexique; move them to OWN_WORDS: ${twice.join(', ')}`);
+    const added = extra.map(({ fr, ru, use }) => {
+      const row = byForm.get(keyOf(fr))?.[0];
+      return { ...(row ? listed(row, ru, levels) : { fr, ru }), ...(use ? { use } : {}) };
+    });
+    return { ...category, words: [...common, ...added] };
   });
 }
 
@@ -126,10 +153,13 @@ export function placeOf(word, sentence) {
   return { start: first.index, end: last.index + last[0].length };
 }
 
-/** Gap-fill sentences of a kind from Tatoeba, readable length first. */
+/**
+ * Gap-fill sentences of a kind from Tatoeba, readable length first. Only single words are asked:
+ * compound ones have synonyms among themselves ("dès que", "aussitôt que"), and "d'" is "de".
+ */
 export function gapsFor(words, sentences) {
   const gaps = [];
-  for (const word of words) {
+  for (const word of words.filter(({ fr }) => !fr.includes(' ') && !fr.endsWith("'"))) {
     const found = [];
     for (const sentence of sentences) {
       const place = placeOf(word.fr, sentence.fr);
@@ -157,10 +187,14 @@ async function main() {
   const [fra, rus, links] = await Promise.all([tatoeba(FILES.fra), tatoeba(FILES.rus), tatoeba(FILES.links)]);
   const sentences = tatoebaPairs(fra, rus, links);
 
-  const categories = categoryWords(rows, translator(content, translations), levels).map(({ pos, gaps, ...category }) => ({
+  const own = { words: OWN_WORDS, extra: EXTRA_WORDS };
+  const words = categoryWords(rows, translator(content, translations), levels, own).map(({ gaps, ...category }) => ({
     ...category,
+    section: SECTIONS.words,
     ...(gaps ? { gaps: gapsFor(category.words, sentences) } : {}),
   }));
+  const phrases = PHRASES.map(({ entries, ...category }) => ({ ...category, section: SECTIONS.phrases, words: entries }));
+  const categories = [...words, ...phrases];
   writeFileSync(`${RESOURCES}reference.json`, `${JSON.stringify({ categories })}\n`);
   for (const category of categories) {
     console.log(`${category.title}: ${category.words.length} words${category.gaps ? `, ${category.gaps.length} gap sentences` : ''}`);

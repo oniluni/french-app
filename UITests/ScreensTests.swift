@@ -136,6 +136,12 @@ final class ScreensTests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Présent"].waitForExistence(timeout: 5) || app.buttons["Présent"].exists)
         shot("21-word-analysis")
 
+        // A function word says what it is for.
+        field.tap()
+        field.clearAndType("au\n")
+        XCTAssertTrue(labelled("слитный артикль").waitForExistence(timeout: 5), "«au» says it is à + le")
+        shot("21a-word-use")
+
         // A noun of two genders opens on the gender that was typed, and has examples.
         field.tap()
         field.clearAndType("amie\n")
@@ -203,9 +209,32 @@ final class ScreensTests: XCTestCase {
         shot("43-gap-answered")
         app.buttons["Закрыть"].tap()
 
+        // Every word says what it is for.
+        XCTAssertTrue(labelled("принадлежность").waitForExistence(timeout: 5), "«de» says what it is for")
         app.navigationBars.buttons["BackButton"].tap()
-        app.staticTexts["Правила уроков"].tap()
-        XCTAssertTrue(app.navigationBars["Правила уроков"].waitForExistence(timeout: 5))
+
+        app.staticTexts["Артикли"].tap()
+        XCTAssertTrue(labelled("слитный артикль").waitForExistence(timeout: 5), "«au» says it is à + le")
+        shot("41b-articles")
+        app.navigationBars.buttons["BackButton"].tap()
+
+        XCTAssertTrue(scroll(to: app.staticTexts["Идиомы"]), "the reference has a part on expressions")
+        shot("40b-reference-phrases")
+        app.staticTexts["Идиомы"].tap()
+        XCTAssertTrue(app.navigationBars["Идиомы"].waitForExistence(timeout: 5))
+        shot("45-idioms")
+        app.navigationBars.buttons["BackButton"].tap()
+
+        XCTAssertTrue(scroll(to: app.staticTexts["Глаголы с предлогами"]))
+        app.staticTexts["Глаголы с предлогами"].tap()
+        XCTAssertTrue(app.navigationBars["Глаголы с предлогами"].waitForExistence(timeout: 5))
+        shot("46-verbs-with-prepositions")
+        app.navigationBars.buttons["BackButton"].tap()
+
+        app.swipeDown()
+        app.swipeDown()
+        app.staticTexts["Грамматика"].firstMatch.tap()
+        XCTAssertTrue(app.navigationBars["Грамматика"].waitForExistence(timeout: 5))
         shot("44-all-rules")
     }
 
@@ -220,6 +249,12 @@ final class ScreensTests: XCTestCase {
         shot("31-dark-lesson-rules")
         app.tabBars.buttons["Практика"].tap()
         shot("32-dark-practice")
+    }
+
+    /// The first element whose label has this text: a list row reads all its texts as one label.
+    @MainActor
+    private func labelled(_ text: String) -> XCUIElement {
+        app.descendants(matching: .any).matching(NSPredicate(format: "label CONTAINS %@", text)).firstMatch
     }
 
     /// Scrolls the screen up until the element is there; lists only build the rows they show.

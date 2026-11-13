@@ -145,6 +145,10 @@ struct WordAnalysisBody: View {
             } else {
                 LabeledContent("Часть речи", value: WordAnalysisBody.partsOfSpeech[analysis.pos] ?? analysis.pos)
             }
+            // "ses" is listed as "son" only when the form itself is not: try the form first.
+            if let use = library.reference.use(of: found.form, pos: analysis.pos) ?? library.reference.use(of: analysis.lemma, pos: analysis.pos) {
+                LabeledContent("Для чего") { Text(use).multilineTextAlignment(.trailing) }
+            }
             if Lexicon.key(found.form) != Lexicon.key(analysis.lemma) || !form.isEmpty {
                 LabeledContent("Форма «\(found.form)»", value: form.isEmpty ? "начальная" : form.joined(separator: ", "))
             }

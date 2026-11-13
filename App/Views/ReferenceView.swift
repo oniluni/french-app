@@ -1,32 +1,46 @@
 import FrenchCore
 import SwiftUI
 
-/// «Справочник»: function words of French by kind, and every rule of the lessons in one place.
+/// «Справочник»: every rule of the lessons by kind, function words of French by kind, and
+/// kinds of expression.
 struct ReferenceView: View {
     @Environment(Library.self) private var library
 
     var body: some View {
+        let rules = library.content.lessons.flatMap(\.rules)
         List {
-            Section("Служебные слова") {
-                ForEach(library.reference.categories) { category in
-                    NavigationLink(value: Route.category(category.id)) {
-                        HStack {
-                            Text(category.title)
-                            Spacer()
-                            Text("\(category.words.count)").foregroundStyle(.secondary).monospacedDigit()
-                        }
+            Section("Правила уроков") {
+                ForEach(AllRulesView.kinds, id: \.self) { kind in
+                    NavigationLink(value: Route.rules(kind)) {
+                        row(kind, count: rules.filter { $0.kind == kind }.count)
                     }
                 }
             }
-            Section {
-                NavigationLink(value: Route.rules) {
-                    Label("Правила уроков", systemImage: "text.book.closed")
+            ForEach(library.reference.sections, id: \.self) { section in
+                Section {
+                    ForEach(library.reference.categories.filter { $0.section == section }) { category in
+                        NavigationLink(value: Route.category(category.id)) {
+                            row(category.title, count: category.words.count)
+                        }
+                    }
+                } header: {
+                    Text(section)
+                } footer: {
+                    if section == library.reference.sections.last {
+                        Text("Переводы и пояснения к служебным словам и выражениям составлены для справочника; остальные переводы — из уроков, иначе из словаря WikDict. Уровни A1–C2: FLELex.")
+                    }
                 }
-            } footer: {
-                Text("Переводы служебных слов: из уроков, иначе из словаря WikDict. Уровни A1–C2: FLELex.")
             }
         }
         .navigationTitle("Справочник")
+    }
+
+    private func row(_ title: String, count: Int) -> some View {
+        HStack {
+            Text(title)
+            Spacer()
+            Text("\(count)").foregroundStyle(.secondary).monospacedDigit()
+        }
     }
 }
 
@@ -43,7 +57,8 @@ struct CategoryView: View {
         List {
             Section {
                 Button {
-                    session = SessionRequest(title: category.title, entries: library.content.entries(forWords: category.words.map(\.word)))
+                    let words = category.words.map { $0.word(reader: library.reader) }
+                    session = SessionRequest(title: category.title, entries: library.content.entries(forWords: words))
                 } label: {
                     Label("Учить карточками", systemImage: "rectangle.on.rectangle.angled")
                 }
@@ -57,17 +72,19 @@ struct CategoryView: View {
                     }
                 }
             }
-            Section(plural(category.words.count, "слово", "слова", "слов")) {
+            Section(category.pos == nil ? plural(category.words.count, "выражение", "выражения", "выражений") : plural(category.words.count, "слово", "слова", "слов")) {
                 ForEach(category.words, id: \.fr) { word in
-                    NavigationLink(value: Route.word(word.fr)) {
-                        VStack(alignment: .leading, spacing: 3) {
-                            HStack(alignment: .firstTextBaseline, spacing: 8) {
-                                MarkedText(marked: word.m, plain: word.fr, style: .title3)
-                                if let level = word.level { LevelTag(level: level) }
-                            }
-                            Text(word.ru).font(.subheadline).foregroundStyle(.secondary)
+                    let card = word.word(reader: library.reader)
+                    // A phrase the dictionary lacks as a whole ("tout à fait") has no analysis to open: it is
+                    // heard instead. Asked of the grammar, it would answer for its last word.
+                    if library.lexicon.entry(for: word.fr)?.analyses.isEmpty ?? true {
+                        HStack(alignment: .top) {
+                            label(word, marked: card.m)
+                            Spacer()
+                            SpeakButton(text: word.fr)
                         }
-                        .padding(.vertical, 2)
+                    } else {
+                        NavigationLink(value: Route.word(word.fr)) { label(word, marked: card.m) }
                     }
                 }
             }
@@ -77,31 +94,50 @@ struct CategoryView: View {
         .fullScreenCover(item: $session) { CardSessionView(request: $0) }
         .fullScreenCover(item: $gaps) { GapSessionView(request: $0) }
     }
+
+    /// The word, its translation and what it is for.
+    private func label(_ word: ReferenceWord, marked: String?) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                MarkedText(marked: marked, plain: word.fr, style: .title3)
+                if let level = word.level { LevelTag(level: level) }
+            }
+            Text(word.ru).font(.subheadline).foregroundStyle(.secondary)
+            if let use = word.use {
+                Text(use).font(.footnote).foregroundStyle(.secondary)
+            }
+        }
+        .padding(.vertical, 2)
+    }
 }
 
-/// Every rule of every lesson, by kind.
+/// Every rule of the lessons of one kind, by lesson.
 struct AllRulesView: View {
+    let kind: String
+
     @Environment(Library.self) private var library
 
-    private static let kinds = ["Произношение", "Чтение", "Грамматика", "Примечания"]
+    static let kinds = ["Грамматика", "Произношение", "Чтение", "Примечания"]
 
     var body: some View {
-        let rules = library.content.lessons.flatMap(\.rules)
         List {
-            ForEach(AllRulesView.kinds, id: \.self) { kind in
-                Section(kind) {
-                    ForEach(rules.filter { $0.kind == kind }) { rule in
-                        NavigationLink(value: Route.rule(rule.id)) {
-                            VStack(alignment: .leading, spacing: 3) {
-                                Text(rule.title).font(.subheadline.weight(.semibold))
-                                Text("Урок \(rule.lesson) · \(rule.summary)").font(.caption).foregroundStyle(.secondary).lineLimit(2)
+            ForEach(library.content.lessons) { lesson in
+                let rules = lesson.rules.filter { $0.kind == kind }
+                if !rules.isEmpty {
+                    Section("Урок \(lesson.id)") {
+                        ForEach(rules) { rule in
+                            NavigationLink(value: Route.rule(rule.id)) {
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text(rule.title).font(.subheadline.weight(.semibold))
+                                    Text(rule.summary).font(.caption).foregroundStyle(.secondary).lineLimit(2)
+                                }
                             }
                         }
                     }
                 }
             }
         }
-        .navigationTitle("Правила уроков")
+        .navigationTitle(kind)
         .navigationBarTitleDisplayMode(.inline)
     }
 }

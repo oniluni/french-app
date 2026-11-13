@@ -35,6 +35,9 @@ IPA that the owner signs and sideloads with ESign. There is no Mac and no Apple 
   title. A new lesson in the vault therefore needs its triggers written before it can be imported.
 - The vault has no lesson texts: a lesson is `Правила.md` and `Слова.md`. Examples, gap-fill and
   the rules practice take their sentences from Tatoeba.
+- The reference's translations, what each function word is for, compound prepositions and
+  conjunctions, and every expression are hand-written in `tools/reference-own.mjs`; the build
+  fails on a word listed there under a kind that does not have it.
 - Never hand-edit `App/Resources/*`; change `tools/` and regenerate. The lesson vault lives outside
   the repo; only lessons whose `Дашборд.md` has `lesson: N` front matter are imported.
 - `prototype/data.js` is hand-written sample content and the acceptance test of `tools/align.mjs`.

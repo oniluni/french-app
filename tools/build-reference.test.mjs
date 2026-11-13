@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { categoryWords, gapsFor, placeOf, translator } from './build-reference.mjs';
+import { EXTRA_WORDS, OWN_WORDS, PHRASES, pairs } from './reference-own.mjs';
 
 const row = (ortho, pos, frequency, lemma = ortho, ipa = '') => ({ ortho, ipa, lemma, pos, gender: '', number: '', tags: [], frequency });
 
@@ -56,4 +57,44 @@ test('gap sentences: the length closest to the ideal first, at most four per wor
   const gaps = gapsFor([{ fr: 'chez' }], sentences);
   assert.deepEqual(gaps.map((gap) => gap.src), ['T1', 'T4', 'T2']);
   assert.deepEqual(gaps[1], { before: 'Pierre va ', answer: 'chez', after: ' sa mère.', ru: '3', src: 'T4' });
+});
+
+test('hand-written lines: "fr = ru | use", the use optional, a missing side fails', () => {
+  assert.deepEqual(pairs('au = à + le | слитный артикль\nmerci = спасибо'), [
+    { fr: 'au', ru: 'à + le', use: 'слитный артикль' },
+    { fr: 'merci', ru: 'спасибо' },
+  ]);
+  assert.throws(() => pairs('merci спасибо'), /no " = "/);
+  assert.throws(() => pairs('merci = спасибо | '), /lacks a side/);
+});
+
+test('a hand-written word wins over the sources and says what it is for; an added one comes last', () => {
+  const rows = [row('de', 'PRE', 900, 'de', 'də'), row('chez', 'PRE', 300, 'chez', 'ʃe'), row('près', 'PRE', 50, 'près', 'pʁɛ')];
+  const translate = (r) => ({ de: 'из, от', chez: 'у', près: 'около' })[r.ortho];
+  const own = {
+    words: { prepositions: [{ fr: 'de', ru: 'из; о', use: 'принадлежность' }] },
+    extra: { prepositions: [{ fr: 'à cause de', ru: 'из-за' }] },
+  };
+  const [prepositions] = categoryWords(rows, translate, new Map(), own);
+  assert.deepEqual(prepositions.words, [
+    { fr: 'de', ipa: 'də', ru: 'из; о', use: 'принадлежность' },
+    { fr: 'chez', m: 'che(z)', ipa: 'ʃe', ru: 'у' },
+    { fr: 'près', m: 'prè(s)', ipa: 'pʁɛ', ru: 'около' },
+    { fr: 'à cause de', ru: 'из-за' },
+  ]);
+  assert.throws(() => categoryWords(rows, translate, new Map(), { words: { prepositions: [{ fr: 'via', ru: 'через' }] } }), /does not list.*via/);
+  assert.throws(() => categoryWords(rows, translate, new Map(), { extra: { prepositions: [{ fr: 'chez', ru: 'у' }] } }), /already lists.*chez/);
+});
+
+test('gap sentences ask single words only: no compound or elided form', () => {
+  const sentences = [{ fr: 'Il reste à cause de la pluie.', ru: '1', src: 'T1' }, { fr: "Le livre d'Anne.", ru: '2', src: 'T2' }];
+  assert.deepEqual(gapsFor([{ fr: 'à cause de' }, { fr: "d'" }], sentences), []);
+});
+
+test('the hand-written lists have no line twice within a kind', () => {
+  const kinds = [...Object.entries(OWN_WORDS), ...Object.entries(EXTRA_WORDS), ...PHRASES.map((kind) => [kind.id, kind.entries])];
+  for (const [id, entries] of kinds) {
+    const words = entries.map(({ fr }) => fr.toLowerCase());
+    assert.deepEqual(words.filter((fr, i) => words.indexOf(fr) !== i), [], id);
+  }
 });

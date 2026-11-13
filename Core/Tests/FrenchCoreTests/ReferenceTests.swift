@@ -16,7 +16,7 @@ final class GapFillTests: XCTestCase {
     private func category(gaps: [Gap]) throws -> ReferenceCategory {
         let words = ["à", "de", "chez", "dans", "sur"].map { #"{"fr":"\#($0)","ipa":"","ru":"…"}"# }.joined(separator: ",")
         let objects = gaps.map { #"{"before":"\#($0.before)","answer":"\#($0.answer)","after":"\#($0.after)","ru":"\#($0.ru)","src":"\#($0.src)"}"# }.joined(separator: ",")
-        return try JSONDecoder().decode(ReferenceCategory.self, from: Data(#"{"id":"prepositions","title":"Предлоги","words":[\#(words)],"gaps":[\#(objects)]}"#.utf8))
+        return try JSONDecoder().decode(ReferenceCategory.self, from: Data(#"{"id":"prepositions","title":"Предлоги","section":"Служебные слова","pos":["PRE"],"words":[\#(words)],"gaps":[\#(objects)]}"#.utf8))
     }
 
     func testEveryQuestionHasItsAnswerAndThreeOtherWordsOfTheKind() throws {
@@ -34,6 +34,17 @@ final class GapFillTests: XCTestCase {
         }
         var again = SeededGenerator(state: 11)
         XCTAssertEqual(GapFill.questions(from: try category(gaps: gaps), count: 5, using: &again), questions)
+    }
+
+    func testOnlySingleWordsAreOptions() throws {
+        let words = ["à", "d'", "près de", "dès que", "chez", "dans", "sur"].map { #"{"fr":"\#($0)","ru":"…"}"# }.joined(separator: ",")
+        let gap = #"{"before":"Je vais ","answer":"à","after":" Paris.","ru":"","src":"T1"}"#
+        let category = try JSONDecoder().decode(ReferenceCategory.self, from: Data(#"{"id":"p","title":"П","section":"С","words":[\#(words)],"gaps":[\#(gap)]}"#.utf8))
+        var generator = SeededGenerator(state: 3)
+        for _ in 0..<20 {
+            let options = try XCTUnwrap(GapFill.questions(from: category, count: 1, using: &generator).first).options
+            XCTAssertTrue(options.allSatisfy { !$0.contains(" ") && !$0.hasSuffix("'") }, "\(options)")
+        }
     }
 
     func testCountLimitsTheQuestions() throws {
@@ -60,5 +71,41 @@ final class FavoritesTests: XCTestCase {
     func testOlderBackupsKeepTheirAddedWordsAsFavorites() throws {
         let old = #"{"version":1,"addedWords":[{"fr":"matin","ipa":"matɛ̃","ru":"утро","pos":""}]}"#
         XCTAssertEqual(try UserData.decode(Data(old.utf8)).favorites.map(\.fr), ["matin"])
+    }
+}
+
+final class ReferenceBookTests: XCTestCase {
+    private let book = try! ReferenceBook.decode(Data(#"""
+    {"categories": [
+      {"id": "articles", "title": "Артикли", "section": "Служебные слова", "pos": ["ART:def"],
+       "words": [{"fr": "au", "ipa": "o", "ru": "à + le", "use": "слитный артикль"}]},
+      {"id": "prepositions", "title": "Предлоги", "section": "Служебные слова", "pos": ["PRE"],
+       "words": [{"fr": "de", "ipa": "də", "ru": "из", "use": "принадлежность"}, {"fr": "à cause de", "ru": "из-за"}]},
+      {"id": "idioms", "title": "Идиомы", "section": "Выражения",
+       "words": [{"fr": "un seul coup", "ru": "разом"}]}
+    ]}
+    """#.utf8))
+
+    func testSectionsKeepTheOrderOfTheirFirstKind() {
+        XCTAssertEqual(book.sections, ["Служебные слова", "Выражения"])
+    }
+
+    func testUseFollowsThePartOfSpeechTheWordIsReadAs() {
+        XCTAssertEqual(book.use(of: "Au", pos: "ART:def"), "слитный артикль")
+        XCTAssertEqual(book.use(of: "de", pos: "PRE"), "принадлежность")
+        XCTAssertNil(book.use(of: "de", pos: "ART:ind"), "listed only as a preposition")
+        XCTAssertNil(book.use(of: "à cause de", pos: "PRE"), "listed, but says nothing of its use")
+    }
+
+    func testAPhraseWithoutASoundOfItsOwnIsReadWordByWord() {
+        let reader = Reader(lexicon: Lexicon(
+            forms: Data("cause\tcaus(e)=koz\tcause;NOM;f;s;;0\nde\tde=də\tde;PRE;;;;0\nà\tà=a\tà;PRE;;;;0\n".utf8),
+            lemmas: Data()))
+        let read = book.categories[1].words[1].word(reader: reader)
+        XCTAssertEqual(read.m, "à caus(e) de")
+        XCTAssertEqual(read.ipa, "a koz də")
+        // "seul" is unknown here: no sound at all rather than a sound with a hole in it.
+        XCTAssertEqual(book.categories[2].words[0].word(reader: reader).ipa, "")
+        XCTAssertNil(book.categories[2].words[0].word(reader: reader).m)
     }
 }

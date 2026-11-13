@@ -313,11 +313,24 @@ Taken by the owner on 2026-11-12.
   same field, so older backups load). A starred lesson word keeps its lesson card.
 - Translations outside the lessons come from WikDict (Wiktionary, CC BY-SA); levels A1–C2 from
   FLELex (UCLouvain, CC BY-NC-SA 4.0): the first level at which the word occurs in FLE textbooks.
-- A fourth tab, «Справочник»: prepositions, conjunctions, articles, pronouns, determiners and
-  numbers, built from Lexique by part of speech, each with translation and level; cards for every
-  kind, and «Вставь слово» for prepositions and conjunctions (a Tatoeba sentence with the
-  word taken out, four words of the same kind to choose from). «Правила уроков» lists every rule
-  of every lesson by kind.
+- A fourth tab, «Справочник», in three sections:
+  - «Правила уроков»: one row per kind (Грамматика, Произношение, Чтение, Примечания), each listing
+    the rules of that kind lesson by lesson.
+  - «Служебные слова»: prepositions, conjunctions, articles, pronouns, determiners and numbers.
+    The common ones come from Lexique by part of speech, then compound prepositions and
+    conjunctions («à cause de», «dès que»). Every function word says what it is for under its
+    translation («au — à + le: слитный артикль…»); word analysis shows the same as «Для чего».
+  - «Выражения»: verbs with a preposition («penser à»), verbs with en and y («s'en aller»),
+    expressions with a verb («avoir faim»), adverbial phrases, everyday formulas, idioms and
+    proverbs. French has no phrasal verbs; the first two kinds are what comes nearest.
+  Each word has its translation and level; cards for every kind, and «Вставь слово» for
+  prepositions and conjunctions (a Tatoeba sentence with the word taken out, four words of the
+  same kind to choose from; single words only, since compound ones have synonyms among
+  themselves). A phrase the dictionary lacks as a whole is read by the reader for its marks and
+  sound and has a speak button instead of a link to word analysis.
+  Translations and uses of function words and every expression are hand-written in
+  `tools/reference-own.mjs`; they win over the lessons and WikDict, which they replace where
+  those translate the word as another part of speech.
 - «Практика» has three parts, `Слова · Формы · Правила`, each started from the same lesson range
   grid or from a topic. «Формы» drops the per-word list (a single word is drilled from its
   analysis): «Смешанная тренировка», the lesson grid (forms of the words of those lessons, not
