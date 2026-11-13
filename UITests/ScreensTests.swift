@@ -144,9 +144,7 @@ final class ScreensTests: XCTestCase {
         XCTAssertTrue(feminine.isSelected, "the typed form is feminine")
         shot("21b-word-two-genders")
         app.swipeUp()
-        // Each example names its source under the translation.
-        let source = app.staticTexts["Tatoeba"].firstMatch
-        XCTAssertTrue(source.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["example"].firstMatch.waitForExistence(timeout: 5), "the word has example sentences")
         shot("21c-word-examples")
 
         // Star the word; it shows in «Избранное» with its translation and level, and leads back here.

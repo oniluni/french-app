@@ -328,7 +328,9 @@ Taken by the owner on 2026-11-12.
   answer is a rule of the chosen lessons or kind that the sentence triggers (the reader's
   triggers), the three others apply nowhere in it.
   Once answered, the words it applies to are highlighted and its summary is shown. Notes are
-  never asked: they have no trigger.
+  never asked: they have no trigger. Nor is a rule about the phrase as a whole («Речевой поток»,
+  «Знаменательные и служебные слова»): it fits any phrase and has no words to highlight. A kind
+  left with one rule to ask («Чтение») is not offered.
 - Every question says what to do on top («Выберите форму глагола для этого лица и времени»,
   «Какое правило работает в этой фразе?»), and each practice section says it in its footer.
 - Haptics: the hold that starts a phrase selection in the reader and each word it adds, card

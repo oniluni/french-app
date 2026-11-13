@@ -182,6 +182,19 @@ private let vowels: Set<Character> = ["a", "ɑ", "e", "ɛ", "i", "o", "ɔ", "u",
 private let pronouns: Set<String> = ["je", "tu", "il", "elle", "on", "nous", "vous", "ils", "elles", "ce", "t"]
 
 extension RuleTrigger {
+    /// False for a rule about the phrase as a whole («Речевой поток»): it fits any phrase long enough
+    /// and has no words of its own to point at.
+    public var namesWords: Bool {
+        switch self {
+        case .minWords: return false
+        case .any(let triggers): return triggers.allSatisfy(\.namesWords)
+        case .all(let triggers): return triggers.contains(where: \.namesWords)
+        case .ipa, .finalSound, .doubled, .droppedSchwa, .spelling, .letters, .text, .question, .properName,
+             .elision, .inversion, .token, .sequence:
+            return true
+        }
+    }
+
     /// The words of the phrase the rule is about, or nil when it does not apply.
     /// A rule about the phrase as a whole applies with no words of its own.
     public func matches(_ facts: inout PhraseFacts) -> [Int]? {

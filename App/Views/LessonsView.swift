@@ -66,7 +66,7 @@ struct LessonsView: View {
             } header: {
                 Text("Данные")
             } footer: {
-                Text("Прогресс и заметки хранятся только на этом устройстве. Сохраните копию перед переустановкой приложения.\n\nСловарь форм: Lexique 3.83, лицензия CC BY-SA 4.0. Примеры вне уроков: Tatoeba (tatoeba.org), лицензия CC BY 2.0 FR. Переводы вне уроков: WikDict (wikdict.com, по Викисловарю), CC BY-SA. Уровни A1–C2: FLELex (UCLouvain), CC BY-NC-SA 4.0.")
+                Text("Прогресс и заметки хранятся только на этом устройстве. Сохраните копию перед переустановкой приложения.\n\nСловарь форм: Lexique 3.83, лицензия CC BY-SA 4.0. Примеры и фразы практики: Tatoeba (tatoeba.org), лицензия CC BY 2.0 FR. Переводы вне уроков: WikDict (wikdict.com, по Викисловарю), CC BY-SA. Уровни A1–C2: FLELex (UCLouvain), CC BY-NC-SA 4.0.")
             }
         }
         .navigationTitle("Уроки")

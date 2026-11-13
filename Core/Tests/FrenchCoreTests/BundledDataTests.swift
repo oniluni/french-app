@@ -131,7 +131,12 @@ final class BundledDataTests: XCTestCase {
         let examples = Examples(data: try load("examples.tsv"))
         let rules = content.lessons.flatMap(\.rules)
         var generator = SeededGenerator(state: 11)
-        for (name, pool) in [("lessons 2–4", rules.filter { (2...4).contains($0.lesson) }), ("grammar", rules.filter { $0.kind == "Грамматика" })] {
+        // Lesson 1 has two rules about the phrase as a whole: «Речевой поток», «Знаменательные и служебные слова».
+        let pools = [
+            ("lesson 1", rules.filter { $0.lesson == 1 }), ("lessons 2–4", rules.filter { (2...4).contains($0.lesson) }),
+            ("grammar", rules.filter { $0.kind == "Грамматика" }),
+        ]
+        for (name, pool) in pools {
             let questions = try content.ruleQuestions(on: pool, reader: reader, examples: examples, count: 8, using: &generator)
             XCTAssertEqual(questions.count, 8, name)
             for question in questions {
@@ -139,6 +144,7 @@ final class BundledDataTests: XCTestCase {
                 XCTAssertEqual(Set(question.options.map(\.title)).count, 4, "titles repeat in \(question.options.map(\.title))")
                 let answer = question.options[question.answer]
                 XCTAssertTrue(pool.contains(answer), "\(answer.id) is not of \(name)")
+                XCTAssertFalse(question.highlighted.isEmpty, "\(answer.id) has no words to show in «\(question.phrase)»")
                 let found = Set(content.rulesTriggered(by: reader.read(question.phrase), lexicon: reader.lexicon).map(\.rule.title))
                 XCTAssertTrue(found.contains(answer.title), "\(answer.id) does not apply to «\(question.phrase)»")
                 for (index, option) in question.options.enumerated() where index != question.answer {

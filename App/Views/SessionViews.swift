@@ -296,7 +296,6 @@ struct GapSessionView: View {
                     SpeakButton(text: gap.before + gap.answer + gap.after)
                 }
                 Spacer()
-                Text("Tatoeba").font(.caption2).foregroundStyle(.tertiary)
             }
             .padding(20)
             .frame(maxWidth: .infinity, maxHeight: .infinity)

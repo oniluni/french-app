@@ -310,8 +310,7 @@ private struct RulesPractice: View {
     private static let kinds = ["Грамматика", "Произношение", "Чтение"]
 
     var body: some View {
-        // Notes have no trigger: there is no phrase to ask them on.
-        let rules = library.content.lessons.flatMap(\.rules).filter { $0.trigger != nil }
+        let rules = library.content.lessons.flatMap(\.rules).filter(\.isAsked)
         List {
             LessonRangeSection(
                 header: "По урокам",
@@ -324,8 +323,11 @@ private struct RulesPractice: View {
             Section("По видам") {
                 ForEach(RulesPractice.kinds, id: \.self) { kind in
                     let pool = rules.filter { $0.kind == kind }
-                    TopicRow(title: kind, detail: "\(plural(pool.count, "правило", "правила", "правил")) из всех уроков") {
-                        start(kind, pool)
+                    // One rule is no choice: it would be the answer to every question.
+                    if pool.count > 1 {
+                        TopicRow(title: kind, detail: "\(plural(pool.count, "правило", "правила", "правил")) из всех уроков") {
+                            start(kind, pool)
+                        }
                     }
                 }
             }

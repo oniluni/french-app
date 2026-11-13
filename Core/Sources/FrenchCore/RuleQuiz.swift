@@ -14,21 +14,27 @@ public struct RuleQuestion: Equatable, Sendable {
     public var phrase: String { words.joined(separator: " ") }
 }
 
+extension Rule {
+    /// Whether the rules practice asks the rule: the answer shows the words it applies to. Notes
+    /// have no trigger, and a rule about the phrase as a whole has no words of its own.
+    public var isAsked: Bool { trigger?.namesWords ?? false }
+}
+
 extension Content {
     /// Up to `count` questions on `rules`, on example sentences of the words of the lessons those
     /// rules come from: the lessons have no texts of their own.
     ///
-    /// Rules without a trigger (notes) are never asked. The answer is the rule of `rules` asked
+    /// Only rules that are asked (`Rule.isAsked`) take part. The answer is the rule of `rules` asked
     /// least so far, so a rule found in almost every sentence («Звук [e]») does not crowd out the
     /// rest. Distractors come from `rules` first, then from the other lessons.
     /// Throws when the bundled examples are broken.
     public func ruleQuestions<Generator: RandomNumberGenerator>(
         on rules: [Rule], reader: Reader, examples: Examples, count: Int, using generator: inout Generator
     ) throws -> [RuleQuestion] {
-        let pool = rules.filter { $0.trigger != nil }
+        let pool = rules.filter(\.isAsked)
         let poolIDs = Set(pool.map(\.id))
         let ruleLessons = Set(pool.map(\.lesson))
-        let others = lessons.flatMap(\.rules).filter { $0.trigger != nil && !poolIDs.contains($0.id) }
+        let others = lessons.flatMap(\.rules).filter { $0.isAsked && !poolIDs.contains($0.id) }
         let grammar = Grammar(lexicon: reader.lexicon)
         // "les élèves" → "élève": examples are kept by lemma.
         let lemmas = Set(lessons.filter { ruleLessons.contains($0.id) }.flatMap(\.words).map { word in

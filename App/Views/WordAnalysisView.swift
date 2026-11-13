@@ -195,11 +195,11 @@ struct WordAnalysisBody: View {
                                 .foregroundStyle(Color.primary)
                                 .multilineTextAlignment(.leading)
                             Text(example.ru).font(.subheadline).foregroundStyle(.secondary)
-                            Text("Tatoeba").font(.caption2).foregroundStyle(.tertiary)
                         }
                     }
-                    // Plain: the translation and the source keep their own colours instead of the tint.
+                    // Plain: the translation keeps its own colour instead of the tint.
                     .buttonStyle(.plain)
+                    .accessibilityIdentifier("example")
                     .accessibilityHint("Прослушать")
                 }
             } header: {
