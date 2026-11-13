@@ -129,7 +129,7 @@ struct AllRulesView: View {
                             NavigationLink(value: Route.rule(rule.id)) {
                                 VStack(alignment: .leading, spacing: 3) {
                                     Text(rule.title).font(.subheadline.weight(.semibold))
-                                    Text(rule.summary).font(.caption).foregroundStyle(.secondary).lineLimit(2)
+                                    if !rule.summary.isEmpty { Text(rule.summary).font(.caption).foregroundStyle(.secondary).lineLimit(2) }
                                 }
                             }
                         }

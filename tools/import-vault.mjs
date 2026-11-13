@@ -75,8 +75,20 @@ const RULE_KIND = {
 function summaryOf(blocks) {
   const first = blocks.find((block) => block.t === 'p' || block.t === 'list');
   const text = plainText(first?.t === 'list' ? first.items[0].md : first?.md ?? '').split('\n')[0];
-  return text.length > 110 ? `${text.slice(0, 107).trimEnd()}…` : text;
+  if (text.length <= SUMMARY_LENGTH) return text;
+  // Whole sentences that fit; a sentence ends before a capital, so "м. р." does not end one.
+  let fits = '';
+  for (const sentence of text.split(/(?<=[.!?…])\s+(?=[«A-ZА-ЯЁ])/)) {
+    const longer = fits ? `${fits} ${sentence}` : sentence;
+    if (longer.length > SUMMARY_LENGTH) break;
+    fits = longer;
+  }
+  if (fits) return fits;
+  const cut = text.slice(0, SUMMARY_LENGTH);
+  return `${cut.slice(0, cut.lastIndexOf(' ')).replace(/[\s,;:—–-]+$/, '')}…`;
 }
+
+const SUMMARY_LENGTH = 110;
 
 /**
  * «Правила.md» → rules: one per second- and third-level heading that has text of its own, plus the
@@ -184,15 +196,16 @@ function markPhrase(fr, ipa, endsWith) {
  */
 function markEntry(fr, ipa, endsWith) {
   if (hasMarkCharacters(fr)) return null;
-  const whole = markPhrase(fr, ipa, endsWith);
-  if (whole || /[,/]/.test(ipa)) return whole;
-  for (const separator of [' / ', ', ']) {
-    const forms = fr.split(separator);
-    if (forms.length < 2) continue;
-    const marked = forms.map((form) => markPhrase(form, ipa, endsWith));
-    if (marked.every(Boolean)) return marked.join(separator);
+  // Forms first: as one phrase, "seul, seule" [sœl] aligns with the first word silent.
+  if (!/[,/]/.test(ipa)) {
+    for (const separator of [' / ', ', ']) {
+      const forms = fr.split(separator);
+      if (forms.length < 2) continue;
+      const marked = forms.map((form) => markPhrase(form, ipa, endsWith));
+      if (marked.every(Boolean)) return marked.join(separator);
+    }
   }
-  return null;
+  return markPhrase(fr, ipa, endsWith);
 }
 
 // ---------------------------------------------------------------------------------------------

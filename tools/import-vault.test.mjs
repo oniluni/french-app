@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import { buildLexicon, readingOf, serialize } from './build-lexicon.mjs';
+import { buildLexicon, lessonReadings, readingOf, serialize } from './build-lexicon.mjs';
 import { importVault, parseRules, parseVocabulary, plainOf } from './import-vault.mjs';
 import { attachTriggers } from './rule-triggers.mjs';
 
@@ -40,6 +40,7 @@ lesson: 3
 |---|---|---|---|
 | **lire** | [liʁ] | читать | глагол III группы |
 | **joli, jolie** | [ʒɔli] | красивый, -ая | прилагательное |
+| **seul, seule** | [sœl] | один, одна | прилагательное |
 | **parler de qch** | [paʁle də] | говорить о чём-л. | глагол |
 | **\*haut** | [o] | высокий | прилагательное |
 
@@ -114,7 +115,7 @@ lesson: 3
 
 test('vocabulary: every table of the lesson dictionary but the repeated words, with the remarks on conjugation', () => {
   const { words, verbNotes } = parseVocabulary(VOCABULARY);
-  assert.deepEqual(words.map((word) => word.fr), ["l'ami", 'le (la) secrétaire', 'lire', 'joli, jolie', 'parler de qch', '*haut']);
+  assert.deepEqual(words.map((word) => word.fr), ["l'ami", 'le (la) secrétaire', 'lire', 'joli, jolie', 'seul, seule', 'parler de qch', '*haut']);
   assert.deepEqual(words[0], { fr: "l'ami", pos: 'существительное, м. р.', ipa: 'lami', ru: 'друг' });
   assert.deepEqual(verbNotes, { lire: 'Во мн. ч. появляется [z].' });
   assert.throws(() => parseVocabulary('# Урок 3. Словарь\n'), /«Словарь урока»/);
@@ -131,6 +132,14 @@ test('rules: one per heading with text of its own, plus the closing callout; the
     ['3-r6', 'Примечания', 'Исключения и частые ошибки'],
   ]);
   assert.equal(rules[3].summary, 'Текст правила.');
+});
+
+test('rules: a long summary keeps whole sentences, else whole words', () => {
+  const summary = (text) => parseRules(`## Грамматика\n\n### Правило\n\n${text}\n`, 4)[0].summary;
+  const first = 'Притяжательные ma, ta, sa и указательное cette вместе называются местоимёнными прилагательными.';
+  assert.equal(summary(`${first} Это служебные слова, они не несут ударения и стоят перед существительным.`), first);
+  const long = 'Связывание: конечный немой согласный звучит, если следующее слово в той же ритмической группе начинается с гласного или немого h';
+  assert.equal(summary(long), 'Связывание: конечный немой согласный звучит, если следующее слово в той же ритмической группе начинается с…');
 });
 
 test('a whole vault: marks on the words, triggers, and reading rules from the table rows', () => {
@@ -153,7 +162,7 @@ test('a whole vault: marks on the words, triggers, and reading rules from the ta
   const [three] = content.lessons;
   assert.deepEqual([three.id, three.topic, three.sections], [3, 'Гласный [e]; глаголы I группы', undefined]);
   assert.deepEqual(three.rules.map((rule) => rule.trigger ?? null), [{ ipa: ['e'] }, { ipa: ['e'] }, null, { token: { group: 1 } }, null, null]);
-  assert.deepEqual(three.words.map((word) => word.m), ["l'ami", undefined, 'lir(e)', 'joli, joli(e)', 'parle(r) de qch', '*(h)au(t)']);
+  assert.deepEqual(three.words.map((word) => word.m), ["l'ami", undefined, 'lir(e)', 'joli, joli(e)', 'seul, seul(e)', 'parle(r) de qch', '*(h)au(t)']);
   for (const word of three.words.filter((item) => item.m)) assert.equal(plainOf(word.m), word.fr);
 
   assert.deepEqual(content.readingRules.map(({ rule, label, pattern }) => [rule, label, pattern]), [
@@ -167,6 +176,8 @@ test('a whole vault: marks on the words, triggers, and reading rules from the ta
 
 test('lexicon: the frequent reading first, schwa restored, lesson sound preferred, byte order', () => {
   assert.deepEqual(readingOf('ce', 'sø'), { marked: 'ce', ipa: 'sə' });
+  const said = lessonReadings({ lessons: [{ words: [{ fr: 'seul, seule', ipa: 'sœl', m: 'seul, seul(e)' }] }] });
+  assert.deepEqual([said.get('seul'), said.get('seule')], [{ marked: 'seul', ipa: 'sœl' }, { marked: 'seul(e)', ipa: 'sœl' }]);
   assert.deepEqual(readingOf('deux', 'dø'), { marked: 'deu(x)', ipa: 'dø' });
 
   const built = buildLexicon(LEXIQUE, new Map([['denise', { marked: 'Denis(e)', ipa: 'dəniz' }], ['les', { marked: 'le(s)', ipa: 'lɛ' }]]));

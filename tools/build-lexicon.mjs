@@ -38,17 +38,31 @@ export function lessonReadings(content, endsWith) {
   const found = new Map();
   for (const word of content.lessons.flatMap((lesson) => lesson.words)) {
     if (!word.m) continue;
-    const tokens = word.fr.split(/\s+/);
-    const aligned = align(tokens, word.ipa, endsWith);
-    if (!aligned) continue;
-    aligned.forEach((item, i) => {
-      const text = tokens[i].replace(/[,!?.]+$/, '');
-      if (!item.marked || item.marked.includes('{') || item.link || !/^[\p{L}-]+$/u.test(text)) return; // not as said in a liaison
-      const key = keyOf(text);
-      if (!found.has(key) || tokens.length === 1) found.set(key, { marked: item.marked.replace(/[,!?.]+$/, ''), ipa: item.ipa });
-    });
+    for (const [tokens, aligned] of alignedForms(word, endsWith)) {
+      aligned.forEach((item, i) => {
+        const text = tokens[i].replace(/[,!?.]+$/, '');
+        if (!item.marked || item.marked.includes('{') || item.link || !/^[\p{L}-]+$/u.test(text)) return; // not as said in a liaison
+        const key = keyOf(text);
+        if (!found.has(key) || tokens.length === 1) found.set(key, { marked: item.marked.replace(/[,!?.]+$/, ''), ipa: item.ipa });
+      });
+    }
   }
   return found;
+}
+
+/**
+ * The entry's tokens aligned with its sound. One sound for several forms ("seul, seule" [sœl]) means
+ * each form is said that way, as in import-vault: as one phrase, the first form would come out silent.
+ */
+function alignedForms(word, endsWith) {
+  if (!/[,/]/.test(word.ipa)) {
+    const forms = word.fr.split(/, | \/ /).map((form) => form.split(/\s+/));
+    const each = forms.map((tokens) => [tokens, align(tokens, word.ipa, endsWith)]);
+    if (forms.length > 1 && each.every(([, aligned]) => aligned)) return each;
+  }
+  const tokens = word.fr.split(/\s+/);
+  const aligned = align(tokens, word.ipa, endsWith);
+  return aligned ? [[tokens, aligned]] : [];
 }
 
 export function buildLexicon(rows, lessonWords = new Map()) {

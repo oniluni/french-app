@@ -55,7 +55,7 @@ struct RuleSessionView: View {
                             .padding(.top, 6)
                         VStack(spacing: 4) {
                             Text(rule.title).font(.headline)
-                            Text("Урок \(rule.lesson) · \(rule.summary)").font(.subheadline).foregroundStyle(.secondary)
+                            Text(rule.summary.isEmpty ? "Урок \(rule.lesson)" : "Урок \(rule.lesson) · \(rule.summary)").font(.subheadline).foregroundStyle(.secondary)
                         }
                         .multilineTextAlignment(.center)
                     }

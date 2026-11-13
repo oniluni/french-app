@@ -134,7 +134,7 @@ struct WordAnalysisBody: View {
         if analysis.gender == "f" { form.append("женский род") }
         if analysis.number == "s" { form.append("ед. число") }
         if analysis.number == "p" { form.append("мн. число") }
-        form += analysis.tags.map(WordAnalysisBody.describe)
+        form += analysis.tags.sorted { WordAnalysisBody.rank($0) < WordAnalysisBody.rank($1) }.map(WordAnalysisBody.describe)
         return Section("О слове") {
             if let paradigm {
                 ForEach(Array(paradigm.facts.enumerated()), id: \.offset) { _, fact in
@@ -150,7 +150,7 @@ struct WordAnalysisBody: View {
                 LabeledContent("Для чего") { Text(use).multilineTextAlignment(.trailing) }
             }
             if Lexicon.key(found.form) != Lexicon.key(analysis.lemma) || !form.isEmpty {
-                LabeledContent("Форма «\(found.form)»", value: form.isEmpty ? "начальная" : form.joined(separator: ", "))
+                LabeledContent("Форма «\(found.form)»", value: form.isEmpty ? "начальная" : form.joined(separator: "; "))
             }
             let marks = paradigm?.base.marked ?? ""
             let silent = Markup.letters(of: .silent, in: marks).joined(separator: ", ")
@@ -160,10 +160,18 @@ struct WordAnalysisBody: View {
         }
     }
 
+    private static let moods = [("ind:pre", "Présent"), ("ind:imp", "Imparfait"), ("ind:fut", "Futur"), ("ind:pas", "Passé simple"),
+                                ("cnd:pre", "Conditionnel"), ("sub:pre", "Subjonctif présent"), ("sub:imp", "Subjonctif imparfait"),
+                                ("imp:pre", "Impératif")]
+
+    /// Tenses in the order of the forms table, so that "buvons" reads «Présent, мы; Impératif, мы».
+    private static func rank(_ tag: String) -> Int {
+        moods.firstIndex { tag.hasPrefix($0.0) } ?? moods.count
+    }
+
     /// "ind:pre:1p" → «Présent, мы».
     private static func describe(_ tag: String) -> String {
-        let moods = ["ind:pre": "Présent", "ind:imp": "Imparfait", "ind:fut": "Futur", "ind:pas": "Passé simple", "cnd:pre": "Conditionnel",
-                     "sub:pre": "Subjonctif présent", "sub:imp": "Subjonctif imparfait", "imp:pre": "Impératif"]
+        let moods = Dictionary(uniqueKeysWithValues: Self.moods)
         let persons = ["1s": "я", "2s": "ты", "3s": "он, она", "1p": "мы", "2p": "вы", "3p": "они"]
         let parts = tag.split(separator: ":").map(String.init)
         switch tag {

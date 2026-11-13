@@ -45,7 +45,8 @@ struct LessonView: View {
                         VStack(alignment: .leading, spacing: 5) {
                             Tag(text: rule.kind)
                             Text(rule.title).font(.headline)
-                            Text(rule.summary).font(.subheadline).foregroundStyle(.secondary).lineLimit(2)
+                            // A rule that is only a table has no summary.
+                            if !rule.summary.isEmpty { Text(rule.summary).font(.subheadline).foregroundStyle(.secondary).lineLimit(2) }
                         }
                         .padding(.vertical, 3)
                     }

@@ -77,7 +77,9 @@ private struct TableView: View {
                     }
                 }
                 Divider()
-                ForEach(Array(rows.enumerated()), id: \.offset) { _, row in
+                ForEach(Array(rows.enumerated()), id: \.offset) { index, row in
+                    // A wrapped cell would otherwise read as two rows.
+                    if index > 0 { Divider().opacity(0.5) }
                     GridRow(alignment: .firstTextBaseline) {
                         ForEach(Array(row.enumerated()), id: \.offset) { _, cell in
                             InlineText(md: cell).frame(maxWidth: 260, alignment: .leading)
@@ -87,7 +89,8 @@ private struct TableView: View {
             }
             .padding(12)
         }
-        .scrollIndicators(.hidden)
+        // The columns past the edge are easy to miss: the indicator shows there is more.
+        .scrollIndicatorsFlash(onAppear: true)
         .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 14))
     }
 }
