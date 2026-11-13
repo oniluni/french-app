@@ -214,7 +214,8 @@ final class ScreensTests: XCTestCase {
         app.navigationBars.buttons["BackButton"].tap()
 
         app.staticTexts["Артикли"].tap()
-        XCTAssertTrue(labelled("слитный артикль").waitForExistence(timeout: 5), "«au» says it is à + le")
+        // «du» and «au» are near the end: rows with what a word is for are tall.
+        XCTAssertTrue(scroll(to: labelled("слитный артикль")), "«au» says it is à + le")
         shot("41b-articles")
         app.navigationBars.buttons["BackButton"].tap()
 
