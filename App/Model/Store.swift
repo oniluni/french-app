@@ -103,8 +103,8 @@ final class Store {
         data.notes.filter { $0.target == target }
     }
 
-    func addNote(_ text: String, to target: String, fragment: Note.Fragment?) {
-        update { $0.notes.append(Note(target: target, text: text, fragment: fragment, created: .now)) }
+    func addNote(_ text: String, to target: String) {
+        update { $0.notes.append(Note(target: target, text: text, created: .now)) }
     }
 
     func delete(_ note: Note) {

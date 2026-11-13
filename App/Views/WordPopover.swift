@@ -2,11 +2,9 @@ import FrenchCore
 import SwiftUI
 
 /// Transcription of the picked word or phrase, with the ways on from it:
-/// the reading rule, the cards, the word analysis, a note.
+/// the reading rule, the favourites, the word analysis.
 struct WordPopover: View {
     let picked: Picked
-    /// Nil where notes do not apply (the reader).
-    var onNote: (() -> Void)?
     /// Called before navigating away, so that the popover closes first.
     let onLeave: () -> Void
 
@@ -61,27 +59,20 @@ struct WordPopover: View {
     }
 
     @ViewBuilder private var actions: some View {
-        let word = picked.word
-        let hasForms = word.map { !library.grammar.analyses(of: $0.fr).isEmpty } ?? false
-        if word != nil || onNote != nil {
+        if let word = picked.word {
+            let isFavorite = store.isFavorite(word.fr)
             HStack(spacing: 8) {
-                if let word {
-                    let isFavorite = store.isFavorite(word.fr)
-                    Button {
-                        store.toggleFavorite(library.favorite(word))
-                    } label: {
-                        Label(isFavorite ? "В избранном" : "В избранное", systemImage: isFavorite ? "star.fill" : "star")
-                    }
-                    .accessibilityIdentifier("favorite-toggle")
-                    if hasForms {
-                        Button {
-                            onLeave()
-                            navigator.push(.word(word.fr))
-                        } label: { Label("Разбор", systemImage: "book") }
-                    }
+                Button {
+                    store.toggleFavorite(library.favorite(word))
+                } label: {
+                    Label(isFavorite ? "В избранном" : "В избранное", systemImage: isFavorite ? "star.fill" : "star")
                 }
-                if let onNote {
-                    Button(action: onNote) { Label("Заметка", systemImage: "note.text") }
+                .accessibilityIdentifier("favorite-toggle")
+                if !library.grammar.analyses(of: word.fr).isEmpty {
+                    Button {
+                        onLeave()
+                        navigator.push(.word(word.fr))
+                    } label: { Label("Разбор", systemImage: "book") }
                 }
             }
             .buttonStyle(.bordered)

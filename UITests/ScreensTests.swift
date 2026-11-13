@@ -13,46 +13,33 @@ final class ScreensTests: XCTestCase {
     }
 
     @MainActor
-    func testLessonsTextPopoverAndNotes() {
+    func testLessonRulesAndNotes() {
         app.launch()
         XCTAssertTrue(app.navigationBars["Уроки"].waitForExistence(timeout: 15))
         shot("01-lessons")
 
         app.buttons["lesson-5"].firstMatch.tap()
-        let word = app.buttons["Denise"].firstMatch
-        XCTAssertTrue(word.waitForExistence(timeout: 10), "lesson 5 text did not show the word Denise")
-        shot("02-lesson-text")
+        // By title: the lesson list's cells stay in the tree under the pushed lesson.
+        let rule = app.staticTexts["Правила чтения"].firstMatch
+        XCTAssertTrue(rule.waitForExistence(timeout: 10), "a lesson opens on its rules")
+        shot("02-lesson-rules")
+        rule.tap()
+        XCTAssertTrue(app.navigationBars["Урок 5"].waitForExistence(timeout: 5))
+        shot("03-rule")
 
-        word.tap()
-        XCTAssertTrue(app.staticTexts["Дениза"].waitForExistence(timeout: 5), "the popover shows the translation")
-        shot("03-word-popover")
-        XCTAssertTrue(app.buttons["Заметка"].exists)
-        app.buttons["Заметка"].tap()
-
+        app.buttons["notes-button"].tap()
         // A multi-line TextField is a text view to accessibility.
         let field = app.descendants(matching: .any)["note-field"].firstMatch
         XCTAssertTrue(field.waitForExistence(timeout: 5))
+        field.tap()
         dismissKeyboardTip()
         field.typeText("Проверить произношение")
         shot("04-note-sheet")
         app.buttons["Сохранить"].tap()
-        XCTAssertTrue(app.buttons["notes-button"].waitForExistence(timeout: 5))
+        app.buttons["Закрыть"].tap()
         let counted = NSPredicate(format: "label == 'Заметки: 1'")
         expectation(for: counted, evaluatedWith: app.buttons["notes-button"])
         waitForExpectations(timeout: 5)
-
-        app.switches["pronunciation-toggle"].tap()
-        shot("05-lesson-text-plain")
-        app.switches["pronunciation-toggle"].tap()
-
-        app.buttons["Правила"].tap()
-        shot("06-lesson-rules")
-        // By title: the lesson list's cells stay in the tree under the pushed lesson.
-        let rule = app.staticTexts["Правила чтения"].firstMatch
-        XCTAssertTrue(rule.waitForExistence(timeout: 5))
-        rule.tap()
-        XCTAssertTrue(app.navigationBars["Урок 5"].staticTexts["Урок 5"].waitForExistence(timeout: 5) || app.staticTexts["j читается [ʒ]:"].exists)
-        shot("07-rule")
         app.navigationBars.buttons["BackButton"].tap()
 
         let words = app.buttons["Слова"]
@@ -137,7 +124,7 @@ final class ScreensTests: XCTestCase {
         XCTAssertTrue(scroll(to: app.staticTexts["Предлог à"]), "the reader lists the grammar rules of the phrase")
         shot("20b-reader-rules")
         // "Un ami": only a rule found in this very phrase can name the n of a nasal vowel.
-        XCTAssertTrue(scroll(to: app.staticTexts["Связывание после носового гласного"]))
+        XCTAssertTrue(scroll(to: app.staticTexts["носовой гласный при связывании — носовой сохраняется, добавляется [n]"]))
         shot("20c-reader-reading-rules")
 
         app.buttons["Слово"].tap()
@@ -158,7 +145,7 @@ final class ScreensTests: XCTestCase {
         shot("21b-word-two-genders")
         app.swipeUp()
         // Each example names its source under the translation.
-        let source = app.staticTexts.matching(NSPredicate(format: "label == 'Tatoeba' OR label BEGINSWITH 'Урок '")).firstMatch
+        let source = app.staticTexts["Tatoeba"].firstMatch
         XCTAssertTrue(source.waitForExistence(timeout: 5))
         shot("21c-word-examples")
 
@@ -231,8 +218,8 @@ final class ScreensTests: XCTestCase {
         XCTAssertTrue(app.navigationBars["Уроки"].waitForExistence(timeout: 15))
         shot("30-dark-lessons")
         app.buttons["lesson-2"].firstMatch.tap()
-        XCTAssertTrue(app.switches["pronunciation-toggle"].waitForExistence(timeout: 10))
-        shot("31-dark-lesson-text")
+        XCTAssertTrue(app.staticTexts["Правила чтения"].firstMatch.waitForExistence(timeout: 10))
+        shot("31-dark-lesson-rules")
         app.tabBars.buttons["Практика"].tap()
         shot("32-dark-practice")
     }

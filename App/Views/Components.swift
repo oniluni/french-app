@@ -2,7 +2,7 @@ import FrenchCore
 import SwiftUI
 
 extension AttributedString {
-    /// French with pronunciation marks → styled text. The one look used by lesson texts, cards,
+    /// French with pronunciation marks → styled text. The one look used by the reader, cards,
     /// rules, the reader and word analysis.
     init(marked: String, font: Font) {
         self.init()

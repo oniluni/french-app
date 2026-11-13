@@ -46,7 +46,7 @@ final class GapFillTests: XCTestCase {
 final class FavoritesTests: XCTestCase {
     func testALessonWordKeepsItsLessonCardAnyOtherWordGetsItsOwn() throws {
         let content = try Content.decode(Data("""
-        {"lessons": [{"id": 5, "topic": "t", "sections": [], "rules": [], "words": [
+        {"lessons": [{"id": 5, "topic": "t", "rules": [], "words": [
           {"fr": "la famille", "ipa": "la famij", "ru": "семья", "pos": "Существительное"}
         ]}], "readingRules": [], "verbNotes": {}}
         """.utf8))

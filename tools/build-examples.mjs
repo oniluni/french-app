@@ -1,14 +1,11 @@
 #!/usr/bin/env node
 // Usage examples for the word analysis screen → App/Resources/examples.tsv.
 //
-//   node tools/build-examples.mjs        (run after import-vault.mjs: it reads content.json)
+//   node tools/build-examples.mjs
 //
 // One line per lemma, sorted by key in UTF-8 byte order:  key <TAB> JSON array of examples.
-// An example is { fr, ru, src } plus `m` (French with pronunciation marks) for lesson phrases.
-// `src` is "L5" for lesson 5 or "T123" for Tatoeba sentence 123.
-//
-// Lesson phrases come first. Tatoeba (https://tatoeba.org, CC BY 2.0 FR) fills in, so that
-// words outside the lessons have examples too.
+// An example is { fr, ru, src }, `src` being "T123" for Tatoeba sentence 123
+// (https://tatoeba.org, CC BY 2.0 FR). The lessons have no texts of their own to take phrases from.
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
@@ -19,7 +16,7 @@ const CACHE = new URL('../.cache/tatoeba/', import.meta.url).pathname;
 const TATOEBA = 'https://downloads.tatoeba.org/exports/per_language/';
 export const FILES = { fra: 'fra/fra_sentences.tsv', rus: 'rus/rus_sentences.tsv', links: 'fra/fra-rus_links.tsv' };
 
-const PER_SOURCE = 3;
+const PER_LEMMA = 3;
 const MIN_LENGTH = 15;
 const MAX_LENGTH = 90;
 const IDEAL_LENGTH = 40;
@@ -81,53 +78,27 @@ export function tatoebaPairs(fraTsv, rusTsv, linksTsv) {
   return [...pairs.values()];
 }
 
-/** Lesson phrases as examples; marks are kept when every word of the phrase has them. */
-export function lessonExamples(content) {
-  const found = [];
-  for (const lesson of content.lessons) {
-    for (const section of lesson.sections) {
-      for (const { sentence } of section.items) {
-        if (!sentence?.ru) continue;
-        const plain = sentence.tokens.map((token) => (token.m ? token.m.replace(/[()[\]{}]/g, '') : token.t)).join(' ');
-        const marked = sentence.tokens.every((token) => token.m)
-          ? sentence.tokens.map((token, i) => (i === 0 ? '' : token.tie ? '‿' : ' ') + token.m).join('')
-          : undefined;
-        found.push({ fr: plain, ...(marked ? { m: marked } : {}), ru: sentence.ru, src: `L${lesson.id}` });
-      }
+/** Up to PER_LEMMA examples per lemma, closest to the ideal length first. */
+export function buildExamples(pairs, byKey) {
+  const byLemma = new Map();
+  for (const example of pairs) {
+    for (const lemma of lemmasOf(example.fr, byKey)) {
+      if (!byLemma.has(lemma)) byLemma.set(lemma, []);
+      byLemma.get(lemma).push(example);
     }
   }
-  return found;
-}
-
-/** Up to PER_SOURCE examples per lemma from each source, lessons first, shortest-to-ideal first. */
-export function buildExamples(lessonPhrases, pairs, byKey) {
-  const byLemma = new Map();
-  const collect = (examples, isLesson) => {
-    for (const example of examples) {
-      for (const lemma of lemmasOf(example.fr, byKey)) {
-        if (!byLemma.has(lemma)) byLemma.set(lemma, { lesson: [], tatoeba: [] });
-        byLemma.get(lemma)[isLesson ? 'lesson' : 'tatoeba'].push(example);
-      }
-    }
-  };
-  collect(lessonPhrases, true);
-  collect(pairs, false);
   const closeness = (example) => Math.abs(example.fr.length - IDEAL_LENGTH);
   const lines = new Map();
-  for (const [lemma, { lesson, tatoeba }] of byLemma) {
+  for (const [lemma, examples] of byLemma) {
     // Two wordings of one sentence share a translation; one of them is enough.
-    const best = (examples) => {
-      const chosen = [];
-      const translations = new Set();
-      for (const example of examples.sort((a, b) => closeness(a) - closeness(b))) {
-        if (translations.has(example.ru)) continue;
-        translations.add(example.ru);
-        chosen.push(example);
-        if (chosen.length === PER_SOURCE) break;
-      }
-      return chosen;
-    };
-    const chosen = [...best(lesson), ...best(tatoeba)];
+    const chosen = [];
+    const translations = new Set();
+    for (const example of examples.sort((a, b) => closeness(a) - closeness(b))) {
+      if (translations.has(example.ru)) continue;
+      translations.add(example.ru);
+      chosen.push(example);
+      if (chosen.length === PER_LEMMA) break;
+    }
     lines.set(lemma, chosen);
   }
   return lines;
@@ -140,19 +111,15 @@ export function serialize(lines) {
 }
 
 async function main() {
-  const contentPath = `${RESOURCES}content.json`;
-  if (!existsSync(contentPath)) throw new Error(`${contentPath} is missing. Run tools/import-vault.mjs first.`);
   await downloadLexique();
   const byKey = indexByForm(loadRows());
   const [fra, rus, links] = await Promise.all([tatoeba(FILES.fra), tatoeba(FILES.rus), tatoeba(FILES.links)]);
   const pairs = tatoebaPairs(fra, rus, links);
-  const lessonPhrases = lessonExamples(JSON.parse(readFileSync(contentPath, 'utf8')));
-  const lines = buildExamples(lessonPhrases, pairs, byKey);
+  const lines = buildExamples(pairs, byKey);
   writeFileSync(`${RESOURCES}examples.tsv`, serialize(lines));
 
-  const withLesson = [...lines.values()].filter((examples) => examples.some((example) => example.src.startsWith('L'))).length;
-  console.log(`${pairs.length} Tatoeba pairs, ${lessonPhrases.length} lesson phrases`);
-  console.log(`${lines.size} lemmas with examples, ${withLesson} of them from the lessons`);
+  console.log(`${pairs.length} Tatoeba pairs`);
+  console.log(`${lines.size} lemmas with examples`);
   console.log(`examples.tsv ${(statSync(`${RESOURCES}examples.tsv`).size / 1e6).toFixed(1)} MB`);
 }
 

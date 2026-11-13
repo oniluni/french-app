@@ -8,7 +8,7 @@ struct RuleRequest: Identifiable {
     let questions: [RuleQuestion]
 }
 
-/// A phrase of a lesson and four rules: pick the one that works in it. The answer then shows the
+/// A sentence with words of the lessons and four rules: pick the one that works in it. The answer then shows the
 /// words it applies to and what the rule says.
 struct RuleSessionView: View {
     let request: RuleRequest

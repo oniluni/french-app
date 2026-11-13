@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { buildExamples, lemmasOf, lessonExamples, serialize, tatoebaPairs, wordsOf } from './build-examples.mjs';
+import { buildExamples, lemmasOf, serialize, tatoebaPairs, wordsOf } from './build-examples.mjs';
 import { indexByForm } from './lexique.mjs';
 
 const row = (ortho, lemma, pos, frequency = 1) => ({ ortho, ipa: '', lemma, pos, gender: '', number: '', tags: [], frequency });
@@ -32,20 +32,7 @@ test('Tatoeba pairs: linked, translated, and of a readable length', () => {
   ]);
 });
 
-test('lesson phrases keep their marks only when every word has them', () => {
-  const content = { lessons: [{ id: 5, sections: [{ items: [
-    { sentence: { ru: 'Друзья', tokens: [{ m: 'Le{s}' }, { m: 'ami(s).', tie: true }] } },
-    { sentence: { ru: 'Нравится', tokens: [{ m: 'il' }, { t: '(te)' }] } },
-    { block: { t: 'p', md: 'текст' } },
-  ] }] }] };
-  assert.deepEqual(lessonExamples(content), [
-    { fr: 'Les amis.', m: 'Le{s}‿ami(s).', ru: 'Друзья', src: 'L5' },
-    { fr: 'il (te)', ru: 'Нравится', src: 'L5' },
-  ]);
-});
-
-test('lessons come first, then Tatoeba closest to the ideal length, byte-sorted lines', () => {
-  const lesson = [{ fr: 'Les amis.', ru: 'Друзья.', src: 'L5' }];
+test('the examples closest to the ideal length, one per translation, byte-sorted lines', () => {
   const pairs = [
     { fr: 'Mon ami va à Paris.', ru: 'Мой друг едет в Париж.', src: 'T1' },
     { fr: 'Il va chez un ami qui habite très loin de la ville, au bord de la mer.', ru: 'Он едет к другу у моря.', src: 'T2' },
@@ -54,9 +41,9 @@ test('lessons come first, then Tatoeba closest to the ideal length, byte-sorted 
     { fr: 'Mon amie va bien, merci.', ru: 'У подруги всё хорошо.', src: 'T5' },
     { fr: 'Mon amie se porte bien, merci.', ru: 'У подруги всё хорошо.', src: 'T6' },
   ];
-  const lines = buildExamples(lesson, pairs, byKey);
+  const lines = buildExamples(pairs, byKey);
   // T5 and T6 share a translation: only T6 stays, being closer to the ideal length (30 vs 24 chars).
-  assert.deepEqual(lines.get('ami').map((example) => example.src), ['L5', 'T3', 'T6', 'T1']);
+  assert.deepEqual(lines.get('ami').map((example) => example.src), ['T3', 'T6', 'T1']);
   const keys = serialize(lines).trim().split('\n').map((line) => line.split('\t')[0]);
   assert.deepEqual(keys, [...keys].sort((a, b) => Buffer.compare(Buffer.from(a), Buffer.from(b))));
 });

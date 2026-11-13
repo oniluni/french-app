@@ -46,14 +46,14 @@ test('a kind lists its common, translated words, most frequent first, with level
   assert.deepEqual(conjunctions.words.map((word) => word.fr), ['et']);
 });
 
-test('gap sentences: lessons first, then the length closest to the ideal, at most four per word', () => {
+test('gap sentences: the length closest to the ideal first, at most four per word', () => {
   const sentences = [
     { fr: 'Je vais chez mon ami ce soir après le travail.', ru: '1', src: 'T1' },
     { fr: 'Il dort chez lui.', ru: '2', src: 'T2' },
-    { fr: 'Pierre va chez sa mère.', ru: '3', src: 'L5' },
+    { fr: 'Pierre va chez sa mère.', ru: '3', src: 'T4' },
     { fr: 'Chez nous, il fait froid.', ru: '4', src: 'T3' },
   ];
   const gaps = gapsFor([{ fr: 'chez' }], sentences);
-  assert.deepEqual(gaps.map((gap) => gap.src), ['L5', 'T1', 'T2']);
-  assert.deepEqual(gaps[0], { before: 'Pierre va ', answer: 'chez', after: ' sa mère.', ru: '3', src: 'L5' });
+  assert.deepEqual(gaps.map((gap) => gap.src), ['T1', 'T4', 'T2']);
+  assert.deepEqual(gaps[1], { before: 'Pierre va ', answer: 'chez', after: ' sa mère.', ru: '3', src: 'T4' });
 });

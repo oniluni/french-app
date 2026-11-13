@@ -75,7 +75,7 @@ struct DictionaryView: View {
         let words = store.data.favorites.filter(matches)
         if store.data.favorites.isEmpty {
             ContentUnavailableView("Избранного пока нет", systemImage: "star",
-                description: Text("Отмечайте слова звёздочкой в тексте урока, в читалке или в разборе слова."))
+                description: Text("Отмечайте слова звёздочкой в читалке или в разборе слова."))
         } else if words.isEmpty {
             ContentUnavailableView("Ничего не найдено", systemImage: "magnifyingglass",
                 description: Text("В избранном нет «\(wanted)»."))

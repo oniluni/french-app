@@ -296,7 +296,7 @@ struct GapSessionView: View {
                     SpeakButton(text: gap.before + gap.answer + gap.after)
                 }
                 Spacer()
-                Text(gap.src.hasPrefix("L") ? "Урок \(gap.src.dropFirst())" : "Tatoeba").font(.caption2).foregroundStyle(.tertiary)
+                Text("Tatoeba").font(.caption2).foregroundStyle(.tertiary)
             }
             .padding(20)
             .frame(maxWidth: .infinity, maxHeight: .infinity)

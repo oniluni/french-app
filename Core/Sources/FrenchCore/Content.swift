@@ -3,7 +3,7 @@ import Foundation
 /// The lessons bundled with the app: `content.json`, written by `tools/import-vault.mjs`.
 public struct Content: Decodable, Sendable {
     public let lessons: [Lesson]
-    /// Reading rules that words of a text link to, by index (`Token.rule`).
+    /// Reading rules, item by item, that explain how a word is read.
     public let readingRules: [ReadingRule]
     /// Remarks on the conjugation of a verb, by lowercased infinitive.
     public let verbNotes: [String: String]
@@ -78,7 +78,6 @@ public struct Lesson: Decodable, Identifiable, Sendable {
     public let id: Int
     public let topic: String
     public let words: [Word]
-    public let sections: [TextSection]
     public let rules: [Rule]
 
     public var entries: [Entry] { words.map { Entry(lesson: id, word: $0) } }
@@ -115,69 +114,6 @@ public struct Entry: Identifiable, Hashable, Sendable {
     }
 
     public var id: String { "\(lesson):\(word.fr)" }
-}
-
-public struct TextSection: Decodable, Sendable {
-    public let title: String
-    public let items: [SectionItem]
-}
-
-public enum SectionItem: Decodable, Sendable {
-    case sentence(Sentence)
-    case block(Block)
-
-    private enum CodingKeys: String, CodingKey { case sentence, block }
-
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        if let sentence = try container.decodeIfPresent(Sentence.self, forKey: .sentence) {
-            self = .sentence(sentence)
-        } else {
-            self = .block(try container.decode(Block.self, forKey: .block))
-        }
-    }
-}
-
-public struct Sentence: Decodable, Sendable {
-    public let ru: String
-    /// Who says the line of a dialogue.
-    public let speaker: String?
-    /// Transcription of the whole sentence, kept only when it could not be split by word.
-    public let ipa: String?
-    public let tokens: [Token]
-    public let note: [Block]?
-}
-
-public struct Token: Decodable, Hashable, Sendable {
-    private let m: String?
-    private let t: String?
-    public let ipa: String?
-    /// Liaison consonant heard before this word: "z", "t", "n".
-    public let link: String?
-    private let tie: Bool?
-    /// Translation of the word, from the vocabulary of the lessons.
-    public let gloss: String?
-    /// Index into `Content.readingRules`.
-    public let rule: Int?
-
-    private enum CodingKeys: String, CodingKey { case m, t, ipa, link, tie, gloss = "g", rule = "r" }
-
-    public init(marked: String, ipa: String? = nil, link: String? = nil, isTied: Bool = false, gloss: String? = nil, rule: Int? = nil) {
-        m = marked
-        t = nil
-        self.ipa = ipa
-        self.link = link
-        tie = isTied
-        self.gloss = gloss
-        self.rule = rule
-    }
-
-    /// With pronunciation marks. Nil for a word that could not be aligned: its text may hold
-    /// brackets of its own ("(te)"), which must not be read as marks.
-    public var marked: String? { m }
-    public var plain: String { m.map(Markup.plain) ?? t ?? "" }
-    /// Said together with the previous word: a liaison or a carried-over consonant.
-    public var isTied: Bool { tie ?? false }
 }
 
 public struct Rule: Decodable, Identifiable, Hashable, Sendable {
@@ -251,7 +187,7 @@ public enum ReadingPattern: Decodable, Hashable, Sendable {
     }
 }
 
-/// A piece of formatted lesson text. Inline markup inside `md` strings is Markdown.
+/// A piece of formatted rule text. Inline markup inside `md` strings is Markdown.
 public indirect enum Block: Decodable, Hashable, Sendable {
     case heading(level: Int, md: String)
     case paragraph(md: String)

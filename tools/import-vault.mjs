@@ -5,6 +5,7 @@
 //
 // A lesson is imported when its «Дашборд.md» has `lesson: N` in the front matter. Folders
 // without it (raw OCR) are skipped, and appear in the app once they are brought to that format.
+// A lesson is its rules («Правила.md») and its words («Слова.md»); the vault keeps no texts.
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -20,7 +21,6 @@ const frontMatter = /^---\n([\s\S]*?)\n---\n?/;
 const body = (text) => text.replace(frontMatter, '');
 const lessonNumber = (text) => Number(/^lesson:\s*(\d+)\s*$/m.exec(frontMatter.exec(text)?.[1] ?? '')?.[1] ?? NaN);
 const unbracket = (ipa) => ipa.replace(/[[\]]/g, '').trim();
-const bare = (word) => word.replace(/^[^\p{L}\p{Nd}]+|[^\p{L}\p{Nd}]+$/gu, '');
 /** Brackets in the French text itself would be read as pronunciation marks. */
 const hasMarkCharacters = (text) => /[()[\]{}‿]/.test(text);
 export const plainOf = (marked) => marked.replace(/[()[\]{}]/g, '').replaceAll('‿', ' ');
@@ -28,20 +28,33 @@ export const plainOf = (marked) => marked.replace(/[()[\]{}]/g, '').replaceAll('
 // ---------------------------------------------------------------------------------------------
 // Parsing: Markdown → raw lesson parts. No alignment yet.
 
-/** «Слова.md» → the new vocabulary of the lesson and the remarks under its conjugation tables. */
+const VOCABULARY_HEAD = ['Слово', 'Произношение', 'Перевод', 'Грамматика'];
+
+/**
+ * «Слова.md» → the new words of the lesson and the remarks under its conjugation tables. The words
+ * are the tables under «Словарь урока», one per group; «Повторяющаяся лексика» repeats words of
+ * earlier lessons, which have their cards there.
+ */
 export function parseVocabulary(markdown) {
   const blocks = parseBlocks(body(markdown));
-  const start = blocks.findIndex((block) => block.t === 'h' && /Новая лексика/.test(block.md));
-  if (start === -1) throw new Error('no «Новая лексика» heading');
-  const end = blocks.findIndex((block, i) => i > start && block.t === 'h');
-  const table = blocks.slice(start + 1, end === -1 ? undefined : end).find((block) => block.t === 'table');
-  if (!table) throw new Error('no table under «Новая лексика»');
-  const words = table.rows.filter((row) => row.length >= 4).map(([fr, pos, ipa, ...ru]) => ({
-    fr: fr.replaceAll('`', '').trim(),
-    pos: plainText(pos),
-    ipa: unbracket(ipa),
-    ru: plainText(ru.join(' | ')).replace(/^✎\s*/, ''),
-  }));
+  const start = blocks.findIndex((block) => block.t === 'h' && block.level === 2 && /Словарь урока/.test(block.md));
+  if (start === -1) throw new Error('no «Словарь урока» heading');
+  const end = blocks.findIndex((block, i) => i > start && block.t === 'h' && block.level <= 2);
+  let group = '';
+  const words = [];
+  for (const block of blocks.slice(start + 1, end === -1 ? undefined : end)) {
+    if (block.t === 'h') group = block.md;
+    if (block.t !== 'table' || /Повторяющаяся лексика/.test(group)) continue;
+    if (VOCABULARY_HEAD.some((name, i) => block.head[i] !== name)) {
+      throw new Error(`table under «${group}» has columns ${block.head.join(' | ')}, expected ${VOCABULARY_HEAD.join(' | ')}`);
+    }
+    for (const [fr, ipa, ru, pos] of block.rows) {
+      // The word is written bold; «\*haut» escapes the star that marks an aspirated h.
+      const written = fr.trim().replace(/^\*\*([\s\S]*)\*\*$/, '$1').replace(/\\(.)/g, '$1');
+      words.push({ fr: written, pos: plainText(pos), ipa: unbracket(ipa), ru: plainText(ru).replace(/^✎\s*/, '') });
+    }
+  }
+  if (words.length === 0) throw new Error('no words under «Словарь урока»');
 
   const verbNotes = {};
   let lemma = null;
@@ -53,68 +66,11 @@ export function parseVocabulary(markdown) {
   return { words, verbNotes };
 }
 
-const LABEL = { fr: /^\*\*Français\s*:\*\*\s*/, ipa: /^\*\*IPA:\*\*\s*/, ru: /^\*\*Перевод:\*\*\s*/, note: /^\*\*Пояснение:\*\*\s*/ };
-const startsWithLabel = (line) => Object.values(LABEL).some((label) => label.test(line));
-
-/** Labelled lines written without a blank line between them are still separate paragraphs. */
-function splitLabelledParagraphs(blocks) {
-  return blocks.flatMap((block) => {
-    if (block.t !== 'p') return [block];
-    const parts = [];
-    for (const line of block.md.split('\n')) {
-      if (parts.length === 0 || startsWithLabel(line)) parts.push(line);
-      else parts[parts.length - 1] += `\n${line}`;
-    }
-    return parts.map((md) => ({ t: 'p', md }));
-  });
-}
-
-/**
- * «Тексты.md» → sections. A section item is either `{ sentence }` (French, IPA, translation,
- * explanation) or `{ block }` for everything else: drills, summaries, tables without IPA.
- */
-export function parseTexts(markdown) {
-  const blocks = splitLabelledParagraphs(parseBlocks(body(markdown)));
-  const sections = [];
-  const hasIpaNext = (i) => blocks[i]?.t === 'p' && LABEL.ipa.test(blocks[i].md);
-  let i = 0;
-  while (i < blocks.length) {
-    const block = blocks[i];
-    i += 1;
-    if (block.t === 'h' && block.level <= 2) {
-      if (block.level === 2) sections.push({ title: block.md, items: [] });
-      continue;
-    }
-    const section = sections.at(-1);
-    if (!section || block.t === 'hr') continue; // before the first section: title, links, notation notes
-    const numbered = block.t === 'h' ? /^\d+\.\s+(.+)$/.exec(block.md) : null;
-    const labelled = block.t === 'p' ? LABEL.fr.exec(block.md) : null;
-    if ((numbered || labelled) && hasIpaNext(i)) {
-      const sentence = { fr: plainText(numbered ? numbered[1] : block.md.slice(labelled[0].length)), ipa: '', ru: '', note: [] };
-      sentence.ipa = blocks[i++].md.replace(LABEL.ipa, '');
-      if (blocks[i]?.t === 'p' && LABEL.ru.test(blocks[i].md)) sentence.ru = plainText(blocks[i++].md.replace(LABEL.ru, ''));
-      if (blocks[i]?.t === 'p' && LABEL.note.test(blocks[i].md)) {
-        const inline = blocks[i++].md.replace(LABEL.note, '');
-        if (inline) sentence.note.push({ t: 'p', md: inline });
-        while (i < blocks.length && !['h', 'hr'].includes(blocks[i].t) && !(blocks[i].t === 'p' && startsWithLabel(blocks[i].md))) {
-          sentence.note.push(blocks[i++]);
-        }
-      }
-      section.items.push({ sentence });
-    } else if (block.t === 'table' && ['Français', 'IPA', 'Перевод'].every((name) => block.head.includes(name))) {
-      const column = (name) => block.head.indexOf(name);
-      for (const row of block.rows) {
-        const speaker = column('Français') > 0 ? plainText(row[0]) : '';
-        section.items.push({ sentence: { fr: plainText(row[column('Français')]), ipa: row[column('IPA')], ru: plainText(row[column('Перевод')]), note: [], speaker } });
-      }
-    } else {
-      section.items.push({ block });
-    }
-  }
-  return sections;
-}
-
-const RULE_KIND = { 'Произношение': 'Произношение', 'Правила чтения': 'Чтение', 'Речевой поток': 'Чтение', 'Грамматика': 'Грамматика' };
+const RULE_KIND = {
+  'Произношение': 'Произношение', 'Правила чтения': 'Чтение', 'Речевой поток': 'Чтение', 'Грамматика': 'Грамматика',
+  // Lesson 14 has too many remarks for a callout.
+  'Комментарии к словам': 'Примечания',
+};
 
 function summaryOf(blocks) {
   const first = blocks.find((block) => block.t === 'p' || block.t === 'list');
@@ -122,7 +78,11 @@ function summaryOf(blocks) {
   return text.length > 110 ? `${text.slice(0, 107).trimEnd()}…` : text;
 }
 
-/** «Правила.md» → rules: one per third-level heading, plus the two closing callouts. */
+/**
+ * «Правила.md» → rules: one per second- and third-level heading that has text of its own, plus the
+ * two closing callouts. Ids are `<lesson>-r<n>`: the vault's earlier layout numbered its rules
+ * `<lesson>-<n>`, and a note kept under such an id must not land on another rule.
+ */
 export function parseRules(markdown, lesson) {
   const rules = [];
   let group = null;
@@ -140,7 +100,15 @@ export function parseRules(markdown, lesson) {
     }
   }
   return rules.filter((rule) => rule.blocks.length > 0)
-    .map((rule, index) => ({ id: `${lesson}-${index + 1}`, ...rule, summary: summaryOf(rule.blocks) }));
+    .map((rule, index) => ({ id: `${lesson}-r${index + 1}`, ...rule, title: soundsTitle(rule) ?? rule.title, summary: summaryOf(rule.blocks) }));
+}
+
+/** «Произношение» opens with a table of the lesson's sounds: «Звук [e]», «Звуки [u], [ɲ]» says more than the kind again. */
+function soundsTitle(rule) {
+  const table = rule.blocks.find((block) => block.t === 'table');
+  if (rule.title !== 'Произношение' || table?.head[0] !== 'Звук') return null;
+  const sounds = table.rows.map((row) => plainText(row[0]));
+  return `${sounds.length === 1 ? 'Звук' : 'Звуки'} ${sounds.join(', ')}`;
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -149,62 +117,46 @@ export function parseRules(markdown, lesson) {
 const sound = (text) => phonemesOf(text).map((item) => item.p).join('');
 
 /**
- * Kinds of reading rule, most specific first: when several rules explain a word, the lowest rank
- * is linked. The same descriptions are evaluated by the app's reader (FrenchCore/ReadingRules.swift).
+ * The rule one row of a «Правила чтения» table states, or null: «ch | [ʃ]», «s на конце слова |
+ * обычно не читается», «гласный + n или m в одном слоге | носовой гласный…».
  */
-const RANK = { 'nasal-link': 0, liaison: 1, nasal: 2, sound: 3, h: 3, 'silent-final': 4, 'heard-final': 5, tie: 6 };
-
-/** The description of the rule one item of a «Правила чтения» list states, or null. */
-function patternFor(lead) {
+function patternFor(spelling, reading) {
   let found;
-  if (/^Связывание после носового/.test(lead)) return { kind: 'nasal-link' };
-  if (/^Носовые гласные/.test(lead)) return { kind: 'nasal' };
-  if ((found = /^(?:Буквенное сочетание )?(\p{L}{1,3})(?: перед гласными)? (?:в большинстве случаев |обычно )?(?:читается(?: обычно)?(?: как)?|=) \[([^\]]+)\]/u.exec(lead))) {
-    return { kind: 'sound', letters: found[1], sound: sound(found[2]) };
+  if (/^Сцепление/.test(spelling)) return { kind: 'tie' };
+  if (/^носовой гласный при связывании/.test(spelling)) return { kind: 'nasal-link' };
+  if (/^носовой гласный/.test(reading)) return { kind: 'nasal' };
+  const said = /^(?:обычно |всегда )?\[([^\]]+)\]$/.exec(reading);
+  if (said && (found = /^(\p{L}{1,3})(?: перед гласн\p{L}*)?$/u.exec(spelling))) {
+    return { kind: 'sound', letters: found[1], sound: sound(said[1]) };
   }
-  if ((found = /^(\p{L}) (?:[^.:]*? )?(?:на конце|в окончании) [^.:]*?(не читается|читается)/u.exec(lead))) {
-    return { kind: found[2] === 'не читается' ? 'silent-final' : 'heard-final', letter: found[1] };
+  if ((found = /^(\p{L}) (?:на конце|в окончании)/u.exec(spelling))) {
+    if (/не читается/.test(reading)) return { kind: 'silent-final', letter: found[1] };
+    if (said) return { kind: 'heard-final', letter: found[1] };
   }
-  if (/^Сцепление/.test(lead)) return { kind: 'tie' };
   return null;
 }
 
-const linkedByNasal = (token) => Boolean(token.before?.chunks.some((chunk) => chunk.kind === 'link' && chunk.letters === 'n'));
-
-/** Whether a rule applies to an aligned token (`before` is the previous token). */
-export function applies(pattern, token) {
-  switch (pattern.kind) {
-    case 'nasal-link': return linkedByNasal(token);
-    case 'liaison': return Boolean(token.link) && !linkedByNasal(token);
-    case 'nasal': return token.chunks.some((chunk) => chunk.kind === 'nasal');
-    case 'sound':
-      return token.chunks.some((chunk, i) => [chunk, { letters: chunk.letters + (token.chunks[i + 1]?.letters ?? ''), sounds: chunk.sounds + (token.chunks[i + 1]?.sounds ?? '') }]
-        .some((span) => span.letters === pattern.letters && span.sounds === pattern.sound));
-    case 'h': return token.chunks.some((chunk) => chunk.letters === 'h' && chunk.kind === 'silent');
-    case 'silent-final': return token.chunks.some((chunk) => chunk.final && chunk.kind === 'silent' && chunk.letters.includes(pattern.letter));
-    case 'heard-final': return token.chunks.at(-1)?.letters === pattern.letter && token.chunks.at(-1).sounds !== '';
-    case 'tie': return Boolean(token.tie) && !token.link;
-    default: throw new Error(`Unknown reading rule kind "${pattern.kind}"`);
-  }
-}
-
-/** Every reading rule a word can be linked to, in lesson order. */
+/**
+ * Every reading rule a word can be linked to, in lesson order. The app's reader decides which
+ * applies to a word (FrenchCore/ReadingRules.swift, `ReadingPattern.applies`).
+ */
 function readingRulesOf(lessons) {
   const found = [];
-  const add = (rule, label, pattern) => found.push({ rule, label, pattern, rank: RANK[pattern.kind] });
+  const add = (rule, label, pattern) => found.push({ rule, label, pattern });
   // The item that says a silent final consonant wakes up before a vowel, not the one on vowel linking.
-  const explainsLiaison = (item) => /связывание.{0,40}согласный/.test(JSON.stringify(item));
+  const explainsLiaison = (item) => /связывание.{0,40}согласный/i.test(JSON.stringify(item));
   for (const lesson of lessons) {
     for (const rule of lesson.rules.filter((item) => item.kind === 'Чтение')) {
-      if (/^Буква h/.test(rule.title)) add(rule.id, rule.title, { kind: 'h' });
-      for (const item of rule.blocks.filter((block) => block.t === 'list').flatMap((block) => block.items)) {
-        const lead = plainText(item.md.split('\n')[0]);
-        const start = lead.split(':')[0].replace(/\.$/, '');
-        const label = start.length <= 60 ? start : plainText(/^\*\*(.+?)\*\*/.exec(item.md)?.[1] ?? start).replace(/[.:]$/, '');
-        const pattern = patternFor(lead);
-        if (pattern) add(rule.id, label, pattern);
+      if (/^h немое/.test(rule.title)) add(rule.id, rule.title, { kind: 'h' });
+      for (const table of rule.blocks.filter((block) => block.t === 'table')) {
+        for (const row of table.rows) {
+          const [spelling, reading] = row.slice(0, 2).map(plainText);
+          const pattern = patternFor(spelling, reading);
+          // «ch — [ʃ]»; a long explanation («Сцепление»: what it is) stays out of the label.
+          if (pattern) add(rule.id, reading.length <= 40 ? `${spelling} — ${reading}` : spelling, pattern);
+        }
       }
-      // Liaison has no item of its own: it is explained next to the first silent final letter.
+      // Liaison has no row of its own: a paragraph explains it after the silent final letters.
       if (explainsLiaison(rule.blocks) && !found.some((entry) => entry.pattern.kind === 'liaison')) {
         add(rule.id, 'Связывание', { kind: 'liaison' });
       }
@@ -214,25 +166,7 @@ function readingRulesOf(lessons) {
 }
 
 // ---------------------------------------------------------------------------------------------
-// Enrichment: marks, sounds per word, glosses, rule links.
-
-/** "Je lis ce livre ." → words with their punctuation attached, joined by no-break spaces. */
-export function tokenize(fr) {
-  const tokens = [];
-  let opening = '';
-  for (const chunk of fr.trim().split(/\s+/u)) {
-    if (/[\p{L}\p{Nd}]/u.test(chunk)) {
-      tokens.push(opening + chunk);
-      opening = '';
-    } else if (tokens.length === 0 || /^[—–«(]+$/.test(chunk)) {
-      opening += `${chunk} `;
-    } else {
-      tokens[tokens.length - 1] += ` ${chunk}`;
-    }
-  }
-  if (opening && tokens.length > 0) tokens[tokens.length - 1] += ` ${opening.trim()}`;
-  return tokens;
-}
+// Enrichment: marks on the words.
 
 /** Stand-ins for "something" and "somebody" in dictionary entries: written, never transcribed. */
 const PLACEHOLDER = /^(qch|qn|qqn|qqch)[,.]?$/;
@@ -261,80 +195,6 @@ function markEntry(fr, ipa, endsWith) {
   return null;
 }
 
-/**
- * Translation of a word of a text: the vocabulary entry for the form itself, else for its lemma.
- * A word taught twice ("ce": «это», later «этот») is glossed as of the lesson being read.
- */
-function glossFinder(lessons, byKey) {
-  // What the vocabulary says about this very form outranks what it says about a related one.
-  const exact = new Map();
-  const related = new Map();
-  const remember = (entries, key, lesson, ru) => {
-    if (!key) return;
-    if (!entries.has(key)) entries.set(key, []);
-    entries.get(key).push({ lesson, ru });
-  };
-  const lemmasOf = (key) => (byKey.get(key) ?? []).map((row) => keyOf(row.lemma));
-  for (const lesson of lessons) {
-    for (const word of lesson.words) {
-      const parts = word.fr.split(', ');
-      // "petit, petite" is one word in two forms; "ça, c'est sûr" is one phrase.
-      const forms = parts.every((part) => !part.includes(' ')) ? parts : [word.fr];
-      for (const form of forms) {
-        const key = keyOf(bare(form));
-        const withoutArticle = key.replace(/^(le |la |les |un |une |des |se |l'|s')/, '');
-        for (const each of new Set([key, withoutArticle])) remember(exact, each, lesson.id, word.ru);
-        for (const lemma of lemmasOf(withoutArticle)) remember(related, lemma, lesson.id, word.ru);
-      }
-    }
-  }
-  return (token, lesson) => {
-    const key = keyOf(bare(token));
-    const afterElision = key.replace(/^.*'/, '');
-    const candidates = [key, afterElision, ...lemmasOf(key), ...lemmasOf(afterElision)];
-    for (const entries of [exact, related]) {
-      for (const candidate of candidates) {
-        const known = entries.get(candidate);
-        if (known) return (known.findLast((entry) => entry.lesson <= lesson) ?? known[0]).ru;
-      }
-    }
-    return undefined;
-  };
-}
-
-function enrichSentence(raw, lesson, context, report) {
-  const words = tokenize(raw.fr);
-  const aligned = hasMarkCharacters(raw.fr) ? null : align(words, raw.ipa, context.endsWith);
-  const sentence = { ru: raw.ru };
-  if (raw.speaker) sentence.speaker = raw.speaker;
-  if (raw.note.length > 0) sentence.note = raw.note;
-  report.sentences += 1;
-  if (!aligned) {
-    report.failedSentences.push(raw.fr);
-    sentence.ipa = unbracket(raw.ipa);
-    sentence.tokens = words.map((text) => ({ t: text }));
-    return sentence;
-  }
-  if (aligned.every((item) => item.marked !== null)) report.alignedSentences += 1;
-  sentence.tokens = aligned.map((item, i) => {
-    const token = item.marked === null ? { t: words[i] } : { m: item.marked };
-    if (item.marked === null) report.skippedTokens.push(`${words[i]} (${raw.fr})`);
-    if (item.ipa) token.ipa = item.ipa;
-    if (item.link) token.link = item.link;
-    if (item.tie) token.tie = true;
-    const gloss = context.gloss(words[i], lesson);
-    if (gloss) token.g = gloss;
-    const subject = { ...item, before: aligned[i - 1] };
-    const rule = item.marked === null ? -1 : context.readingRules
-      .map((entry, index) => ({ ...entry, index }))
-      .filter((entry) => applies(entry.pattern, subject))
-      .sort((a, b) => a.rank - b.rank)[0]?.index ?? -1;
-    if (rule >= 0) token.r = rule;
-    return token;
-  });
-  return sentence;
-}
-
 // ---------------------------------------------------------------------------------------------
 
 function readLesson(directory) {
@@ -353,7 +213,7 @@ function readLesson(directory) {
     }
   };
   const topic = /^#\s+Урок\s+\d+\.\s*(.+)$/m.exec(dashboard)?.[1].trim() ?? '';
-  return { id, topic, ...stage('Слова', parseVocabulary), sections: stage('Тексты', parseTexts), rules: stage('Правила', (text) => parseRules(text, id)) };
+  return { id, topic, ...stage('Слова', parseVocabulary), rules: stage('Правила', (text) => parseRules(text, id)) };
 }
 
 export function importVault(vault, lexiqueRows, { triggers } = {}) {
@@ -372,8 +232,7 @@ export function importVault(vault, lexiqueRows, { triggers } = {}) {
 
   const readingRules = readingRulesOf(lessons);
   attachTriggers(lessons, readingRules, triggers);
-  const context = { endsWith, gloss: glossFinder(lessons, byKey), readingRules };
-  const report = { words: 0, alignedWords: 0, singleWords: 0, alignedSingleWords: 0, failedWords: [], sentences: 0, alignedSentences: 0, failedSentences: [], skippedTokens: [], duplicates: 0 };
+  const report = { words: 0, alignedWords: 0, singleWords: 0, alignedSingleWords: 0, failedWords: [], duplicates: 0 };
   const taught = new Map(); // French entry → translations already given by earlier lessons
   const verbNotes = {};
 
@@ -400,11 +259,7 @@ export function importVault(vault, lexiqueRows, { triggers } = {}) {
       }
       words.push(marked ? { ...word, m: marked } : word);
     }
-    const sections = lesson.sections.map((section) => ({
-      title: section.title,
-      items: section.items.map((item) => (item.sentence ? { sentence: enrichSentence(item.sentence, lesson.id, context, report) } : item)),
-    }));
-    return { id: lesson.id, topic: lesson.topic, words, sections, rules: lesson.rules };
+    return { id: lesson.id, topic: lesson.topic, words, rules: lesson.rules };
   });
 
   return {
@@ -430,11 +285,6 @@ function validate(content) {
       check(word.m, `lesson ${lesson.id} vocabulary`);
       if (plainOf(word.m) !== word.fr) throw new Error(`Marked "${word.m}" does not spell "${word.fr}" (lesson ${lesson.id})`);
     }
-    for (const section of lesson.sections) {
-      for (const { sentence } of section.items) {
-        for (const token of sentence?.tokens ?? []) if (token.m) check(token.m, `lesson ${lesson.id}, ${section.title}`);
-      }
-    }
   }
 }
 
@@ -451,19 +301,15 @@ async function main() {
 
   const share = (part, whole) => `${part}/${whole} (${(100 * part / whole).toFixed(1)}%)`;
   for (const lesson of content.lessons) {
-    const sentences = lesson.sections.flatMap((section) => section.items).filter((item) => item.sentence).length;
-    console.log(`Урок ${String(lesson.id).padStart(2)}: ${lesson.words.length} слов, ${sentences} фраз, ${lesson.rules.length} правил`);
+    console.log(`Урок ${String(lesson.id).padStart(2)}: ${lesson.words.length} слов, ${lesson.rules.length} правил`);
   }
   console.log(`\nEntries marked: ${share(report.alignedWords, report.words)}, single words ${share(report.alignedSingleWords, report.singleWords)}; repeated entries skipped: ${report.duplicates}`);
-  console.log(`Sentences fully marked: ${share(report.alignedSentences, report.sentences)}`);
   console.log(`Reading rules that words link to: ${content.readingRules.length}`);
   if (report.failedWords.length > 0) console.log(`\nWords left unmarked:\n  ${report.failedWords.join('\n  ')}`);
-  if (report.failedSentences.length > 0) console.log(`\nSentences left unmarked:\n  ${report.failedSentences.join('\n  ')}`);
-  if (report.skippedTokens.length > 0) console.log(`\nWords skipped inside a sentence:\n  ${report.skippedTokens.join('\n  ')}`);
   console.log(`\nWrote ${OUTPUT}`);
 
-  if (report.alignedSentences / report.sentences < MIN_ALIGNED || report.alignedSingleWords / report.singleWords < MIN_ALIGNED) {
-    console.error(`Fewer than ${MIN_ALIGNED * 100}% of the sentences or single words could be marked. Check the transcriptions listed above.`);
+  if (report.alignedSingleWords / report.singleWords < MIN_ALIGNED) {
+    console.error(`Fewer than ${MIN_ALIGNED * 100}% of the single words could be marked. Check the transcriptions listed above.`);
     process.exit(1);
   }
 }

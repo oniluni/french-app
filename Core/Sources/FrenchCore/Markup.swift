@@ -21,7 +21,7 @@ public struct MarkedPart: Equatable, Sendable {
     }
 }
 
-/// The pronunciation markup shared by lesson texts, cards, rules and the reader.
+/// The pronunciation markup shared by cards, rules and the reader.
 public enum Markup {
     private static let closers: [Character: (Character, MarkedPart.Kind)] = [
         "(": (")", .silent), "[": ("]", .nasal), "{": ("}", .link),

@@ -9,7 +9,7 @@
 import { readFileSync, statSync, writeFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { loadDictionary } from './build-dictionary.mjs';
-import { FILES, lessonExamples, tatoeba, tatoebaPairs } from './build-examples.mjs';
+import { FILES, tatoeba, tatoebaPairs } from './build-examples.mjs';
 import { readingOf } from './build-lexicon.mjs';
 import { download, keyOf, loadRows } from './lexique.mjs';
 
@@ -126,7 +126,7 @@ export function placeOf(word, sentence) {
   return { start: first.index, end: last.index + last[0].length };
 }
 
-/** Gap-fill sentences of a kind: lesson phrases first, then Tatoeba, readable length first. */
+/** Gap-fill sentences of a kind from Tatoeba, readable length first. */
 export function gapsFor(words, sentences) {
   const gaps = [];
   for (const word of words) {
@@ -135,7 +135,7 @@ export function gapsFor(words, sentences) {
       const place = placeOf(word.fr, sentence.fr);
       if (place) found.push({ sentence, place });
     }
-    const rank = ({ sentence }) => (sentence.src.startsWith('L') ? 0 : 1000) + Math.abs(sentence.fr.length - IDEAL_LENGTH);
+    const rank = ({ sentence }) => Math.abs(sentence.fr.length - IDEAL_LENGTH);
     for (const { sentence, place } of found.sort((a, b) => rank(a) - rank(b)).slice(0, GAPS_PER_WORD)) {
       gaps.push({
         before: sentence.fr.slice(0, place.start),
@@ -155,7 +155,7 @@ async function main() {
   const rows = loadRows();
   const { translations, levels } = await loadDictionary();
   const [fra, rus, links] = await Promise.all([tatoeba(FILES.fra), tatoeba(FILES.rus), tatoeba(FILES.links)]);
-  const sentences = [...lessonExamples(content), ...tatoebaPairs(fra, rus, links)];
+  const sentences = tatoebaPairs(fra, rus, links);
 
   const categories = categoryWords(rows, translator(content, translations), levels).map(({ pos, gaps, ...category }) => ({
     ...category,

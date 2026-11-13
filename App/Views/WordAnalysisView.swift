@@ -174,7 +174,7 @@ struct WordAnalysisBody: View {
 
     private static let log = Logger(subsystem: "io.github.oniluni.french", category: "examples")
 
-    /// Lesson phrases first, then Tatoeba; phrases with the typed form first within each.
+    /// Sentences from Tatoeba, those with the typed form first.
     @ViewBuilder private func examplesSection(lemma: String, form: String) -> some View {
         let found: [Example] = {
             do {
@@ -191,11 +191,11 @@ struct WordAnalysisBody: View {
                         speech.speak(example.fr)
                     } label: {
                         VStack(alignment: .leading, spacing: 4) {
-                            MarkedText(marked: example.m ?? readerMarks(example.fr), plain: example.fr)
+                            MarkedText(marked: readerMarks(example.fr), plain: example.fr)
                                 .foregroundStyle(Color.primary)
                                 .multilineTextAlignment(.leading)
                             Text(example.ru).font(.subheadline).foregroundStyle(.secondary)
-                            Text(example.lesson.map { "Урок \($0)" } ?? "Tatoeba").font(.caption2).foregroundStyle(.tertiary)
+                            Text("Tatoeba").font(.caption2).foregroundStyle(.tertiary)
                         }
                     }
                     // Plain: the translation and the source keep their own colours instead of the tint.

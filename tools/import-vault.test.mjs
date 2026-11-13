@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { buildLexicon, readingOf, serialize } from './build-lexicon.mjs';
-import { importVault, parseRules, parseTexts, parseVocabulary, plainOf, tokenize } from './import-vault.mjs';
+import { importVault, parseRules, parseVocabulary, plainOf } from './import-vault.mjs';
 import { attachTriggers } from './rule-triggers.mjs';
 
 const row = (ortho, ipa, lemma, pos, extra = {}) => ({ ortho, ipa, lemma, pos, gender: '', number: '', tags: [], frequency: 1, ...extra });
@@ -25,23 +25,31 @@ lesson: 3
 ---
 # Урок 3. Словарь
 
-### Новая лексика урока
+## Словарь урока
 
-| Французское слово | Часть речи | Транскрипция | Перевод |
+### Существительные
+
+| Слово | Произношение | Перевод | Грамматика |
 |---|---|---|---|
-| \`l'ami\` | Существительное, мужской род | [lami] | ✎ друг |
-| \`lire\` | Глагол III группы | [liʁ] | читать |
-| \`joli, jolie\` | Прилагательное | [ʒɔli] | красивый, -ая |
-| \`parler de qch\` | Глагол | [paʁle də] | говорить о чём-л. |
-| \`le (la) secrétaire\` | Существительное | [lə (la) s(ə)kʁetɛʁ] | секретарь |
+| **l'ami** | [lami] | ✎ друг | существительное, м. р. |
+| **le (la) secrétaire** | [lə (la) s(ə)kʁetɛʁ] | секретарь | существительное |
+
+### Глаголы и прочее
+
+| Слово | Произношение | Перевод | Грамматика |
+|---|---|---|---|
+| **lire** | [liʁ] | читать | глагол III группы |
+| **joli, jolie** | [ʒɔli] | красивый, -ая | прилагательное |
+| **parler de qch** | [paʁle də] | говорить о чём-л. | глагол |
+| **\*haut** | [o] | высокий | прилагательное |
 
 ### Повторяющаяся лексика
 
-| Французское слово | Часть речи | Транскрипция | Перевод |
+| Слово | Произношение | Перевод | Грамматика |
 |---|---|---|---|
-| \`la\` | Артикль | [la] | артикль (урок 1) |
+| **la** | [la] | артикль (урок 1) | артикль |
 
-## Спряжение
+## Спряжение глаголов III группы в Présent
 
 ### Lire — читать
 
@@ -50,44 +58,11 @@ lesson: 3
 | je | lis |
 
 **Особенности:** Во мн. ч. появляется [z].
-`;
 
-const TEXTS = `---
-lesson: 3
----
-# Урок 3. Тексты
-
-> [!note] О транскрипции
-> не входит в приложение
-
-## Phrases
-
-Фразы урока.
-
-### 1. Marie lit. — Elle lit ?
-
-**IPA:** [maʁi li] [ɛl li]
-
-**Перевод:** Мари читает. — Она читает?
-
-**Пояснение:**
-- **lit** — конечное t не читается.
-
-## Texte
-
-**Français :** Les amis lisent.
-**IPA:** [le‿zami liz]
-**Перевод:** Друзья читают.
-
----
-
-| | Français | IPA | Перевод |
-|---|---|---|---|
-| — | Il lit. | [il li] | Он читает. |
-
-| Français | Перевод |
-|---|---|
-| il fait beau | хорошая погода |
+%%
+#flashcards
+l'ami::друг
+%%
 `;
 
 const RULES = `---
@@ -95,19 +70,31 @@ lesson: 3
 ---
 # Урок 3. Правила
 
+> [!note] Транскрипция
+> не входит в приложение
+
 ## Произношение
 
-### Гласный [e]
+| Звук | Как произносить | Отличие от [ɛ] |
+|---|---|---|
+| **[e]** | Закрытый звук. | Рот закрыт сильнее. |
 
-Закрытый звук.
+### Как пишется [e]
+
+| Написание | Где | Пример |
+|---|---|---|
+| **é** | везде | *armée* |
 
 ## Правила чтения
 
-1. **s на конце слова** обычно не читается:
-   *les amis*.
-2. **t на конце слов** обычно не читается.
+| Написание | Читается | Пример |
+|---|---|---|
+| **s** на конце слова | обычно не читается | *très* |
+| **t** на конце слова | обычно не читается | *elle part* |
+| **ch** | [ʃ] | *chaise* |
+| **c** на конце после согласного | [k] | *parc* |
 
-> В *les élèves* это **связывание**: конечный непроизносимый согласный становится произносимым.
+**Связывание** (liaison). Конечный немой согласный звучит перед гласным: *les‿amis*.
 
 ## Грамматика
 
@@ -115,44 +102,38 @@ lesson: 3
 
 Текст правила.
 
-> [!warning] Частые ошибки
+## Комментарии к словам
+
+| Слово | Что важно |
+|---|---|
+| chez | только с лицами |
+
+> [!warning] Исключения и частые ошибки
 > - не забывайте *pas*.
 `;
 
-test('vocabulary: only the new words, with the remarks on conjugation', () => {
+test('vocabulary: every table of the lesson dictionary but the repeated words, with the remarks on conjugation', () => {
   const { words, verbNotes } = parseVocabulary(VOCABULARY);
-  assert.deepEqual(words.map((word) => word.fr), ["l'ami", 'lire', 'joli, jolie', 'parler de qch', 'le (la) secrétaire']);
-  assert.deepEqual(words[0], { fr: "l'ami", pos: 'Существительное, мужской род', ipa: 'lami', ru: 'друг' });
+  assert.deepEqual(words.map((word) => word.fr), ["l'ami", 'le (la) secrétaire', 'lire', 'joli, jolie', 'parler de qch', '*haut']);
+  assert.deepEqual(words[0], { fr: "l'ami", pos: 'существительное, м. р.', ipa: 'lami', ru: 'друг' });
   assert.deepEqual(verbNotes, { lire: 'Во мн. ч. появляется [z].' });
+  assert.throws(() => parseVocabulary('# Урок 3. Словарь\n'), /«Словарь урока»/);
 });
 
-test('texts: numbered phrases, labelled phrases and dialogue tables become sentences', () => {
-  const [phrases, texte] = parseTexts(TEXTS);
-  assert.equal(phrases.title, 'Phrases');
-  assert.deepEqual(phrases.items.map((item) => (item.sentence ? 'sentence' : item.block.t)), ['p', 'sentence']);
-  const { sentence } = phrases.items[1];
-  assert.deepEqual([sentence.fr, sentence.ru], ['Marie lit. — Elle lit ?', 'Мари читает. — Она читает?']);
-  assert.equal(sentence.note[0].t, 'list');
-  assert.deepEqual(texte.items.map((item) => (item.sentence ? item.sentence.fr : item.block.t)), ['Les amis lisent.', 'Il lit.', 'table']);
-  assert.equal(texte.items[1].sentence.speaker, '—');
-});
-
-test('rules: one per heading, plus the closing callout', () => {
+test('rules: one per heading with text of its own, plus the closing callout; the sounds name the first', () => {
   const rules = parseRules(RULES, 3);
   assert.deepEqual(rules.map((rule) => [rule.id, rule.kind, rule.title]), [
-    ['3-1', 'Произношение', 'Гласный [e]'],
-    ['3-2', 'Чтение', 'Правила чтения'],
-    ['3-3', 'Грамматика', 'Глаголы I группы'],
-    ['3-4', 'Примечания', 'Частые ошибки'],
+    ['3-r1', 'Произношение', 'Звук [e]'],
+    ['3-r2', 'Произношение', 'Как пишется [e]'],
+    ['3-r3', 'Чтение', 'Правила чтения'],
+    ['3-r4', 'Грамматика', 'Глаголы I группы'],
+    ['3-r5', 'Примечания', 'Комментарии к словам'],
+    ['3-r6', 'Примечания', 'Исключения и частые ошибки'],
   ]);
-  assert.equal(rules[1].summary, 's на конце слова обычно не читается: les amis.');
+  assert.equal(rules[3].summary, 'Текст правила.');
 });
 
-test('punctuation stays with its word', () => {
-  assert.deepEqual(tokenize('— Il lit ? « Oui » , dit-elle.'), ['— Il', 'lit ?', '« Oui » ,', 'dit-elle.']);
-});
-
-test('a whole vault: marks, sounds, glosses and links to reading rules', () => {
+test('a whole vault: marks on the words, triggers, and reading rules from the table rows', () => {
   const vault = mkdtempSync(join(tmpdir(), 'vault-'));
   const lesson = join(vault, 'Урок 3');
   mkdirSync(lesson);
@@ -160,28 +141,28 @@ test('a whole vault: marks, sounds, glosses and links to reading rules', () => {
   writeFileSync(join(vault, 'Урок 16', 'Дашборд.md'), '# Урок 16\n');
   writeFileSync(join(lesson, 'Дашборд.md'), '---\nlesson: 3\n---\n\n# Урок 3. Гласный [e]; глаголы I группы\n');
   writeFileSync(join(lesson, 'Слова.md'), VOCABULARY);
-  writeFileSync(join(lesson, 'Тексты.md'), TEXTS);
   writeFileSync(join(lesson, 'Правила.md'), RULES);
 
   const triggers = {
-    '3-1': { title: 'Гласный [e]', trigger: { ipa: ['e'] } },
-    '3-3': { title: 'Глаголы I группы', trigger: { token: { group: 1 } } },
+    '3-r1': { title: 'Звук [e]', trigger: { ipa: ['e'] } },
+    '3-r2': { title: 'Как пишется [e]', trigger: { ipa: ['e'] } },
+    '3-r4': { title: 'Глаголы I группы', trigger: { token: { group: 1 } } },
   };
-  const { content, report } = importVault(vault, LEXIQUE, { triggers });
-  assert.deepEqual(content.lessons[0].rules.map((rule) => rule.trigger ?? null), [{ ipa: ['e'] }, null, { token: { group: 1 } }, null]);
+  const { content } = importVault(vault, LEXIQUE, { triggers });
   assert.equal(content.lessons.length, 1);
   const [three] = content.lessons;
-  assert.deepEqual([three.id, three.topic], [3, 'Гласный [e]; глаголы I группы']);
-  assert.deepEqual(three.words.map((word) => word.m), ["l'ami", 'lir(e)', 'joli, joli(e)', 'parle(r) de qch', undefined]);
+  assert.deepEqual([three.id, three.topic, three.sections], [3, 'Гласный [e]; глаголы I группы', undefined]);
+  assert.deepEqual(three.rules.map((rule) => rule.trigger ?? null), [{ ipa: ['e'] }, { ipa: ['e'] }, null, { token: { group: 1 } }, null, null]);
+  assert.deepEqual(three.words.map((word) => word.m), ["l'ami", undefined, 'lir(e)', 'joli, joli(e)', 'parle(r) de qch', '*(h)au(t)']);
   for (const word of three.words.filter((item) => item.m)) assert.equal(plainOf(word.m), word.fr);
 
-  const tokens = three.sections[1].items[0].sentence.tokens;
-  assert.deepEqual(tokens.map((token) => token.m), ['Le{s}', 'ami(s)', 'lis(ent).']);
-  assert.deepEqual(tokens[1], { m: 'ami(s)', ipa: 'ami', link: 'z', tie: true, g: 'друг', r: 2 });
-  assert.equal(content.readingRules[2].label, 'Связывание');
-  assert.equal(tokens[2].g, 'читать'); // through the lemma
-  assert.equal(content.readingRules[tokens[2].r].label, 't на конце слов обычно не читается');
-  assert.deepEqual([report.sentences, report.alignedSentences], [3, 3]);
+  assert.deepEqual(content.readingRules.map(({ rule, label, pattern }) => [rule, label, pattern]), [
+    ['3-r3', 's на конце слова — обычно не читается', { kind: 'silent-final', letter: 's' }],
+    ['3-r3', 't на конце слова — обычно не читается', { kind: 'silent-final', letter: 't' }],
+    ['3-r3', 'ch — [ʃ]', { kind: 'sound', letters: 'ch', sound: 'ʃ' }],
+    ['3-r3', 'c на конце после согласного — [k]', { kind: 'heard-final', letter: 'c' }],
+    ['3-r3', 'Связывание', { kind: 'liaison' }],
+  ]);
 });
 
 test('lexicon: the frequent reading first, schwa restored, lesson sound preferred, byte order', () => {

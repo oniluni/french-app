@@ -54,7 +54,7 @@ final class TranslationTests: XCTestCase {
     private func lesson(_ words: [Word]) throws -> Content {
         let json = try JSONEncoder().encode(words)
         return try Content.decode(Data("""
-        {"lessons": [{"id": 5, "topic": "t", "sections": [], "rules": [], "words": \(String(decoding: json, as: UTF8.self))}], "readingRules": [], "verbNotes": {}}
+        {"lessons": [{"id": 5, "topic": "t", "rules": [], "words": \(String(decoding: json, as: UTF8.self))}], "readingRules": [], "verbNotes": {}}
         """.utf8))
     }
 
@@ -116,16 +116,16 @@ final class TwoGendersTests: XCTestCase {
 
 final class ExamplesTests: XCTestCase {
     private let examples = Examples(data: Data("""
-    ami\t[{"fr":"Les amis.","m":"Le{s}‿ami(s).","ru":"Друзья.","src":"L5"},{"fr":"Mon amie va bien.","ru":"У подруги всё хорошо.","src":"T5"},{"fr":"C'est mon ami.","ru":"Это мой друг.","src":"T3"}]
+    ami\t[{"fr":"Mon amie va bien.","ru":"У подруги всё хорошо.","src":"T5"},{"fr":"C'est mon ami.","ru":"Это мой друг.","src":"T3"}]
     broken\t[{"fr":
     lire\t[]
 
     """.utf8))
 
-    func testLessonPhrasesStayFirstAndTheTypedFormMovesUp() throws {
-        XCTAssertEqual(try examples.of(lemma: "ami").map(\.src), ["L5", "T5", "T3"])
-        XCTAssertEqual(try examples.of(lemma: "ami", preferring: "ami").map(\.src), ["L5", "T3", "T5"])
-        XCTAssertEqual(try examples.of(lemma: "Ami").first?.lesson, 5)
+    func testTheTypedFormMovesUp() throws {
+        XCTAssertEqual(try examples.of(lemma: "ami").map(\.src), ["T5", "T3"])
+        XCTAssertEqual(try examples.of(lemma: "ami", preferring: "ami").map(\.src), ["T3", "T5"])
+        XCTAssertEqual(try examples.of(lemma: "Ami").first?.src, "T5")
     }
 
     func testMissingAndBrokenLines() {

@@ -60,7 +60,7 @@ extension ReadingPattern {
 }
 
 extension Content {
-    /// Index into `readingRules` of the rule that best explains the word, as the lesson texts link it.
+    /// Index into `readingRules` of the rule that best explains the word.
     public func readingRule(for subject: RuleSubject) -> Int? {
         readingRules.indices
             .filter { readingRules[$0].pattern.applies(to: subject) }

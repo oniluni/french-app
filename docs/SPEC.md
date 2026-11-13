@@ -267,40 +267,46 @@ Taken by the owner on 2026-11-12.
 ## 8a. Where the app departs from the prototype
 
 - Lessons have no French title in the vault: the list shows «Урок N» and the Russian topic.
-- «Текст» is the vault's sections (phonetic drills, Phrases, Texte, dialogues) made of separate
-  phrases. Each phrase folds its translation and explanation under «Перевод»; a selection stays
-  inside one phrase.
+- A lesson has no «Текст»: the vault keeps theory, words and exercises only (phrases, texts and
+  dialogues of the textbook are left out on purpose). The lesson screen is `Правила · Слова` and
+  opens on the rules; there is no `[ə]` switch, and the word popover, phrase selection and
+  pronunciation layer live in the reader only.
+- The vault's «Слова.md» lists the words in tables by part of speech; «Повторяющаяся лексика»
+  (words of earlier lessons) is not imported, those words keep their cards in their own lessons.
+- Rule ids are `<lesson>-r<n>`. The ids of the vault's earlier layout (`5-3`) are not reused, so a
+  note kept under one never shows under another rule. Notes on lesson texts and on rules of the
+  earlier layout stay in the backup file but are not shown.
 - Rules are the vault's own Markdown (paragraphs, lists, tables, callouts), not a fixed card of
   paragraphs, table and examples. French in italics is marked up and plays when tapped.
 - «Почему так читается» links to the lesson's «Правила чтения» page, chosen by matching the word's
   letters against each reading rule.
 - Word analysis and form drills work for any verb, noun or adjective in the dictionary, with the
   tenses Présent, Imparfait, Futur.
-- Notes can be deleted (swipe). Saved sets can be deleted (swipe). Words added from texts form
-  their own set, «Добавленные слова».
+- Notes are on rules only and can be deleted (swipe). Saved sets can be deleted (swipe).
 - The reader lists «Правила в этой фразе»: every reading rule of the lessons that explains a
-  word of the phrase, with those words; a tapped word links its rule too. The rules are stored as
-  data (`readingRules[].pattern`) so the importer and the app apply the same ones; on the lesson
-  texts both pick the same rule for 97.8 % of the words.
+  word of the phrase, with those words; a tapped word links its rule too. The importer reads the
+  rules from the rows of the «Правила чтения» tables («s на конце слова — обычно не читается») and
+  stores them as data (`readingRules[].pattern`); the app applies them.
 - The reader shows every rule of the lessons that applies to the phrase, in three groups:
   «Грамматика в этой фразе» (ne… pas, du, au, il y a, c'est, verb groups and persons…), «Чтение»
-  (the items of «Правила чтения», plus «Сочетание qu», «t в группе ti») and «Произношение» (the
-  sounds of the phrase). Each of the 99 rules of kind Произношение, Грамматика or a reading page
-  without items has a trigger in `tools/rule-triggers.mjs`; the 30 «Примечания» are notes, not
-  rules, and are not shown. A word's reading is chosen from its neighbours (a verb after a subject
+  (the rows of «Правила чтения», plus «Речевой поток» and «ti + гласный») and «Произношение» (the
+  sounds of the phrase, how they are spelled). Each rule of kind Произношение, Грамматика or a
+  reading page without rows of its own has a trigger in `tools/rule-triggers.mjs`; «Пояснения к
+  словам», «Комментарии к словам» and «Исключения и частые ошибки» are notes, not rules, and are
+  not shown. A lesson's «Произношение» is named after its sounds: «Звук [e]», «Звуки [u], [ɲ]». A word's reading is chosen from its neighbours (a verb after a subject
   pronoun, a noun after an article), so «la table» is not taken for a pronoun and a verb.
 - Return in the reader analyses the phrase and closes the keyboard; a scroll closes it too.
   Keyboard suggestions are on; their language follows the active keyboard.
 - A noun with forms of both genders (`ami`/`amie`, `acteur`/`actrice`) shows «Мужской род» and
   «Женский род», opening on the gender that was typed.
-- Word analysis shows «Примеры»: lesson phrases first, then up to three sentences from Tatoeba
-  (CC BY 2.0 FR) with their Russian translation.
+- Word analysis shows «Примеры»: up to three sentences from Tatoeba (CC BY 2.0 FR) with their
+  Russian translation.
 - Form drills show a translation under the question: the lesson's own translation of that form
   («je vais» → «я иду») when there is one, otherwise the person and the infinitive's translation
   («я · идти, ехать»). Russian verbs are not conjugated by rule.
 - The reader makes a liaison after a subject pronoun (nous, vous, ils, elles, on) only into a
   verb or into y/en: "nous‿avons", "vous‿en", but "chez nous | à six heures".
-- «Избранное»: a star on a word in the text popover, the reader and word analysis. The starred
+- «Избранное»: a star on a word in the reader's popover and in word analysis. The starred
   words are a part of «Словарь» («Все слова · Избранное»): each with its translation, what kind of
   word it is («сущ., ж. р.», «глагол, от aller») and its CEFR level; a tap opens its analysis.
   They also form the practice set «Избранное», which replaced «Добавленные слова» (stored in the
@@ -309,7 +315,7 @@ Taken by the owner on 2026-11-12.
   FLELex (UCLouvain, CC BY-NC-SA 4.0): the first level at which the word occurs in FLE textbooks.
 - A fourth tab, «Справочник»: prepositions, conjunctions, articles, pronouns, determiners and
   numbers, built from Lexique by part of speech, each with translation and level; cards for every
-  kind, and «Вставь слово» for prepositions and conjunctions (a lesson or Tatoeba sentence with the
+  kind, and «Вставь слово» for prepositions and conjunctions (a Tatoeba sentence with the
   word taken out, four words of the same kind to choose from). «Правила уроков» lists every rule
   of every lesson by kind.
 - «Практика» has three parts, `Слова · Формы · Правила`, each started from the same lesson range
@@ -318,14 +324,15 @@ Taken by the owner on 2026-11-12.
   saved as a set), «Спряжения» by tense, and «Род и число»: «Род существительных» (a noun with
   `un` / `une`; a noun Lexique gives both genders, «élève», «enfant», is never asked), «Артикль и
   число», «Прилагательные». Mixed and lesson drills include two gender questions.
-- «Правила»: a lesson phrase and four rule titles; the answer is a rule of the chosen lessons or
-  kind that the phrase triggers (the reader's triggers), the three others apply nowhere in it.
+- «Правила»: a Tatoeba sentence with a word of the chosen lessons, and four rule titles; the
+  answer is a rule of the chosen lessons or kind that the sentence triggers (the reader's
+  triggers), the three others apply nowhere in it.
   Once answered, the words it applies to are highlighted and its summary is shown. Notes are
   never asked: they have no trigger.
 - Every question says what to do on top («Выберите форму глагола для этого лица и времени»,
   «Какое правило работает в этой фразе?»), and each practice section says it in its footer.
-- Haptics: the hold that starts a phrase selection and each word it adds, card grades, drill
-  answers (success or error), finished sessions, the lesson range grid, the `[ə]` switch, adding a
+- Haptics: the hold that starts a phrase selection in the reader and each word it adds, card
+  grades, drill answers (success or error), finished sessions, the lesson range grid, adding a
   card, saving a note, saving or restoring a backup.
 
 ## 9. Build order

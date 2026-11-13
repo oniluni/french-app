@@ -1,4 +1,5 @@
 import FrenchCore
+import OSLog
 import SwiftUI
 
 /// Cards to go through in one sitting.
@@ -314,7 +315,7 @@ private struct RulesPractice: View {
         List {
             LessonRangeSection(
                 header: "По урокам",
-                footer: "Вы увидите фразу из урока и четыре правила. Выберите правило, которое в этой фразе работает; после ответа слова, к которым оно относится, выделятся.",
+                footer: "Вы увидите фразу со словами выбранных уроков и четыре правила. Выберите правило, которое в этой фразе работает; после ответа слова, к которым оно относится, выделятся.",
                 describe: { range in plural(rules.filter { range.contains($0.lesson) }.count, "правило", "правила", "правил") }
             ) { range in
                 start(lessonsTitle(range), rules.filter { range.contains($0.lesson) })
@@ -332,8 +333,18 @@ private struct RulesPractice: View {
         .fullScreenCover(item: $quiz) { RuleSessionView(request: $0) }
     }
 
+    private static let log = Logger(subsystem: "io.github.oniluni.french", category: "rules-practice")
+
     private func start(_ title: String, _ rules: [Rule]) {
         var generator = SystemRandomNumberGenerator()
-        quiz = RuleRequest(title: title, questions: library.content.ruleQuestions(on: rules, reader: library.reader, count: 8, using: &generator))
+        let questions: [RuleQuestion]
+        do {
+            questions = try library.content.ruleQuestions(on: rules, reader: library.reader, examples: library.examples, count: 8, using: &generator)
+        } catch {
+            // A broken examples file is a build mistake; the session then says it has no questions.
+            RulesPractice.log.error("Rule questions for \(title, privacy: .public): broken examples: \(String(describing: error), privacy: .public)")
+            questions = []
+        }
+        quiz = RuleRequest(title: title, questions: questions)
     }
 }

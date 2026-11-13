@@ -87,7 +87,7 @@ private struct ReaderView: View {
                 Section {
                     SelectableWords(
                         words: words.map { TextWord(marked: $0.marked, plain: $0.text, ipa: $0.isKnown ? $0.ipa : "?", link: $0.link, isTied: !$0.link.isEmpty) },
-                        showsPronunciation: true, picked: picked?.range
+                        picked: picked?.range
                     ) { range, rect in
                         anchor = rect
                         picked = pickedWords(range)
@@ -143,8 +143,8 @@ private struct ReaderView: View {
         let words: [Int]
     }
 
-    /// Every rule of the lessons that applies to the phrase: grammar, reading (item by item, as
-    /// in the lesson texts), and the sounds the phrase has.
+    /// Every rule of the lessons that applies to the phrase: grammar, reading (row by row, as
+    /// «Правила чтения» lists them), and the sounds the phrase has.
     @ViewBuilder private var rulesSection: some View {
         let subjects = words.ruleSubjects
         let items = library.content.rulesApplying(to: subjects.map(\.subject)).map { item in

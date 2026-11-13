@@ -26,13 +26,6 @@ final class BundledDataTests: XCTestCase {
                 guard let marked = word.m else { continue }
                 XCTAssertEqual(Markup.plain(marked), word.fr, "marks change the spelling in lesson \(lesson.id)")
             }
-            for case .sentence(let sentence) in lesson.sections.flatMap(\.items) {
-                XCTAssertFalse(sentence.tokens.isEmpty)
-                for token in sentence.tokens {
-                    XCTAssertFalse(token.plain.isEmpty)
-                    if let rule = token.rule { XCTAssertTrue(content.readingRules.indices.contains(rule)) }
-                }
-            }
         }
     }
 
@@ -51,42 +44,20 @@ final class BundledDataTests: XCTestCase {
         }
     }
 
-    /// The reader links rules with marks and sounds only; the importer had letters aligned with
-    /// sounds. On the lesson texts both must agree almost everywhere.
-    func testReaderLinksTheSameRulesAsTheLessonTexts() throws {
-        let content = try Content.decode(load("content.json"))
-        var compared = 0
-        var agreed = 0
-        for lesson in content.lessons {
-            for case .sentence(let sentence) in lesson.sections.flatMap(\.items) {
-                for (index, token) in sentence.tokens.enumerated() {
-                    guard let marked = token.marked else { continue }
-                    let previous = index > 0 ? sentence.tokens[index - 1].marked : nil
-                    let subject = RuleSubject(marked: marked, ipa: token.ipa ?? "", link: token.link ?? "", isTied: token.isTied, previous: previous)
-                    compared += 1
-                    if content.readingRule(for: subject) == token.rule { agreed += 1 }
-                }
-            }
-        }
-        XCTAssertGreaterThan(compared, 1000)
-        XCTAssertGreaterThanOrEqual(Double(agreed) / Double(compared), 0.95, "\(agreed) of \(compared) words agree")
-    }
-
     func testReaderFindsTheRulesOfASamplePhrase() throws {
         let content = try Content.decode(load("content.json"))
         let reader = Reader(lexicon: Lexicon(forms: try load("lexicon.tsv"), lemmas: try load("lemmas.tsv")))
         let labels = content.rulesApplying(to: reader.read("Les enfants habitent à Paris.").ruleSubjects.map(\.subject)).map(\.rule.label)
         XCTAssertTrue(labels.contains("Связывание"), "\(labels)")
-        XCTAssertTrue(labels.contains("Носовые гласные"), "\(labels)")
-        XCTAssertTrue(labels.contains("Буква h"), "\(labels)")
+        XCTAssertTrue(labels.contains { $0.hasPrefix("гласный + n или m") }, "nasal vowels: \(labels)")
+        XCTAssertTrue(labels.contains("h немое и h придыхательное"), "\(labels)")
         XCTAssertTrue(labels.contains { $0.hasPrefix("s на конце") }, "\(labels)")
     }
 
-    func testExamplesFileHasLessonPhrasesFirst() throws {
-        let examples = Examples(data: try load("examples.tsv"))
-        let ami = try examples.of(lemma: "ami")
-        XCTAssertEqual(ami.first?.lesson.map { $0 > 0 }, true)
-        XCTAssertTrue(ami.contains { $0.lesson == nil }, "Tatoeba sentences follow the lesson phrases")
+    func testExamplesFileHasTatoebaSentences() throws {
+        let ami = try Examples(data: try load("examples.tsv")).of(lemma: "ami")
+        XCTAssertFalse(ami.isEmpty)
+        XCTAssertTrue(ami.allSatisfy { $0.src.hasPrefix("T") && !$0.ru.isEmpty }, "\(ami)")
     }
 
     /// Every rule of the lessons can be found in a phrase: a trigger of its own, or items of
@@ -107,15 +78,16 @@ final class BundledDataTests: XCTestCase {
             Set(content.rulesTriggered(by: reader.read(phrase), lexicon: lexicon).map(\.rule.id))
         }
         let negation = ids("Je ne vais pas au cinéma.")
-        XCTAssertTrue(negation.isSuperset(of: ["5-10", "9-3", "13-4"]), "ne… pas, au, aller: \(negation.sorted())")
+        XCTAssertTrue(negation.isSuperset(of: ["5-r10", "9-r4", "13-r5"]), "ne… pas, au, aller: \(negation.sorted())")
         let table = ids("Il y a du pain sur la table.")
-        XCTAssertTrue(table.isSuperset(of: ["13-3", "8-5"]), "il y a, du: \(table.sorted())")
-        XCTAssertFalse(table.contains("9-5"), "la table: an article, not the pronoun la")
-        XCTAssertFalse(table.contains("3-3"), "table is a noun here, not a verb of group I")
-        XCTAssertTrue(ids("Je n'ai pas de frère.").contains("15-3"))
-        XCTAssertTrue(ids("Lucie est Russe.").contains("7-4"))
-        XCTAssertTrue(ids("Qu'est-ce que tu fais ?").isSuperset(of: ["7-5", "8-3", "14-6", "7-3"]))
-        XCTAssertTrue(ids("Je ne vais pas au cinéma.").contains("11-1") == false, "no [ɔ̃] in the phrase")
+        XCTAssertTrue(table.isSuperset(of: ["13-r3", "8-r5"]), "il y a, du: \(table.sorted())")
+        XCTAssertFalse(table.contains("9-r6"), "la table: an article, not the pronoun la")
+        XCTAssertFalse(table.contains("3-r4"), "table is a noun here, not a verb of group I")
+        XCTAssertTrue(ids("Je n'ai pas de frère.").contains("15-r3"))
+        XCTAssertTrue(ids("Lucie est Russe.").contains("7-r4"))
+        XCTAssertTrue(ids("Qu'est-ce que tu fais ?").isSuperset(of: ["7-r5", "8-r3", "14-r5", "7-r3"]))
+        XCTAssertFalse(ids("Je ne vais pas au cinéma.").contains("11-r1"), "no [ɔ̃] in the phrase")
+        XCTAssertTrue(ids("Je vais lire ce livre.").contains("12-r6"), "aller + infinitive")
     }
 
     func testReferenceAndGlossary() throws {
@@ -156,10 +128,11 @@ final class BundledDataTests: XCTestCase {
     func testRuleQuestionsAskARuleThatWorksInThePhrase() throws {
         let content = try Content.decode(load("content.json"))
         let reader = Reader(lexicon: Lexicon(forms: try load("lexicon.tsv"), lemmas: try load("lemmas.tsv")))
+        let examples = Examples(data: try load("examples.tsv"))
         let rules = content.lessons.flatMap(\.rules)
         var generator = SeededGenerator(state: 11)
         for (name, pool) in [("lessons 2–4", rules.filter { (2...4).contains($0.lesson) }), ("grammar", rules.filter { $0.kind == "Грамматика" })] {
-            let questions = content.ruleQuestions(on: pool, reader: reader, count: 8, using: &generator)
+            let questions = try content.ruleQuestions(on: pool, reader: reader, examples: examples, count: 8, using: &generator)
             XCTAssertEqual(questions.count, 8, name)
             for question in questions {
                 XCTAssertEqual(question.options.count, 4)

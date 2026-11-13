@@ -57,7 +57,7 @@ public struct Gap: Decodable, Equatable, Sendable {
     public let answer: String
     public let after: String
     public let ru: String
-    /// "L5" for lesson 5, "T123" for Tatoeba sentence 123.
+    /// "T123" for Tatoeba sentence 123.
     public let src: String
 
     public init(before: String, answer: String, after: String, ru: String, src: String) {

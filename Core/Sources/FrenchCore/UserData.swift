@@ -77,7 +77,8 @@ public struct StudySet: Codable, Identifiable, Equatable, Sendable {
 
 public struct Note: Codable, Identifiable, Equatable, Sendable {
     public var id = UUID()
-    /// What the note is attached to: `text-5` for a lesson text, `rule-5-3` for a rule.
+    /// What the note is attached to: `rule-5-r3` for a rule. Older backups also hold `text-5` (a
+    /// lesson text) and `rule-5-3` (a rule of the vault's earlier layout); the app no longer shows them.
     public var target: String
     public var text: String
     /// The fragment the note is about, when it was written from a selection.
@@ -91,7 +92,7 @@ public struct Note: Codable, Identifiable, Equatable, Sendable {
         self.created = created
     }
 
-    /// Words `first...last` of one sentence of a lesson text.
+    /// Words `first...last` of one sentence of a lesson text; only older backups have it.
     public struct Fragment: Codable, Equatable, Sendable {
         public var quote: String
         public var section: Int

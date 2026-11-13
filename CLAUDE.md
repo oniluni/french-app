@@ -27,12 +27,14 @@ IPA that the owner signs and sideloads with ESign. There is no Mac and no Apple 
   JSON key names never change: `favorites` is stored as `addedWords`.
 - FLELex is CC BY-NC-SA: the app must stay non-commercial while it ships `dictionary.tsv` levels.
 - `Core/` imports no SwiftUI or UIKit. New logic goes there with a test.
-- Reading rules are data (`readingRules[].pattern` in `content.json`), applied by
-  `applies()` in `tools/import-vault.mjs` and by `ReadingPattern.applies` in Core. A new kind of
-  rule goes into both, and `BundledDataTests` checks they still agree.
+- Reading rules are data (`readingRules[].pattern` in `content.json`): `patternFor()` in
+  `tools/import-vault.mjs` reads them from the rows of the «Правила чтения» tables, and
+  `ReadingPattern.applies` in Core applies them. A new kind of rule goes into both.
 - Every other rule of a lesson (except «Примечания») needs a trigger in `tools/rule-triggers.mjs`,
-  keyed by rule id with its title: the import fails on a rule without one or with another title.
-  A new lesson in the vault therefore needs its triggers written before it can be imported.
+  keyed by rule id (`5-r3`) with its title: the import fails on a rule without one or with another
+  title. A new lesson in the vault therefore needs its triggers written before it can be imported.
+- The vault has no lesson texts: a lesson is `Правила.md` and `Слова.md`. Examples, gap-fill and
+  the rules practice take their sentences from Tatoeba.
 - Never hand-edit `App/Resources/*`; change `tools/` and regenerate. The lesson vault lives outside
   the repo; only lessons whose `Дашборд.md` has `lesson: N` front matter are imported.
 - `prototype/data.js` is hand-written sample content and the acceptance test of `tools/align.mjs`.
