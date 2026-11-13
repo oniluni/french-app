@@ -186,6 +186,8 @@ public struct Grammar: Sendable {
 public struct DrillQuestion: Equatable, Sendable {
     public let lemma: String
     public let wordClass: WordClass
+    /// What the learner has to do, in Russian: «Выберите форму глагола».
+    public let instruction: String
     /// Verb: the pronoun before the blank, marked. Noun or adjective: the base word, plain.
     public let prompt: String
     /// What is asked, in Russian: «мы · Présent», «женский, мн. ч.».
@@ -221,6 +223,7 @@ public enum Drill {
                     let label = paradigm.wordClass.cellLabels[form.cell]
                     candidates.append(DrillQuestion(
                         lemma: paradigm.lemma, wordClass: paradigm.wordClass,
+                        instruction: Drill.instruction(for: paradigm.wordClass),
                         prompt: isVerb ? form.lead : paradigm.lemma,
                         // A noun of two genders says which one is asked: «женский род, определённый, ед. ч.».
                         task: isVerb ? "\(label) · \(set.name)" : paradigm.sets.count > 1 ? "\(set.name.lowercased()), \(label)" : label,
@@ -232,8 +235,48 @@ public enum Drill {
         return Array(candidates.prefix(count))
     }
 
+    static func instruction(for wordClass: WordClass) -> String {
+        switch wordClass {
+        case .verb: "Выберите форму глагола для этого лица и времени"
+        case .noun: "Выберите форму слова с нужным артиклем"
+        case .adjective: "Выберите форму прилагательного для этого рода и числа"
+        }
+    }
+
     private static func unique(_ items: [String]) -> [String] {
         var seen = Set<String>()
         return items.filter { seen.insert($0).inserted }
+    }
+}
+
+extension Grammar {
+    /// «un или une?»: up to `count` nouns of `nouns` asked for their gender.
+    public func genderQuestions<Generator: RandomNumberGenerator>(
+        nouns: [String], count: Int, using generator: inout Generator
+    ) -> [DrillQuestion] {
+        var questions: [DrillQuestion] = []
+        for lemma in nouns.shuffled(using: &generator) where questions.count < count {
+            if let question = genderQuestion(lemma) { questions.append(question) }
+        }
+        return questions
+    }
+
+    /// Nil for a noun of both genders («élève», «enfant»): it takes either article.
+    func genderQuestion(_ lemma: String) -> DrillQuestion? {
+        guard let (spelling, forms) = lexicon.forms(of: lemma, as: .noun) else { return nil }
+        let singular = Set(forms.filter { $0.text == spelling && $0.number != "p" }.map(\.gender))
+        let plural = Set(forms.filter { $0.number == "p" }.map(\.gender))
+        // Lexique leaves the singular of some feminine nouns ungendered («maison», plural f); an
+        // ungendered singular with any other plural is a noun of both genders.
+        let gender: String? = singular == ["m"] ? "m" : singular == ["f"] || (singular == [""] && plural == ["f"]) ? "f" : nil
+        guard let gender,
+              let paradigm = paradigm(lemma: spelling, as: .noun),
+              // The indefinite singular: «une famille» is what is shown once answered.
+              let solution = paradigm.sets.flatMap(\.forms).first(where: { $0.cell == 2 && $0.bodyPlain == spelling })
+        else { return nil }
+        return DrillQuestion(
+            lemma: spelling, wordClass: .noun, instruction: "Какого рода это слово? Выберите артикль",
+            prompt: spelling, task: "мужской или женский род", options: ["un \(spelling)", "une \(spelling)"],
+            answer: gender == "f" ? 1 : 0, solution: solution)
     }
 }

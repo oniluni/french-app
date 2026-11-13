@@ -141,4 +141,37 @@ final class BundledDataTests: XCTestCase {
         XCTAssertEqual(boire.sets.map(\.name), Grammar.tenseNames)
         XCTAssertEqual(boire.sets[0].forms.map(\.marked), ["je boi(s)", "tu boi(s)", "il boi(t)", "nou(s) buv[on](s)", "vou(s) buve(z)", "il(s) boiv(ent)"])
     }
+
+    func testGenderQuestionsAskOnlyNounsOfOneGender() throws {
+        let grammar = Grammar(lexicon: Lexicon(forms: try load("lexicon.tsv"), lemmas: try load("lemmas.tsv")))
+        var generator = SeededGenerator(state: 5)
+        let answers = ["famille", "ami", "maison", "pain", "élève", "enfant", "professeur"].compactMap { noun in
+            grammar.genderQuestions(nouns: [noun], count: 1, using: &generator).first.map { $0.options[$0.answer] }
+        }
+        // Lexique leaves «maison» ungendered in the singular; its plural is feminine. «élève», «enfant»
+        // and «professeur» take either article.
+        XCTAssertEqual(answers, ["une famille", "un ami", "une maison", "un pain"])
+    }
+
+    func testRuleQuestionsAskARuleThatWorksInThePhrase() throws {
+        let content = try Content.decode(load("content.json"))
+        let reader = Reader(lexicon: Lexicon(forms: try load("lexicon.tsv"), lemmas: try load("lemmas.tsv")))
+        let rules = content.lessons.flatMap(\.rules)
+        var generator = SeededGenerator(state: 11)
+        for (name, pool) in [("lessons 2–4", rules.filter { (2...4).contains($0.lesson) }), ("grammar", rules.filter { $0.kind == "Грамматика" })] {
+            let questions = content.ruleQuestions(on: pool, reader: reader, count: 8, using: &generator)
+            XCTAssertEqual(questions.count, 8, name)
+            for question in questions {
+                XCTAssertEqual(question.options.count, 4)
+                XCTAssertEqual(Set(question.options.map(\.title)).count, 4, "titles repeat in \(question.options.map(\.title))")
+                let answer = question.options[question.answer]
+                XCTAssertTrue(pool.contains(answer), "\(answer.id) is not of \(name)")
+                let found = Set(content.rulesTriggered(by: reader.read(question.phrase), lexicon: reader.lexicon).map(\.rule.title))
+                XCTAssertTrue(found.contains(answer.title), "\(answer.id) does not apply to «\(question.phrase)»")
+                for (index, option) in question.options.enumerated() where index != question.answer {
+                    XCTAssertFalse(found.contains(option.title), "distractor \(option.id) applies to «\(question.phrase)»")
+                }
+            }
+        }
+    }
 }

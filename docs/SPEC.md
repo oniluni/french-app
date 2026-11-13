@@ -312,6 +312,18 @@ Taken by the owner on 2026-11-12.
   kind, and «Вставь слово» for prepositions and conjunctions (a lesson or Tatoeba sentence with the
   word taken out, four words of the same kind to choose from). «Правила уроков» lists every rule
   of every lesson by kind.
+- «Практика» has three parts, `Слова · Формы · Правила`, each started from the same lesson range
+  grid or from a topic. «Формы» drops the per-word list (a single word is drilled from its
+  analysis): «Смешанная тренировка», the lesson grid (forms of the words of those lessons, not
+  saved as a set), «Спряжения» by tense, and «Род и число»: «Род существительных» (a noun with
+  `un` / `une`; a noun Lexique gives both genders, «élève», «enfant», is never asked), «Артикль и
+  число», «Прилагательные». Mixed and lesson drills include two gender questions.
+- «Правила»: a lesson phrase and four rule titles; the answer is a rule of the chosen lessons or
+  kind that the phrase triggers (the reader's triggers), the three others apply nowhere in it.
+  Once answered, the words it applies to are highlighted and its summary is shown. Notes are
+  never asked: they have no trigger.
+- Every question says what to do on top («Выберите форму глагола для этого лица и времени»,
+  «Какое правило работает в этой фразе?»), and each practice section says it in its footer.
 - Haptics: the hold that starts a phrase selection and each word it adds, card grades, drill
   answers (success or error), finished sessions, the lesson range grid, the `[ə]` switch, adding a
   card, saving a note, saving or restoring a backup.

@@ -95,10 +95,24 @@ final class ScreensTests: XCTestCase {
         mixed.tap()
         XCTAssertTrue(app.buttons["option-0"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts["drill-translation"].exists, "every lesson word has a translation under the question")
+        XCTAssertTrue(app.staticTexts["instruction"].exists, "the question says what to do")
         shot("16-drill-question")
         app.buttons["option-0"].tap()
         XCTAssertTrue(app.staticTexts["Верно"].exists || app.staticTexts["Правильный ответ"].exists, "the verdict is written out")
         shot("17-drill-answered")
+        app.buttons["Закрыть"].tap()
+
+        app.buttons["Правила"].tap()
+        let grammar = app.buttons["topic-Грамматика"]
+        XCTAssertTrue(grammar.waitForExistence(timeout: 5))
+        shot("17a-practice-rules")
+        grammar.tap()
+        XCTAssertTrue(app.buttons["option-0"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["instruction"].exists, "the question says what to do")
+        shot("17b-rule-question")
+        app.buttons["option-0"].tap()
+        XCTAssertTrue(app.staticTexts["Верно"].exists || app.staticTexts["Правильный ответ"].exists, "the verdict is written out")
+        shot("17c-rule-answered")
     }
 
     @MainActor

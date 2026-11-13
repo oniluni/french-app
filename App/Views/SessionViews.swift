@@ -2,7 +2,7 @@ import FrenchCore
 import SwiftUI
 
 /// The frame shared by card and drill sessions: close button, title, counter, progress.
-private struct SessionFrame<Content: View>: View {
+struct SessionFrame<Content: View>: View {
     let title: String
     let done: Int
     let total: Int
@@ -80,7 +80,7 @@ struct CardSessionView: View {
                     Text(entry.word.ru).font(.title3).multilineTextAlignment(.center)
                 } else {
                     Text(entry.word.fr).font(Theme.french(.largeTitle))
-                    Text("Вспомните перевод и произношение").font(.subheadline).foregroundStyle(.secondary)
+                    Text("Вспомните перевод и произношение, потом откройте ответ").font(.subheadline).foregroundStyle(.secondary)
                 }
                 Spacer()
             }
@@ -104,19 +104,22 @@ struct CardSessionView: View {
     }
 
     private func gradeButtons(_ entry: Entry) -> some View {
-        HStack(spacing: 8) {
-            ForEach(CardSessionView.grades, id: \.grade) { item in
-                Button {
-                    grade(entry, item.grade)
-                } label: {
-                    VStack(spacing: 2) {
-                        Text(item.label).font(.subheadline.weight(.semibold))
-                        Text(Scheduler.delay(store.data.cards[entry.id], grade: item.grade, now: .now).shortDelay).font(.caption)
+        VStack(spacing: 8) {
+            Text("Насколько легко вы вспомнили?").font(.subheadline).foregroundStyle(.secondary)
+            HStack(spacing: 8) {
+                ForEach(CardSessionView.grades, id: \.grade) { item in
+                    Button {
+                        grade(entry, item.grade)
+                    } label: {
+                        VStack(spacing: 2) {
+                            Text(item.label).font(.subheadline.weight(.semibold))
+                            Text(Scheduler.delay(store.data.cards[entry.id], grade: item.grade, now: .now).shortDelay).font(.caption)
+                        }
+                        .frame(maxWidth: .infinity, minHeight: 40)
                     }
-                    .frame(maxWidth: .infinity, minHeight: 40)
+                    .buttonStyle(.bordered)
+                    .tint(item.color)
                 }
-                .buttonStyle(.bordered)
-                .tint(item.color)
             }
         }
     }
@@ -165,7 +168,6 @@ struct DrillSessionView: View {
     let request: DrillRequest
 
     @Environment(Library.self) private var library
-    @Environment(\.dismiss) private var dismiss
     @State private var index = 0
     @State private var chosen: Int?
     @State private var right = 0
@@ -175,7 +177,7 @@ struct DrillSessionView: View {
             if index < request.questions.count {
                 question(request.questions[index])
             } else {
-                summary
+                ScoreSummary(right: right, total: request.questions.count)
             }
         }
         .sensoryFeedback(trigger: chosen) { _, picked in
@@ -198,6 +200,7 @@ struct DrillSessionView: View {
     private func question(_ question: DrillQuestion) -> some View {
         VStack(spacing: 14) {
             VStack(spacing: 10) {
+                Instruction(text: question.instruction)
                 Spacer()
                 if question.wordClass == .verb {
                     HStack(alignment: .firstTextBaseline, spacing: 0) {
@@ -232,55 +235,12 @@ struct DrillSessionView: View {
                 }
                 Spacer()
             }
+            .padding(.vertical, 20)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 28))
 
-            LazyVGrid(columns: [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)], spacing: 8) {
-                ForEach(Array(question.options.enumerated()), id: \.offset) { option, text in
-                    Button {
-                        guard chosen == nil else { return }
-                        chosen = option
-                        if option == question.answer { right += 1 }
-                    } label: {
-                        Text(text).font(Theme.french(.title3)).frame(maxWidth: .infinity, minHeight: 40)
-                    }
-                    .buttonStyle(.bordered)
-                    .tint(tint(for: option, in: question))
-                    .accessibilityIdentifier("option-\(option)")
-                }
-            }
-
-            Button {
-                chosen = nil
-                index += 1
-            } label: {
-                Text("Дальше").font(.headline).frame(maxWidth: .infinity, minHeight: 36)
-            }
-            .buttonStyle(.borderedProminent)
-            .buttonBorderShape(.capsule)
-            .disabled(chosen == nil)
-        }
-    }
-
-    /// After an answer the right option turns green and a wrong pick red; the verdict is also written out.
-    private func tint(for option: Int, in question: DrillQuestion) -> Color {
-        guard let chosen else { return .accentColor }
-        if option == question.answer { return Theme.good }
-        return option == chosen ? Theme.again : .secondary
-    }
-
-    private var summary: some View {
-        let total = request.questions.count
-        return VStack(spacing: 14) {
-            Spacer()
-            Text("\(right) из \(total)").font(.system(size: 54, weight: .bold)).monospacedDigit()
-            Text(right == total ? "Без ошибок" : plural(total - right, "ошибка", "ошибки", "ошибок")).font(.title3).foregroundStyle(.secondary)
-            Spacer()
-            Button { dismiss() } label: {
-                Text("Готово").font(.headline).frame(maxWidth: .infinity, minHeight: 36)
-            }
-            .buttonStyle(.borderedProminent)
-            .buttonBorderShape(.capsule)
+            ChoiceGrid(options: question.options, answer: question.answer, chosen: $chosen)
+            NextButton(chosen: $chosen, answer: question.answer, index: $index, right: $right)
         }
     }
 }
@@ -296,7 +256,6 @@ struct GapRequest: Identifiable {
 struct GapSessionView: View {
     let request: GapRequest
 
-    @Environment(\.dismiss) private var dismiss
     @State private var index = 0
     @State private var chosen: Int?
     @State private var right = 0
@@ -306,7 +265,7 @@ struct GapSessionView: View {
             if index < request.questions.count {
                 question(request.questions[index])
             } else {
-                summary
+                ScoreSummary(right: right, total: request.questions.count)
             }
         }
         .sensoryFeedback(trigger: chosen) { _, picked in
@@ -321,6 +280,7 @@ struct GapSessionView: View {
         let filled = chosen.map { _ in gap.answer } ?? "____"
         return VStack(spacing: 14) {
             VStack(spacing: 14) {
+                Instruction(text: "Вставьте пропущенное слово")
                 Spacer()
                 Text(sentence(gap, filled: filled))
                     .font(Theme.french(.title2))
@@ -342,30 +302,8 @@ struct GapSessionView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 28))
 
-            LazyVGrid(columns: [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)], spacing: 8) {
-                ForEach(Array(question.options.enumerated()), id: \.offset) { option, text in
-                    Button {
-                        guard chosen == nil else { return }
-                        chosen = option
-                        if option == question.answer { right += 1 }
-                    } label: {
-                        Text(text).font(Theme.french(.title3)).frame(maxWidth: .infinity, minHeight: 40)
-                    }
-                    .buttonStyle(.bordered)
-                    .tint(chosen == nil ? .accentColor : option == question.answer ? Theme.good : option == chosen ? Theme.again : .secondary)
-                    .accessibilityIdentifier("option-\(option)")
-                }
-            }
-
-            Button {
-                chosen = nil
-                index += 1
-            } label: {
-                Text("Дальше").font(.headline).frame(maxWidth: .infinity, minHeight: 36)
-            }
-            .buttonStyle(.borderedProminent)
-            .buttonBorderShape(.capsule)
-            .disabled(chosen == nil)
+            ChoiceGrid(options: question.options, answer: question.answer, chosen: $chosen)
+            NextButton(chosen: $chosen, answer: question.answer, index: $index, right: $right)
         }
     }
 
@@ -376,13 +314,94 @@ struct GapSessionView: View {
         middle.swiftUI.font = Theme.french(.title2).bold()
         return AttributedString(gap.before) + middle + AttributedString(gap.after)
     }
+}
 
-    private var summary: some View {
-        let total = request.questions.count
-        return VStack(spacing: 14) {
+// MARK: - Parts shared by the quizzes: drills, gap-fill, rules
+
+/// What the learner has to do, at the top of a question.
+struct Instruction: View {
+    let text: String
+
+    var body: some View {
+        Text(text)
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(.secondary)
+            .multilineTextAlignment(.center)
+            .padding(.horizontal, 16)
+            .accessibilityIdentifier("instruction")
+    }
+}
+
+/// The answers to pick one from. After the pick the right one turns green and a wrong pick red.
+struct ChoiceGrid: View {
+    let options: [String]
+    let answer: Int
+    @Binding var chosen: Int?
+    /// Rules are Russian titles, a line each; forms and words are French, two to a row.
+    var isFrench = true
+
+    var body: some View {
+        let columns = Array(repeating: GridItem(.flexible(), spacing: 8), count: isFrench ? 2 : 1)
+        LazyVGrid(columns: columns, spacing: 8) {
+            ForEach(Array(options.enumerated()), id: \.offset) { option, text in
+                Button {
+                    if chosen == nil { chosen = option }
+                } label: {
+                    Text(text)
+                        .font(isFrench ? Theme.french(.title3) : .body)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity, minHeight: 40)
+                }
+                .buttonStyle(.bordered)
+                .tint(tint(for: option))
+                .accessibilityIdentifier("option-\(option)")
+            }
+        }
+    }
+
+    private func tint(for option: Int) -> Color {
+        guard let chosen else { return .accentColor }
+        if option == answer { return Theme.good }
+        return option == chosen ? Theme.again : .secondary
+    }
+}
+
+/// «Дальше»: counts the answer and moves on.
+struct NextButton: View {
+    @Binding var chosen: Int?
+    let answer: Int
+    @Binding var index: Int
+    @Binding var right: Int
+
+    var body: some View {
+        Button {
+            if chosen == answer { right += 1 }
+            chosen = nil
+            index += 1
+        } label: {
+            Text("Дальше").font(.headline).frame(maxWidth: .infinity, minHeight: 36)
+        }
+        .buttonStyle(.borderedProminent)
+        .buttonBorderShape(.capsule)
+        .disabled(chosen == nil)
+    }
+}
+
+/// «6 из 8» at the end of a quiz.
+struct ScoreSummary: View {
+    let right: Int
+    let total: Int
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        VStack(spacing: 14) {
             Spacer()
-            Text("\(right) из \(total)").font(.system(size: 54, weight: .bold)).monospacedDigit()
-            Text(right == total ? "Без ошибок" : plural(total - right, "ошибка", "ошибки", "ошибок")).font(.title3).foregroundStyle(.secondary)
+            if total == 0 {
+                Text("Для этого выбора нет вопросов").font(.title3).foregroundStyle(.secondary).multilineTextAlignment(.center)
+            } else {
+                Text("\(right) из \(total)").font(.system(size: 54, weight: .bold)).monospacedDigit()
+                Text(right == total ? "Без ошибок" : plural(total - right, "ошибка", "ошибки", "ошибок")).font(.title3).foregroundStyle(.secondary)
+            }
             Spacer()
             Button { dismiss() } label: {
                 Text("Готово").font(.headline).frame(maxWidth: .infinity, minHeight: 36)
