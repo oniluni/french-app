@@ -445,18 +445,4 @@ struct WordAnalysisBody: View {
         return words.allSatisfy(\.isKnown) ? words.marked : nil
     }
 
-    // MARK: Tenses
-
-    private func syncTense(_ found: [(form: String, analysis: Analysis)], _ paradigm: Paradigm?) {
-        guard let paradigm, !paradigm.sets.isEmpty else { return }
-        if let index = paradigm.sets.firstIndex(where: { set in
-            set.forms.contains {
-                Lexicon.key($0.bodyPlain) == Lexicon.key(query) || Lexicon.key($0.plain) == Lexicon.key(query)
-            }
-        }) {
-            tense = index
-        } else {
-            tense = min(tense, paradigm.sets.count - 1)
-        }
-    }
 }

@@ -87,7 +87,6 @@ struct Verdict: View {
 func blank(width: Int = 8) -> AttributedString {
     var blank = AttributedString(String(repeating: "\u{00A0}", count: width))
     blank.underlineStyle = Text.LineStyle(pattern: .solid, color: Theme.acc)
-    blank.accessibilityLabel = "пропуск"
     return blank
 }
 
