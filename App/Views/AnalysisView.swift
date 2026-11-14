@@ -1,5 +1,6 @@
 import FrenchCore
 import SwiftUI
+import UIKit
 
 /// «Разбор»: a text read word by word, or one word looked up in the dictionary.
 struct AnalysisView: View {
@@ -121,6 +122,7 @@ private struct ReaderView: View {
 
     private func read() {
         isEditing = false
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
         picked = nil
         selectedRule = nil
         let text = phrase.trimmingCharacters(in: .whitespacesAndNewlines)
