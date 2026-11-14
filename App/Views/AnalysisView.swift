@@ -47,8 +47,9 @@ struct AnalysisView: View {
     /// The word the «Слово» tool is showing, as a card for «Избранное».
     private var favoriteWord: Word? {
         guard !analysed.trimmingCharacters(in: .whitespaces).isEmpty else { return nil }
-        if let entry = library.entry(for: analysed) { return entry.word }
-        guard let lemma = library.grammar.analyses(of: analysed).first?.analysis.lemma else { return nil }
+        // Star the lemma: «amie» must favorite «ami» («друг»), not the lesson entry «l'amie» («подруга»).
+        let lemma = library.grammar.analyses(of: analysed).first?.analysis.lemma ?? analysed
+        if let entry = library.entry(for: lemma) { return entry.word }
         let pronunciation = library.lexicon.entry(for: lemma)?.pronunciations.first
         return Word(fr: lemma, m: pronunciation?.marked, ipa: pronunciation?.ipa ?? "",
                     ru: library.translation(of: lemma) ?? "")
