@@ -229,9 +229,9 @@ private struct ReaderView: View {
 
     private var stats: some View {
         HStack(spacing: 8) {
-            stat(words.silentLetters.count, "немых букв")
-            stat(words.liaisons.count, "связываний")
-            stat(words.nasalVowels.count, "носовых гласных")
+            stat(words.silentLetters, "немых букв")
+            stat(words.liaisons, "связываний")
+            stat(words.nasalVowels, "носовых гласных")
         }
         .padding(.top, 8)
     }
