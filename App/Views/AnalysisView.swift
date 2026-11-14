@@ -84,7 +84,7 @@ private struct ReaderView: View {
                     .submitLabel(.done)
                     .focused($isEditing)
                     .onSubmit(read)
-                    .modifier(FieldBackground(isFocused: isEditing))
+                    .fieldBackground(isFocused: isEditing)
                     .accessibilityIdentifier("reader-field")
                     .onChange(of: phrase) { _, new in
                         guard new.contains("\n") else { return }
@@ -400,7 +400,7 @@ private struct WordTool: View {
                     .submitLabel(.search)
                     .focused($isEditing)
                     .onSubmit(analyse)
-                    .modifier(FieldBackground(isFocused: isEditing))
+                    .fieldBackground(isFocused: isEditing)
                     .accessibilityIdentifier("word-field")
 
                 Button("Разобрать", action: analyse)

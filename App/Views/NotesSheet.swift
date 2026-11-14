@@ -100,7 +100,7 @@ struct NotesSheet: View {
                 TextField("Что стоит запомнить", text: $draft, axis: .vertical)
                     .lineLimit(3...6)
                     .focused($isTyping)
-                    .modifier(FieldBackground(isFocused: isTyping))
+                    .fieldBackground(isFocused: isTyping)
                     .accessibilityIdentifier("note-field")
                 Button {
                     store.addNote(text, to: request.target)

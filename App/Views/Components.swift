@@ -572,12 +572,9 @@ extension EmptyState where Actions == EmptyView {
 }
 
 /// A text field of the design: s2, a line that turns accent while typing.
-struct FieldBackground: ViewModifier {
-    let isFocused: Bool
-
-    func body(content: Content) -> some View {
-        content
-            .font(Theme.body)
+extension View {
+    func fieldBackground(isFocused: Bool) -> some View {
+        font(Theme.body)
             .padding(.horizontal, 16)
             .padding(.vertical, 13)
             .frame(minHeight: 50)
