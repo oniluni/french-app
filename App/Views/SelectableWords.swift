@@ -78,8 +78,14 @@ struct SelectableWords: View {
         } else if !word.link.isEmpty {
             ipaText = word.link + "‿" + word.ipa
         }
+        let text: AttributedString
+        if let marked = word.marked {
+            text = AttributedString(marked: marked, font: font)
+        } else {
+            text = AttributedString(word.plain)
+        }
         return VStack(alignment: .leading, spacing: 1) {
-            Text(word.marked.map { AttributedString(marked: $0, font: font) } ?? AttributedString(word.plain))
+            Text(text)
                 .font(font)
             Text(ipaText)
                 .font(Theme.ipa(12))
