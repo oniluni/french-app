@@ -95,7 +95,7 @@ private struct ReaderView: View {
                     }
 
                 Button("Разобрать", action: read)
-                    .buttonStyle(.pill(.primary))
+                    .buttonStyle(.pill(.primary, wide: true))
                     .disabled(phrase.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                     .padding(.top, 12)
 
@@ -335,6 +335,7 @@ private struct ReaderView: View {
                         .buttonStyle(.plain)
                 }
             }
+            .row()
             .background(selectedRule?.id == item.id ? Theme.accSoft : .clear)
         } else {
             Button { navigator.push(.rule(item.ruleID)) } label: {
@@ -342,6 +343,7 @@ private struct ReaderView: View {
                     ruleLabel(item)
                     Chevron()
                 }
+                .row()
             }
             .buttonStyle(.plain)
         }
@@ -419,7 +421,7 @@ private struct WordTool: View {
                     .accessibilityIdentifier("word-field")
 
                 Button("Разобрать", action: analyse)
-                    .buttonStyle(.pill(.primary))
+                    .buttonStyle(.pill(.primary, wide: true))
                     .disabled(word.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                     .padding(.top, 12)
 

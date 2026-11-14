@@ -75,11 +75,22 @@ struct Verdict: View {
     var answer: String?
 
     var body: some View {
-        Label(isRight ? "Верно" : answer.map { "Правильный ответ: \($0)" } ?? "Правильный ответ",
-              systemImage: isRight ? "checkmark.circle" : "xmark.circle")
-            .font(Theme.sans(15, .semibold, relativeTo: .callout))
-            .foregroundStyle(isRight ? Theme.green : Theme.red)
-            .padding(.top, 8)
+        HStack(alignment: .firstTextBaseline, spacing: 6) {
+            Image(systemName: isRight ? "checkmark.circle" : "xmark.circle")
+            if isRight {
+                Text("Верно")
+            } else {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Правильный ответ")
+                    if let answer, !answer.isEmpty {
+                        Text(answer).font(Theme.sans(13, .regular, relativeTo: .footnote))
+                    }
+                }
+            }
+        }
+        .font(Theme.sans(15, .semibold, relativeTo: .callout))
+        .foregroundStyle(isRight ? Theme.green : Theme.red)
+        .padding(.top, 8)
     }
 }
 

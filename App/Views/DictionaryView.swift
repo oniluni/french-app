@@ -189,12 +189,17 @@ struct DictionaryView: View {
             Button {
                 navigator.push(.word(word.fr))
             } label: {
-                wordText(fr: word.fr, marked: word.m, ipa: word.ipa, ru: word.ru, pos: word.pos)
+                wordText(fr: word.fr, marked: word.m, ipa: word.ipa, ru: firstSense(word.ru), pos: word.pos)
                     .row()
             }
             .buttonStyle(.plain)
             favoriteButton(word)
         }
+    }
+
+    /// The first sense of a dictionary translation, as the favorites list shows it.
+    private func firstSense(_ translation: String) -> String {
+        translation.split(separator: ",").first.map { String($0).trimmingCharacters(in: .whitespaces) } ?? translation
     }
 
     private func wordText(fr: String, marked: String?, ipa: String, ru: String, pos: String) -> some View {
