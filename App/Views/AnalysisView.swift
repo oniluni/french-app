@@ -206,7 +206,7 @@ private struct ReaderView: View {
                 HStack(alignment: .center, spacing: 8) {
                     VStack(alignment: .leading, spacing: 3) {
                         Text("[\(words.ipa)]")
-                            .font(Theme.sans(Theme.subhead.size, .medium))
+                            .font(Theme.sans(14, .medium))
                             .foregroundStyle(Theme.t2)
                         if !unknownNote.isEmpty {
                             Text(unknownNote).font(Theme.subhead).foregroundStyle(Theme.t3)
