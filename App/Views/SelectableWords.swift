@@ -72,10 +72,16 @@ struct SelectableWords: View {
         let isSelected = (sweeping ?? picked)?.contains(index) ?? false
         let isHit = hit.contains(index)
         let font = Theme.sans(Theme.frRow.size, Theme.frRow.weight)
+        var ipaText = word.ipa
+        if ipaText.isEmpty {
+            ipaText = " "
+        } else if !word.link.isEmpty {
+            ipaText = word.link + "‿" + word.ipa
+        }
         return VStack(alignment: .leading, spacing: 1) {
             Text(word.marked.map { AttributedString(marked: $0, font: font) } ?? AttributedString(word.plain))
                 .font(font)
-            Text(word.ipa.isEmpty ? " " : (word.link.isEmpty ? "" : "\(word.link)‿") + word.ipa)
+            Text(ipaText)
                 .font(Theme.ipa(12))
                 .foregroundStyle(Theme.t2)
         }
