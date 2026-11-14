@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Компоненты — попап, заметки, формы, заглушки</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+.st{position:static;transform:none}
+</style>
+</helmet>
+<div class="app doc" style="width:1280px;height:1280px">
+<h1>Попап, заметки, формы, заглушки</h1>
+
+<div class="grid3">
+<div class="cell">
+<h2>Попап слова</h2>
+<div class="pop gl2 st" role="dialog" aria-label="Слово enfants">
+<div class="hst g12" style="align-items:flex-start">
+<div class="col grow g4"><div class="hst g10" style="align-items:baseline"><span class="t2 fr"><span class="n">en</span>f<span class="n">an</span><span class="s">ts</span></span><span class="ipa">[ɑ̃fɑ̃]</span></div><span>дети</span></div>
+<button class="ib" aria-label="Прослушать: enfants"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.6v4.8h3.4l4.6 4V5.6l-4.6 4H4zM15.4 9.2a4 4 0 0 1 0 5.6M17.9 6.6a7.6 7.6 0 0 1 0 10.8"></path></svg></button>
+</div>
+<button class="btn t sm" style="justify-content:space-between;border-radius:16px"><span>Почему так читается · Связывание</span><svg class="ic sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 5.5L16 12l-6.5 6.5"></path></svg></button>
+<div class="hst g8"><button class="btn o sm grow"><svg class="ic sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.8l2.5 5.2 5.7.8-4.1 4 1 5.6-5.1-2.7-5.1 2.7 1-5.6-4.1-4 5.7-.8z"></path></svg>В избранное</button><button class="btn p sm grow">Разбор</button></div>
+</div>
+</div>
+
+<div class="cell">
+<h2>Кнопка заметок и лист</h2>
+<div class="hst g16"><button class="fab gl st" aria-label="Заметки: 2" style="position:relative;right:auto;bottom:auto;flex:none"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.5 4.5H7A2.5 2.5 0 0 0 4.5 7v10A2.5 2.5 0 0 0 7 19.5h10a2.5 2.5 0 0 0 2.5-2.5v-5.5"></path><path d="M18 3.9a1.7 1.7 0 0 1 2.4 2.4l-7.7 7.7-3.2.8.8-3.2L18 3.9z"></path></svg><span class="bdg">2</span></button><span class="fn m grow">52 pt, над таббаром справа. Без заметок — без счётчика.</span></div>
+<div class="sheet gl2 st" style="border-radius:32px;padding-bottom:16px">
+<div class="grab"></div>
+<div class="hst" style="justify-content:space-between;margin-bottom:12px"><span class="t3">Заметки</span><span class="sh m mono">2</span></div>
+<div class="card pad col g4" style="border-radius:18px;background:var(--s2)"><p class="co">Запомнить: после l' род не виден, смотреть в словаре.</p><span class="c1 d">12 ноября</span></div>
+<label class="col g8 mt12"><span class="fn m">Новая заметка</span><textarea class="inp" rows="2" placeholder="Что стоит запомнить"></textarea></label>
+<button class="btn x mt12" disabled>Сохранить</button>
+</div>
+</div>
+
+<div class="cell">
+<h2>Таблица форм</h2>
+<div class="seg in"><button class="on" aria-pressed="true">Présent</button><button aria-pressed="false">Imparfait</button><button aria-pressed="false">Futur</button></div>
+<div class="card forms">
+<button class="row"><span class="who">я</span><span class="grow fr w5">je parl<span class="s">e</span></span><span class="ipa">ʒə paʁl</span></button>
+<button class="row"><span class="who">ты</span><span class="grow fr w5">tu parl<span class="s">es</span></span><span class="ipa">ty paʁl</span></button>
+<button class="row on"><span class="who">мы</span><span class="grow fr w5">nou<span class="s">s</span> parl<span class="n">on</span><span class="s">s</span></span><span class="ipa">nu paʁlɔ̃</span></button>
+<button class="row"><span class="who">они</span><span class="grow fr w5">il<span class="s">s</span> parl<span class="s">ent</span></span><span class="ipa">il paʁl</span></button>
+</div>
+<div class="fgrid">
+<button class="fcell"><span class="c1 m">м. р., ед. ч.</span><span class="fr w5">peti<span class="s">t</span></span><span class="ipa">pəti</span></button>
+<button class="fcell on"><span class="c1 m">ж. р., ед. ч.</span><span class="fr w5">petit<span class="s">e</span></span><span class="ipa">pətit</span></button>
+</div>
+</div>
+</div>
+
+<div class="grid3">
+<div class="cell">
+<h2>Заглушки</h2>
+<div class="demo">
+<div class="empty" style="padding:8px">
+<span class="eic"><svg class="ic lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.8l2.5 5.2 5.7.8-4.1 4 1 5.6-5.1-2.7-5.1 2.7 1-5.6-4.1-4 5.7-.8z"></path></svg></span>
+<span class="t3">В избранном пусто</span>
+<span class="sh m">Отмечайте слова звездой в читалке и в разборе слова — они соберутся здесь.</span>
+</div>
+</div>
+<div class="demo">
+<div class="empty" style="padding:8px">
+<span class="eic" style="color:var(--amb)"><svg class="ic lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5l8.5 14.5h-17zM12 10v4.5M12 16.8v.2"></path></svg></span>
+<span class="t3">Урок не найден</span>
+<span class="sh m">Его нет в этой версии приложения.</span>
+<button class="btn q sm mt8">К списку уроков</button>
+</div>
+</div>
+</div>
+
+<div class="cell">
+<h2>Алерт</h2>
+<div class="alert gl2 st" role="alertdialog" aria-label="Не удалось восстановить">
+<span class="t3">Не удалось восстановить</span>
+<span class="sh m">Файл повреждён или создан не этим приложением. Текущий прогресс не изменён.</span>
+<button class="btn p">Понятно</button>
+</div>
+</div>
+
+<div class="cell">
+<h2>Диалог подтверждения</h2>
+<div class="alert gl2 st" role="alertdialog" aria-label="Заменить текущий прогресс копией?">
+<span class="t3">Заменить текущий прогресс копией?</span>
+<span class="sh m">Карточки, заметки и избранное заменятся данными из файла от 2 ноября. Отменить это нельзя.</span>
+<button class="btn r">Заменить</button>
+<button class="btn q" style="margin-top:2px">Отмена</button>
+</div>
+</div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1280}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

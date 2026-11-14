@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Основа — движение</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+.fr-card{height:150px;border-radius:24px;background:var(--s2);border:1px solid var(--line2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.stage{display:flex;align-items:center;justify-content:center;gap:16px;perspective:900px}
+.stage>div{flex:1;min-width:0}
+</style>
+</helmet>
+<div class="app doc" style="width:1280px;height:1240px">
+<h1>Движение</h1>
+
+<div class="cell">
+<h2>Переворот карточки</h2>
+<div class="stage">
+<div class="col g8 ctr"><div class="fr-card"><span class="t1 fr">la fleur</span><span class="fn m">Что это значит?</span></div><span class="tk">0 мс · 0°</span></div>
+<div class="col g8 ctr"><div class="fr-card" style="transform:rotateY(55deg)"><span class="t1 fr">la fleur</span></div><span class="tk">140 мс · 55°</span></div>
+<div class="col g8 ctr"><div class="fr-card" style="transform:rotateY(90deg) scaleX(.04);background:var(--s4)"></div><span class="tk">225 мс · 90° — подмена стороны</span></div>
+<div class="col g8 ctr"><div class="fr-card" style="transform:rotateY(-40deg)"><span class="t1 fr">la fleur</span><span class="ipa">[la flœʁ]</span></div><span class="tk">330 мс · −40°</span></div>
+<div class="col g8 ctr"><div class="fr-card"><span class="t1 fr">la fleur</span><span class="ipa">[la flœʁ]</span><span class="w5">цветок</span></div><span class="tk">450 мс · 0°</span></div>
+</div>
+<div class="grid2">
+<div class="col">
+<div class="spec"><span>Кривая</span><span class="tk">spring · response 0.45 · damping 0.82</span></div>
+<div class="spec"><span>Ось и перспектива</span><span class="tk">rotateY · 900 pt</span></div>
+</div>
+<div class="col">
+<div class="spec"><span>Оценки</span><span class="tk">появляются после 330 мс, см. ниже</span></div>
+<div class="spec"><span>Отклик</span><span class="tk">impact light на оценке</span></div>
+</div>
+</div>
+</div>
+
+<div class="grid2">
+<div class="cell">
+<h2>Появление ответа</h2>
+<div class="hst g12">
+<div class="grow col g8"><div class="opt" style="opacity:.25;transform:translateY(8px)">parle</div><span class="tk ctr">0 мс · 0% · +8 pt</span></div>
+<div class="grow col g8"><div class="opt ok" style="opacity:.6;transform:translateY(3px)">parle</div><span class="tk ctr">110 мс · 60% · +3 pt</span></div>
+<div class="grow col g8"><div class="opt ok">parle</div><span class="tk ctr">220 мс · 100% · 0</span></div>
+</div>
+<div class="col">
+<div class="spec"><span>Вердикт, форма с IPA, кнопка «Дальше»</span><span class="tk">opacity + сдвиг 8 pt · 220 мс · ease-out</span></div>
+<div class="spec"><span>Три кнопки оценки</span><span class="tk">то же · задержка 30 мс на кнопку</span></div>
+<div class="spec"><span>Смена цвета варианта</span><span class="tk">150 мс · ease-out</span></div>
+<div class="spec"><span>Отклик</span><span class="tk">success / error</span></div>
+</div>
+</div>
+
+<div class="cell">
+<h2>Переходы</h2>
+<div class="col">
+<div class="spec"><span>Экран в стеке</span><span class="tk">системный push</span></div>
+<div class="spec"><span>Сессия поверх вкладок</span><span class="tk">fullScreenCover · таббар уезжает вниз</span></div>
+<div class="spec"><span>Лист заметок</span><span class="tk">системный sheet · detents medium, large</span></div>
+<div class="spec"><span>Попап слова</span><span class="tk">scale 0.96 → 1 + opacity · 180 мс · от слова</span></div>
+<div class="spec"><span>Таббар → поле поиска</span><span class="tk">морфинг стекла · spring 0.4 / 0.85</span></div>
+<div class="spec"><span>Сегменты</span><span class="tk">плашка скользит · 200 мс</span></div>
+<div class="spec"><span>Полоса прогресса, кольцо</span><span class="tk">300 мс · ease-in-out</span></div>
+<div class="spec"><span>Нажатие кнопки</span><span class="tk">scale 0.97 · 100 мс</span></div>
+</div>
+</div>
+</div>
+
+<div class="cell">
+<h2>Режим «Уменьшить движение»</h2>
+<div class="grid3">
+<div class="col g8">
+<div class="hst g8"><div class="fr-card grow" style="height:96px"><span class="t3 fr">la fleur</span></div><div class="fr-card grow" style="height:96px;opacity:.5"><span class="t3 fr">la fleur</span><span class="ipa">[la flœʁ]</span></div><div class="fr-card grow" style="height:96px"><span class="t3 fr">la fleur</span><span class="ipa">[la flœʁ]</span></div></div>
+<span class="sh w5">Карточка</span><span class="fn m">Вместо переворота перекрёстное растворение сторон, 200 мс. Без вращения и перспективы.</span>
+</div>
+<div class="col g8">
+<div class="hst g8"><div class="opt grow" style="opacity:.3">parle</div><div class="opt ok grow">parle</div></div>
+<span class="sh w5">Ответ и оценки</span><span class="fn m">Только прозрачность, 150 мс. Без сдвига и без задержки между кнопками.</span>
+</div>
+<div class="col">
+<div class="spec"><span>Попап, сегменты</span><span class="tk">opacity · 150 мс</span></div>
+<div class="spec"><span>Таббар → поиск</span><span class="tk">растворение без морфинга</span></div>
+<div class="spec"><span>Нажатие кнопки</span><span class="tk">без scale, смена заливки</span></div>
+<div class="spec"><span>Тактильный отклик</span><span class="tk">остаётся</span></div>
+</div>
+</div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1240}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

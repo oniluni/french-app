@@ -2,20 +2,33 @@ import SwiftUI
 
 @main
 struct FrenchApp: App {
-    @State private var library = Library()
+    @State private var library = Result { try Library() }
     @State private var store = Store()
     @State private var speech = Speech()
     @State private var navigator = Navigator()
 
+    init() {
+        Theme.applyToNavigationBars()
+    }
+
     var body: some Scene {
         WindowGroup {
-            RootView()
-                .environment(library)
-                .environment(store)
-                .environment(speech)
-                .environment(navigator)
-                // UI tests ask for dark mode this way: the simulator ignores XCUIDevice.appearance.
-                .preferredColorScheme(ProcessInfo.processInfo.arguments.contains("-uitest-dark") ? .dark : nil)
+            Group {
+                switch library {
+                case .success(let library):
+                    RootView()
+                        .environment(library)
+                        .environment(speech)
+                        .environment(navigator)
+                case .failure(let error):
+                    LaunchErrorView(error: error) { library = Result { try Library() } }
+                }
+            }
+            .environment(store)
+            .font(Theme.body)
+            .tint(Theme.acc)
+            // The design has one theme.
+            .preferredColorScheme(.dark)
         }
     }
 }

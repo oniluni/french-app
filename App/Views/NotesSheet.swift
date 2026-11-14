@@ -7,32 +7,36 @@ struct NotesRequest: Identifiable {
     /// earlier layout (`rule-5-3`) stay in the backup but have nowhere to be shown.
     let target: String
     let title: String
+    let lesson: Int
 
     var id: String { target }
 }
 
-/// The small round button in the corner of a rule, with the number of notes on it.
+/// The round glass button in the corner of a rule, with the number of notes on it.
 struct NotesButton: View {
     let count: Int
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            Image(systemName: "note.text")
-                .font(.title3)
-                .frame(width: 30, height: 30)
+            Image(systemName: "square.and.pencil")
+                .font(.system(size: 20))
+                .foregroundStyle(Theme.t1)
+                .frame(width: 52, height: 52)
+                .contentShape(Circle())
         }
-        .buttonStyle(.glass)
-        .buttonBorderShape(.circle)
+        .buttonStyle(.plain)
+        .glassEffect(.regular.interactive(), in: Circle())
         .overlay(alignment: .topTrailing) {
             if count > 0 {
                 Text("\(count)")
-                    .font(.caption2.weight(.bold))
-                    .foregroundStyle(.white)
+                    .font(Theme.mono(11, .medium))
+                    .foregroundStyle(Theme.ink)
                     .padding(.horizontal, 5)
-                    .frame(minWidth: 18, minHeight: 18)
-                    .background(Color.accentColor, in: Capsule())
-                    .offset(x: 4, y: -4)
+                    .frame(minWidth: 20, minHeight: 20)
+                    .background(Theme.acc, in: Capsule())
+                    .offset(x: 3, y: -3)
+                    .accessibilityHidden(true)
             }
         }
         .padding(16)
@@ -48,51 +52,79 @@ struct NotesSheet: View {
     @Environment(Store.self) private var store
     @Environment(\.dismiss) private var dismiss
     @State private var draft = ""
+    @FocusState private var isTyping: Bool
+
+    private static let date: Date.FormatStyle = .dateTime.day().month(.wide).hour().minute().locale(Locale(identifier: "ru"))
 
     var body: some View {
         let notes = store.notes(for: request.target)
-        NavigationStack {
-            List {
-                Section {
-                    TextField("Новая заметка", text: $draft, axis: .vertical)
-                        .lineLimit(2...6)
-                        .accessibilityIdentifier("note-field")
+        let text = draft.trimmingCharacters(in: .whitespacesAndNewlines)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                HStack {
+                    HStack(alignment: .firstTextBaseline, spacing: 8) {
+                        Text("Заметки").font(Theme.title2)
+                        if !notes.isEmpty { Text("\(notes.count)").font(Theme.mono(16)).foregroundStyle(Theme.t2) }
+                    }
+                    Spacer()
+                    Button { dismiss() } label: { Image(systemName: "xmark") }
+                        .buttonStyle(IconButtonStyle(kind: .filled))
+                        .accessibilityLabel("Закрыть")
                 }
-                Section {
-                    if notes.isEmpty {
-                        Text("Заметок пока нет. Запишите, что хотите запомнить или спросить на занятии.")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
+                Text("\(request.title) · урок \(request.lesson)").font(Theme.subhead).foregroundStyle(Theme.t2)
+
+                if notes.isEmpty {
+                    EmptyState(systemImage: "square.and.pencil", title: "Заметок пока нет",
+                               text: "Запишите, что хотите запомнить об этом правиле.")
+                        .padding(.vertical, -12)
+                } else {
+                    VStack(spacing: 8) {
+                        ForEach(notes) { note in
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(note.text).font(Theme.callout)
+                                Text(note.created.formatted(NotesSheet.date)).font(Theme.caption1).foregroundStyle(Theme.t3)
+                            }
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 12)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .surface(radius: 18, fill: Theme.s2)
+                            .contextMenu {
+                                Button("Удалить заметку", systemImage: "trash", role: .destructive) { store.delete(note) }
+                            }
+                        }
                     }
-                    ForEach(notes) { note in
-                        Text(note.text)
-                    }
-                    .onDelete { offsets in
-                        for index in offsets { store.delete(notes[index]) }
-                    }
+                    .padding(.top, 16)
                 }
+
+                Text("Новая заметка").font(Theme.footnote).foregroundStyle(Theme.t2).padding(.leading, 4).padding(.top, 16).padding(.bottom, 8)
+                TextField("Что стоит запомнить", text: $draft, axis: .vertical)
+                    .lineLimit(3...6)
+                    .focused($isTyping)
+                    .modifier(FieldBackground(isFocused: isTyping))
+                    .accessibilityIdentifier("note-field")
+                Button {
+                    store.addNote(text, to: request.target)
+                    draft = ""
+                } label: {
+                    Text("Сохранить")
+                }
+                .buttonStyle(.pill(.primary, wide: true))
+                .disabled(text.isEmpty)
+                .padding(.top, 12)
             }
-            .navigationTitle(request.title)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Закрыть") { dismiss() }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Сохранить") {
-                        store.addNote(draft.trimmingCharacters(in: .whitespacesAndNewlines), to: request.target)
-                        draft = ""
-                    }
-                    .disabled(draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                }
-            }
+            .padding(.horizontal, 16)
+            .padding(.top, 20)
+            .padding(.bottom, 28)
         }
+        .scrollDismissesKeyboard(.interactively)
         .presentationDetents([.medium, .large])
-        .sensoryFeedback(trigger: store.notes(for: request.target).count) { old, new in new > old ? .success : nil }
+        .presentationDragIndicator(.visible)
+        .presentationCornerRadius(40)
+        .sensoryFeedback(trigger: notes.count) { old, new in new > old ? .success : nil }
     }
 }
 
-/// A rule of a lesson: what it is about, the explanation, examples that can be heard.
+/// A rule of a lesson: its kind, title and text, and the notes on it.
 struct RuleView: View {
     let rule: Rule
 
@@ -103,20 +135,22 @@ struct RuleView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 14) {
-                Tag(text: rule.kind)
-                Text(rule.title).font(.title2.bold())
+            VStack(alignment: .leading, spacing: 0) {
+                Chip(text: rule.kind)
+                Text(rule.title).font(Theme.title1).padding(.top, 8).padding(.bottom, 16)
                 BlocksView(blocks: rule.blocks)
             }
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 88)
+            .padding(.horizontal, 20)
+            .padding(.top, 12)
+            .padding(.bottom, 96)
         }
-        .background(Color(uiColor: .systemGroupedBackground))
+        .background(Theme.bg)
         .navigationTitle("Урок \(rule.lesson)")
         .navigationBarTitleDisplayMode(.inline)
         .overlay(alignment: .bottomTrailing) {
-            NotesButton(count: store.notes(for: target).count) { notes = NotesRequest(target: target, title: rule.title) }
+            NotesButton(count: store.notes(for: target).count) {
+                notes = NotesRequest(target: target, title: rule.title, lesson: rule.lesson)
+            }
         }
         .sheet(item: $notes) { NotesSheet(request: $0) }
     }

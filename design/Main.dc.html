@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Основа — цвета</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div class="app doc" style="width:1280px;height:1240px">
+<h1>Цвета</h1>
+
+<div class="cell">
+<h2>Фон и поверхности</h2>
+<div class="grid6">
+<div class="col g6"><div class="sw" style="background:#0a0a0a"></div><span class="sh w5">Фон</span><span class="tk">bg · #0A0A0A</span></div>
+<div class="col g6"><div class="sw" style="background:#111111"></div><span class="sh w5">Поверхность 1</span><span class="tk">s1 · #111111</span></div>
+<div class="col g6"><div class="sw" style="background:#171717"></div><span class="sh w5">Поверхность 2</span><span class="tk">s2 · #171717</span></div>
+<div class="col g6"><div class="sw" style="background:#1f1f1f"></div><span class="sh w5">Заливка</span><span class="tk">s3 · #1F1F1F</span></div>
+<div class="col g6"><div class="sw" style="background:#2e2e2e"></div><span class="sh w5">Выбранный сегмент</span><span class="tk">s4 · #2E2E2E</span></div>
+<div class="col g6"><div class="sw" style="background:#262626"></div><span class="sh w5">Разделитель</span><span class="tk">line · #262626</span></div>
+</div>
+</div>
+
+<div class="grid2">
+<div class="cell">
+<h2>Текст</h2>
+<div class="spec"><span class="t3">Основной</span><span class="tk">t1 · #FAFAFA · 18.9:1</span></div>
+<div class="spec"><span class="t3 m">Вторичный</span><span class="tk">t2 · #A1A1A1 · 7.6:1</span></div>
+<div class="spec"><span class="t3 d">Третичный</span><span class="tk">t3 · #858585 · 5.4:1</span></div>
+<p class="fn m">Контраст указан к фону. Третичный текст ставится только на фон и поверхности 1–2: на заливке s3 он не проходит 4.5:1.</p>
+</div>
+<div class="cell">
+<h2>Акцент — один на всё приложение</h2>
+<div class="grid3">
+<div class="col g6"><div class="sw" style="background:#8FA2FF;border-color:transparent"></div><span class="sh w5">Акцент</span><span class="tk">acc · #8FA2FF · 8.3:1</span></div>
+<div class="col g6"><div class="sw" style="background:rgba(143,162,255,.14);border-color:transparent"></div><span class="sh w5">Мягкий акцент</span><span class="tk">acc-s · 14%</span></div>
+<div class="col g6"><div class="sw" style="background:#8FA2FF;border-color:transparent;display:flex;align-items:center;justify-content:center;color:#0a0a0a;font-weight:600">Aa</div><span class="sh w5">Текст на акценте</span><span class="tk">ink · #0A0A0A</span></div>
+</div>
+<p class="fn m">Интерактивные элементы, выбор, активная вкладка, связывание в разметке.</p>
+</div>
+</div>
+
+<div class="grid2">
+<div class="cell">
+<h2>Произношение</h2>
+<div class="grid3">
+<div class="col g6"><div class="sw" style="background:rgba(226,176,72,.32);border-color:transparent;display:flex;align-items:center;justify-content:center"><span class="t2 fr">mat<span class="n">in</span></span></div><span class="sh w5">Носовой гласный</span><span class="tk">nas · #E2B048 · 32%</span></div>
+<div class="col g6"><div class="sw" style="background:#0a0a0a;display:flex;align-items:center;justify-content:center"><span class="t2 fr">parl<span class="s">ent</span></span></div><span class="sh w5">Немая буква</span><span class="tk">t3 + точки снизу</span></div>
+<div class="col g6"><div class="sw" style="background:#0a0a0a;display:flex;align-items:center;justify-content:center"><span class="t2 fr">le<span class="l">s</span><span class="arc"> </span>ami<span class="s">s</span></span></div><span class="sh w5">Связывание</span><span class="tk">acc + дуга</span></div>
+</div>
+<p class="fn m">Охра занята только носовыми гласными. Больше нигде в интерфейсе она не появляется.</p>
+</div>
+<div class="cell">
+<h2>Оценки, вердикты, статусы карточек</h2>
+<div class="grid3">
+<div class="col g6"><div class="sw" style="background:rgba(255,112,112,.14);border-color:#FF7070;display:flex;align-items:center;justify-content:center;color:#FF7070;font-weight:600">Снова</div><span class="sh w5">Красный</span><span class="tk">red · #FF7070 · 7.6:1</span><span class="fn m">Снова · Неверно · Пора повторить</span></div>
+<div class="col g6"><div class="sw" style="background:rgba(242,164,70,.14);border-color:#F2A446;display:flex;align-items:center;justify-content:center;color:#F2A446;font-weight:600">Трудно</div><span class="sh w5">Янтарный</span><span class="tk">amb · #F2A446 · 9.5:1</span><span class="fn m">Трудно · Учу · выноска warning</span></div>
+<div class="col g6"><div class="sw" style="background:rgba(76,195,138,.14);border-color:#4CC38A;display:flex;align-items:center;justify-content:center;color:#4CC38A;font-weight:600">Хорошо</div><span class="sh w5">Зелёный</span><span class="tk">grn · #4CC38A · 8.9:1</span><span class="fn m">Хорошо · Верно · Знаю</span></div>
+</div>
+<p class="fn m">Цвет никогда не единственный признак: рядом всегда подпись или значок.</p>
+</div>
+</div>
+
+<div class="cell">
+<h2>Стекло — только слой навигации: таббар, кнопки навбара, попап, листы, кнопка заметок</h2>
+<div class="grid2">
+<div style="position:relative;height:150px;border-radius:20px;overflow:hidden;background:#0a0a0a;border:1px solid #262626;padding:16px">
+<p class="t2 fr">Le<span class="l">s</span><span class="arc"> </span><span class="n">en</span>f<span class="n">an</span><span class="s">ts</span> r<span class="n">en</span>tr<span class="s">ent</span> à troi<span class="l">s</span><span class="arc"> </span><span class="s">h</span>eur<span class="s">es</span>. Il<span class="l">s</span><span class="arc"> </span><span class="n">on</span><span class="s">t</span> deu<span class="l">x</span><span class="arc"> </span><span class="n">en</span>f<span class="n">an</span><span class="s">ts</span>.</p>
+<div class="gl hst" style="position:absolute;left:16px;right:16px;bottom:16px;height:62px;border-radius:999px;justify-content:center"><span class="sh w5">Стекло навигации</span></div>
+</div>
+<div class="col">
+<div class="spec"><span>Заливка</span><span class="tk">rgba(32,32,36,.60)</span></div>
+<div class="spec"><span>Размытие</span><span class="tk">blur 20 · saturate 180%</span></div>
+<div class="spec"><span>Кромка</span><span class="tk">1px rgba(255,255,255,.14) + блик сверху .12</span></div>
+<div class="spec"><span>Тень</span><span class="tk">0 10 30 rgba(0,0,0,.55)</span></div>
+<div class="spec"><span>Листы и попап</span><span class="tk">rgba(24,24,27,.88) · blur 30</span></div>
+</div>
+</div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1240}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

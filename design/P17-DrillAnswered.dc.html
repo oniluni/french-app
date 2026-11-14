@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Формы — после ответа</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div class="app ph" style="width:393px;height:852px">
+<div class="sb" aria-hidden="true"><span>9:41</span><i class="sig"></i><i class="wifi"></i><i class="bat"></i></div>
+<div class="sf">
+<div class="nb"><button class="gb gl" aria-label="Закрыть тренировку"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"></path></svg></button><b>Спряжения</b><span class="mono sh m">3 / 8</span></div>
+<div class="pb" role="progressbar" aria-label="Пройдено вопросов" aria-valuemin="0" aria-valuemax="8" aria-valuenow="3"><i style="width:37.5%"></i></div>
+</div>
+<main class="sc" style="padding:16px 16px 0">
+<p class="task">Выберите форму глагола для этого лица и времени</p>
+<div class="qcard">
+<span class="hst g8"><span class="chip">aller</span><span class="chip">Présent</span></span>
+<span class="fr" style="font:600 40px/48px var(--sans);letter-spacing:-.03em">nou<span class="l">s</span><span class="arc"> </span>all<span class="n">on</span><span class="s">s</span></span>
+<span class="ipa" style="font-size:17px;line-height:22px">[nu z‿alɔ̃]</span>
+<span class="t3" style="font-weight:500">мы идём</span>
+<span class="vd bad mt8"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M9 9l6 6M15 9l-6 6"></path></svg>Правильный ответ: allons</span>
+<span class="sh m">allez — форма для vous</span>
+</div>
+</main>
+<button class="ib gl" aria-label="Прослушать: nous allons" style="position:absolute;right:32px;top:172px;border:0;z-index:2"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.6v4.8h3.4l4.6 4V5.6l-4.6 4H4zM15.4 9.2a4 4 0 0 1 0 5.6M17.9 6.6a7.6 7.6 0 0 1 0 10.8"></path></svg></button>
+<div class="bot">
+<div class="opts">
+<button class="opt fr dim" disabled>vont</button>
+<button class="opt fr bad" disabled><svg class="ic sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"></path></svg>allez</button>
+<button class="opt fr ok" disabled><svg class="ic sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>allons</button>
+<button class="opt fr dim" disabled>va</button>
+</div>
+<button class="btn p">Дальше</button>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":393,"height":852}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

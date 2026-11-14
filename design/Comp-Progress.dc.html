@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Компоненты — прогресс и диапазон уроков</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div class="app doc" style="width:1280px;height:1200px">
+<h1>Прогресс и диапазон уроков</h1>
+
+<div class="grid3">
+<div class="cell">
+<h2>Кольцо прогресса</h2>
+<div class="demo hst g20" style="flex-direction:row;justify-content:center">
+<span class="ring"><svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true"><circle class="rt" cx="20" cy="20" r="17"></circle></svg><b class="m">12</b></span>
+<span class="ring"><svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true"><circle class="rt" cx="20" cy="20" r="17"></circle><circle class="rp" cx="20" cy="20" r="17" stroke-dasharray="40 107"></circle></svg><b>7</b></span>
+<span class="ring"><svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true"><circle class="rp" cx="20" cy="20" r="17" stroke-dasharray="107 107"></circle></svg><b class="a">3</b></span>
+<span class="ring"><svg width="56" height="56" viewBox="0 0 40 40" aria-hidden="true"><circle class="rt" cx="20" cy="20" r="17"></circle><circle class="rp" cx="20" cy="20" r="17" stroke-dasharray="64 107"></circle></svg><b style="font-size:15px">60%</b></span>
+</div>
+<div class="col">
+<div class="spec"><span>В строке урока</span><span class="tk">40 · линия 3 · номер внутри</span></div>
+<div class="spec"><span>В карточке и наборе</span><span class="tk">56 · процент внутри</span></div>
+<div class="spec"><span>Не начат / идёт / пройден</span><span class="tk">t2 / t1 / acc</span></div>
+</div>
+</div>
+
+<div class="cell">
+<h2>Карточка «Продолжить урок N»</h2>
+<div class="demo" style="padding:0;border:0">
+<div class="card pad col g12">
+<div class="hst g12">
+<span class="ring"><svg width="56" height="56" viewBox="0 0 40 40" aria-hidden="true"><circle class="rt" cx="20" cy="20" r="17"></circle><circle class="rp" cx="20" cy="20" r="17" stroke-dasharray="40 107"></circle></svg><b style="font-size:15px">37%</b></span>
+<div class="col grow"><span class="fn m">Продолжить</span><span class="t2">Урок 7</span></div>
+</div>
+<p class="sh m cl2">Гласный [y]; артикль после c'est; вопрос (инверсия и est-ce que); спряжение глаголов III группы в единственном числе</p>
+<div class="hst g8"><span class="chip">3 из 8 правил</span><span class="chip">18 из 49 слов</span></div>
+<button class="btn p">Продолжить</button>
+</div>
+</div>
+</div>
+
+<div class="cell">
+<h2>Плитка «Повторить сегодня»</h2>
+<div class="demo" style="padding:0;border:0">
+<div class="card pad hst g12">
+<span class="mono" style="font-size:32px;line-height:38px;font-weight:500">12</span>
+<div class="col grow"><span class="w5">Сегодня</span><span class="sh m">к повторению</span></div>
+<button class="btn t sm">Повторить</button>
+</div>
+<div class="card pad hst g12">
+<span class="eic" style="width:44px;height:44px;margin:0;color:var(--grn);background:var(--grn-s);border:0"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
+<div class="col grow"><span class="w5">Всё повторено</span><span class="sh m">Следующие — завтра</span></div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="grid2" style="grid-template-columns:minmax(0,1fr) minmax(0,1.2fr)">
+<div class="cell">
+<h2>Выбор диапазона уроков</h2>
+<div class="demo" style="padding:0;border:0">
+<div class="card pad col g12">
+<div class="lg">
+<button class="ln">1</button><button class="ln">2</button><button class="ln">3</button><button class="ln">4</button><button class="ln end" aria-pressed="true">5</button>
+<button class="ln in" aria-pressed="true">6</button><button class="ln in" aria-pressed="true">7</button><button class="ln in" aria-pressed="true">8</button><button class="ln in" aria-pressed="true">9</button><button class="ln end" aria-pressed="true">10</button>
+<button class="ln">11</button><button class="ln">12</button><button class="ln">13</button><button class="ln">14</button><button class="ln">15</button>
+</div>
+<div class="hst g12"><div class="col grow"><span class="w5">Уроки 5–10</span><span class="sh m mono">429 слов</span></div><button class="btn p sm">Начать</button></div>
+</div>
+</div>
+</div>
+
+<div class="cell" style="gap:0">
+<h2 style="margin-bottom:10px">Состояния сетки</h2>
+<div class="spec"><span class="hst g12"><span class="ln" style="width:48px">4</span>Обычный</span><span class="tk">s2 + line</span></div>
+<div class="spec"><span class="hst g12"><span class="ln end" style="width:48px">5</span>Начало и конец диапазона</span><span class="tk">acc + ink · 600</span></div>
+<div class="spec"><span class="hst g12"><span class="ln in" style="width:48px">7</span>Внутри диапазона</span><span class="tk">acc-s + acc</span></div>
+<div class="spec"><span>Первое касание</span><span class="m">начало; «Начать» уже активна — набор из одного урока</span></div>
+<div class="spec"><span>Второе касание</span><span class="m">конец; под сеткой диапазон и число слов</span></div>
+<div class="spec"><span>Третье касание</span><span class="m">сбрасывает выбор и ставит новое начало</span></div>
+<div class="spec"><span>Ничего не выбрано</span><span class="m">подпись «Выберите первый урок», кнопка выключена</span></div>
+<div class="spec"><span>Отклик</span><span class="tk">selection на каждом касании</span></div>
+</div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1200}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

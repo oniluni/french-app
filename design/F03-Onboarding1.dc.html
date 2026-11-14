@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Онбординг 1 — разметка</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+.dots{display:flex;justify-content:center;gap:8px}
+.dots i{width:8px;height:8px;border-radius:4px;background:var(--s4)}
+.dots i.on{width:24px;background:var(--acc)}
+</style>
+</helmet>
+<div class="app ph" style="width:393px;height:852px">
+<div class="sb" aria-hidden="true"><span>9:41</span><i class="sig"></i><i class="wifi"></i><i class="bat"></i></div>
+<div class="nb"><span></span><button class="btn sm" style="color:var(--t2);padding:0 4px">Пропустить</button></div>
+<main class="sc" style="padding:24px 24px 0;gap:24px">
+<div class="card pad col g16" style="align-items:center;padding:36px 16px">
+<span class="fr ctr" style="font:600 40px/48px var(--sans);letter-spacing:-.03em">le<span class="l">s</span><span class="arc"> </span><span class="n">en</span>f<span class="n">an</span><span class="s">ts</span></span>
+<span class="ipa" style="font-size:17px">[le z‿ɑ̃fɑ̃]</span>
+</div>
+<div class="col g8">
+<h1 class="t1">Видно, как читается слово</h1>
+<p class="m">Французский пишется не так, как звучит. Разметка показывает разницу прямо в слове.</p>
+</div>
+<div class="card">
+<div class="row"><span class="fr fw nw" style="width:76px">enfan<span class="s">ts</span></span><span class="sh grow">бледная буква с точками — не читается</span></div>
+<div class="row"><span class="fr fw nw" style="width:76px">enf<span class="n">an</span></span><span class="sh grow">подложка — носовой гласный</span></div>
+<div class="row"><span class="fr fw nw" style="width:76px">le<span class="l">s</span><span class="arc"> </span>a</span><span class="sh grow">дуга — слова читаются слитно</span></div>
+</div>
+</main>
+<div class="bot">
+<div class="dots" aria-label="Шаг 1 из 3" role="img"><i class="on"></i><i></i><i></i></div>
+<button class="btn p mt8">Дальше</button>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":393,"height":852}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

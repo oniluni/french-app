@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Основа — иконки</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+.icell{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.aicon{width:168px;height:168px;border-radius:38px;display:flex;align-items:center;justify-content:center;position:relative;font:700 76px/1 'Geist',system-ui,sans-serif;letter-spacing:-.05em}
+.aicon span{padding:2px 12px 8px;border-radius:20px}
+.aicon i{position:absolute;left:44px;right:44px;bottom:30px;height:14px;border:5px solid;border-top:0;border-radius:0 0 40px 40px}
+</style>
+</helmet>
+<div class="app doc" style="width:1280px;height:1240px">
+<h1>Иконки</h1>
+
+<div class="cell">
+<h2>Вкладки</h2>
+<div style="display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:16px">
+<div class="icell"><div class="ib on"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.6C10 5 7.4 4.6 4 4.6v13c3.4 0 6 .4 8 2 2-1.6 4.6-2 8-2v-13c-3.4 0-6 .4-8 2zM12 6.6v13"></path></svg></div><span class="sh w5">Уроки</span><span class="tk">book</span></div>
+<div class="icell"><div class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="8.5" width="15" height="11" rx="2.8"></rect><path d="M7 5.6h10M9 2.9h6"></path></svg></div><span class="sh w5">Практика</span><span class="tk">rectangle.stack</span></div>
+<div class="icell"><div class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4M8 7v10M12 4v16M16 8v8M20 10.5v3"></path></svg></div><span class="sh w5">Разбор</span><span class="tk">waveform</span></div>
+<div class="icell"><div class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4.5" width="4.5" height="15" rx="1"></rect><rect x="9" y="4.5" width="4.5" height="15" rx="1"></rect><path d="M15 7.2l3.9-1 3 11.6-3.9 1z"></path></svg></div><span class="sh w5">Справочник</span><span class="tk">books.vertical</span></div>
+<div class="icell"><div class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg></div><span class="sh w5">Поиск</span><span class="tk">magnifyingglass</span></div>
+</div>
+</div>
+
+<div class="cell">
+<h2>Действия</h2>
+<div style="display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:24px 16px">
+<div class="icell"><div class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.6v4.8h3.4l4.6 4V5.6l-4.6 4H4zM15.4 9.2a4 4 0 0 1 0 5.6M17.9 6.6a7.6 7.6 0 0 1 0 10.8"></path></svg></div><span class="sh w5">Прослушать</span><span class="tk">speaker.wave.2</span></div>
+<div class="icell"><div class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.8l2.5 5.2 5.7.8-4.1 4 1 5.6-5.1-2.7-5.1 2.7 1-5.6-4.1-4 5.7-.8z"></path></svg></div><span class="sh w5">В избранное</span><span class="tk">star</span></div>
+<div class="icell"><div class="ib on"><svg class="ic f" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.8l2.5 5.2 5.7.8-4.1 4 1 5.6-5.1-2.7-5.1 2.7 1-5.6-4.1-4 5.7-.8z"></path></svg></div><span class="sh w5">В избранном</span><span class="tk">star.fill</span></div>
+<div class="icell"><div class="ib" style="position:relative"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.5 4.5H7A2.5 2.5 0 0 0 4.5 7v10A2.5 2.5 0 0 0 7 19.5h10a2.5 2.5 0 0 0 2.5-2.5v-5.5"></path><path d="M18 3.9a1.7 1.7 0 0 1 2.4 2.4l-7.7 7.7-3.2.8.8-3.2L18 3.9z"></path></svg><span class="bdg">2</span></div><span class="sh w5">Заметки</span><span class="tk">square.and.pencil</span></div>
+<div class="icell"><div class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h3c5 0 5 10 10 10h3M4 17h3c1.6 0 2.7-1 3.6-2.3M13.4 9.3C14.3 8 15.4 7 17 7h3M17.5 4.5L20 7l-2.5 2.5M17.5 14.5L20 17l-2.5 2.5"></path></svg></div><span class="sh w5">Перемешать</span><span class="tk">shuffle</span></div>
+<div class="icell"><div class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5h16M4 17.5h16M4 12h3M17 12h3"></path><rect x="9.5" y="9.8" width="5" height="4.4" rx="1.2"></rect></svg></div><span class="sh w5">Вставить слово</span><span class="tk">text.insert</span></div>
+<div class="icell"><div class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="14" rx="2.5"></rect><path d="M4 10h16M4 14.5h16M10 10v9"></path></svg></div><span class="sh w5">Тренировать формы</span><span class="tk">tablecells</span></div>
+<div class="icell"><div class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"></path></svg></div><span class="sh w5">Закрыть</span><span class="tk">xmark</span></div>
+<div class="icell"><div class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4.5M8 8l4-4 4 4M5 12.5V18a1.5 1.5 0 0 0 1.5 1.5h11A1.5 1.5 0 0 0 19 18v-5.5"></path></svg></div><span class="sh w5">Сохранить копию</span><span class="tk">square.and.arrow.up</span></div>
+<div class="icell"><div class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5V15M8 11.5l4 4 4-4M5 12.5V18a1.5 1.5 0 0 0 1.5 1.5h11A1.5 1.5 0 0 0 19 18v-5.5"></path></svg></div><span class="sh w5">Восстановить</span><span class="tk">square.and.arrow.down</span></div>
+<div class="icell"><div class="ib" style="color:var(--acc)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 11v5.5M12 7.8v.2"></path></svg></div><span class="sh w5">Выноска info</span><span class="tk">info.circle</span></div>
+<div class="icell"><div class="ib" style="color:var(--amb)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5l8.5 14.5h-17zM12 10v4.5M12 16.8v.2"></path></svg></div><span class="sh w5">Выноска warning</span><span class="tk">exclamationmark.triangle</span></div>
+<div class="icell"><div class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5l-7 7 7 7"></path></svg></div><span class="sh w5">Назад</span><span class="tk">chevron.left</span></div>
+<div class="icell"><div class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 5.5L16 12l-6.5 6.5"></path></svg></div><span class="sh w5">Переход</span><span class="tk">chevron.right</span></div>
+<div class="icell"><div class="ib" style="color:var(--grn)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M8.2 12.4l2.6 2.6 5-5.4"></path></svg></div><span class="sh w5">Верно</span><span class="tk">checkmark.circle</span></div>
+<div class="icell"><div class="ib" style="color:var(--red)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M9 9l6 6M15 9l-6 6"></path></svg></div><span class="sh w5">Неверно</span><span class="tk">xmark.circle</span></div>
+</div>
+<div class="col">
+<div class="spec"><span>Сетка и линия</span><span class="m">24 × 24, штрих 1.7, скруглённые концы и стыки</span></div>
+<div class="spec"><span>Размеры</span><span class="m">20 в кнопках и вкладках · 16 в чипах и строках · 28 в заглушках</span></div>
+<div class="spec"><span>В приложении</span><span class="m">SF Symbols по именам под подписями, вес Regular</span></div>
+<div class="spec"><span>Цель касания</span><span class="m">круг 44 × 44 вокруг каждой иконки-кнопки</span></div>
+</div>
+</div>
+
+<div class="cell">
+<h2>Иконка приложения — слово «un» с двумя метками разметки: носовой гласный и дуга связывания</h2>
+<div class="grid4">
+<div class="icell"><div class="aicon" style="background:#0a0a0a;border:1px solid var(--line2);color:#fafafa"><span style="background:rgba(226,176,72,.38)">un</span><i style="border-color:#8FA2FF"></i></div><span class="sh w5">Основная</span><span class="tk">Default · Dark</span></div>
+<div class="icell"><div class="aicon" style="background:#1c1c1e;border:1px solid var(--line2);color:#d6d6d6"><span style="background:rgba(255,255,255,.16)">un</span><i style="border-color:#8e8e93"></i></div><span class="sh w5">Монохром под тонирование</span><span class="tk">Tinted</span></div>
+<div class="icell"><div class="aicon gl" style="color:#fafafa"><span style="background:rgba(255,255,255,.14)">un</span><i style="border-color:rgba(255,255,255,.7)"></i></div><span class="sh w5">Прозрачная</span><span class="tk">Clear</span></div>
+<div class="col" style="justify-content:center">
+<div class="spec"><span>Холст</span><span class="tk">1024 × 1024</span></div>
+<div class="spec"><span>Слои</span><span class="tk">фон · подложка · буквы · дуга</span></div>
+<div class="spec"><span>Светлый вариант</span><span class="m">не делается: приложение только тёмное</span></div>
+</div>
+</div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1240}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

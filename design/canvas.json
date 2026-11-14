@@ -1,0 +1,959 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "A20-Reader.dc.html": {
+      "h": 852,
+      "page": "analysis",
+      "radius": 56,
+      "title": "20 · Читалка",
+      "w": 393,
+      "x": 0,
+      "y": 0
+    },
+    "A20a-ReaderLegend.dc.html": {
+      "h": 852,
+      "page": "analysis",
+      "radius": 56,
+      "title": "20 · Обозначения и примеры",
+      "w": 393,
+      "x": 473,
+      "y": 0
+    },
+    "A20b-ReaderRules.dc.html": {
+      "h": 852,
+      "page": "analysis",
+      "radius": 56,
+      "title": "20b · Правила во фразе",
+      "w": 393,
+      "x": 946,
+      "y": 0
+    },
+    "A20c-ReaderReading.dc.html": {
+      "h": 852,
+      "page": "analysis",
+      "radius": 56,
+      "title": "20c · Подсветка правила чтения",
+      "w": 393,
+      "x": 1419,
+      "y": 0
+    },
+    "A20d-ReaderPopover.dc.html": {
+      "h": 852,
+      "page": "analysis",
+      "radius": 56,
+      "title": "20 · Попап слова",
+      "w": 393,
+      "x": 1892,
+      "y": 0
+    },
+    "A21-Word.dc.html": {
+      "h": 852,
+      "page": "analysis",
+      "radius": 56,
+      "title": "21 · Разбор слова",
+      "w": 393,
+      "x": 2838,
+      "y": 0
+    },
+    "A21a-WordUse.dc.html": {
+      "h": 852,
+      "page": "analysis",
+      "radius": 56,
+      "title": "21a · Употребление",
+      "w": 393,
+      "x": 473,
+      "y": 972
+    },
+    "A21b-WordGenders.dc.html": {
+      "h": 852,
+      "page": "analysis",
+      "radius": 56,
+      "title": "21b · Два рода",
+      "w": 393,
+      "x": 946,
+      "y": 972
+    },
+    "A21c-WordExamples.dc.html": {
+      "h": 852,
+      "page": "analysis",
+      "radius": 56,
+      "title": "21c · Примеры",
+      "w": 393,
+      "x": 1419,
+      "y": 972
+    },
+    "A21e-WordEmpty.dc.html": {
+      "h": 852,
+      "page": "analysis",
+      "radius": 56,
+      "title": "Слово — пусто",
+      "w": 393,
+      "x": 2365,
+      "y": 0
+    },
+    "A21f-WordForms.dc.html": {
+      "h": 852,
+      "page": "analysis",
+      "radius": 56,
+      "title": "21 · Таблица форм",
+      "w": 393,
+      "x": 0,
+      "y": 972
+    },
+    "A21g-WordSenses.dc.html": {
+      "h": 852,
+      "page": "analysis",
+      "radius": 56,
+      "title": "21 · Несколько значений",
+      "w": 393,
+      "x": 1892,
+      "y": 972
+    },
+    "A21h-WordMissing.dc.html": {
+      "h": 852,
+      "page": "analysis",
+      "radius": 56,
+      "title": "21 · Нет в словаре",
+      "w": 393,
+      "x": 2365,
+      "y": 972
+    },
+    "Base-Icons.dc.html": {
+      "h": 1240,
+      "page": "base",
+      "title": "Иконки и иконка приложения",
+      "w": 1280,
+      "x": 4080,
+      "y": 0
+    },
+    "Base-Markup.dc.html": {
+      "h": 1240,
+      "page": "base",
+      "title": "Разметка произношения",
+      "w": 1280,
+      "x": 2720,
+      "y": 0
+    },
+    "Base-Motion.dc.html": {
+      "h": 1240,
+      "page": "base",
+      "title": "Движение",
+      "w": 1280,
+      "x": 5440,
+      "y": 0
+    },
+    "Base-Type.dc.html": {
+      "h": 1240,
+      "page": "base",
+      "title": "Шрифты и шкала",
+      "w": 1280,
+      "x": 1360,
+      "y": 0
+    },
+    "Comp-Blocks.dc.html": {
+      "h": 1200,
+      "page": "comp",
+      "title": "Блоки правила",
+      "w": 1280,
+      "x": 1360,
+      "y": 0
+    },
+    "Comp-Overlays.dc.html": {
+      "h": 1280,
+      "page": "comp",
+      "title": "Попап, заметки, формы, заглушки",
+      "w": 1280,
+      "x": 5440,
+      "y": 0
+    },
+    "Comp-Progress.dc.html": {
+      "h": 1200,
+      "page": "comp",
+      "title": "Прогресс и диапазон уроков",
+      "w": 1280,
+      "x": 2720,
+      "y": 0
+    },
+    "Comp-Rows.dc.html": {
+      "h": 1200,
+      "page": "comp",
+      "title": "Строки, чипы, сегменты",
+      "w": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "Comp-Session.dc.html": {
+      "h": 1200,
+      "page": "comp",
+      "title": "Сессии",
+      "w": 1280,
+      "x": 4080,
+      "y": 0
+    },
+    "D22-Dictionary.dc.html": {
+      "h": 852,
+      "page": "dict",
+      "radius": 56,
+      "title": "22 · Все слова",
+      "w": 393,
+      "x": 0,
+      "y": 0
+    },
+    "D22b-Favorites.dc.html": {
+      "h": 852,
+      "page": "dict",
+      "radius": 56,
+      "title": "22b · Избранное",
+      "w": 393,
+      "x": 1419,
+      "y": 0
+    },
+    "D22c-FavoritesSet.dc.html": {
+      "h": 852,
+      "page": "dict",
+      "radius": 56,
+      "title": "22c · Набор «Избранное»",
+      "w": 393,
+      "x": 2365,
+      "y": 0
+    },
+    "D22d-FavoritesEmpty.dc.html": {
+      "h": 852,
+      "page": "dict",
+      "radius": 56,
+      "title": "22b · Избранное — пусто",
+      "w": 393,
+      "x": 1892,
+      "y": 0
+    },
+    "D23-Search.dc.html": {
+      "h": 852,
+      "page": "dict",
+      "radius": 56,
+      "title": "23 · Результаты поиска",
+      "w": 393,
+      "x": 473,
+      "y": 0
+    },
+    "D23b-SearchEmpty.dc.html": {
+      "h": 852,
+      "page": "dict",
+      "radius": 56,
+      "title": "23 · Ничего не найдено",
+      "w": 393,
+      "x": 946,
+      "y": 0
+    },
+    "D24-Backup.dc.html": {
+      "h": 852,
+      "page": "dict",
+      "radius": 56,
+      "title": "Резервная копия",
+      "w": 393,
+      "x": 2838,
+      "y": 0
+    },
+    "D24b-BackupConfirm.dc.html": {
+      "h": 852,
+      "page": "dict",
+      "radius": 56,
+      "title": "Копия — подтверждение",
+      "w": 393,
+      "x": 3311,
+      "y": 0
+    },
+    "D24c-BackupResult.dc.html": {
+      "h": 852,
+      "page": "dict",
+      "radius": 56,
+      "title": "Копия — результат",
+      "w": 393,
+      "x": 3784,
+      "y": 0
+    },
+    "F01-LessonsLong.dc.html": {
+      "h": 852,
+      "page": "future",
+      "radius": 56,
+      "title": "Уроки 16–29 — длинный список",
+      "w": 393,
+      "x": 0,
+      "y": 0
+    },
+    "F02-RangeLong.dc.html": {
+      "h": 852,
+      "page": "future",
+      "radius": 56,
+      "title": "Диапазон 1–29",
+      "w": 393,
+      "x": 473,
+      "y": 0
+    },
+    "F03-Onboarding1.dc.html": {
+      "h": 852,
+      "page": "future",
+      "radius": 56,
+      "title": "Онбординг 1 — разметка",
+      "w": 393,
+      "x": 946,
+      "y": 0
+    },
+    "F04-Onboarding2.dc.html": {
+      "h": 852,
+      "page": "future",
+      "radius": 56,
+      "title": "Онбординг 2 — уроки и практика",
+      "w": 393,
+      "x": 1419,
+      "y": 0
+    },
+    "F05-Onboarding3.dc.html": {
+      "h": 852,
+      "page": "future",
+      "radius": 56,
+      "title": "Онбординг 3 — повторения",
+      "w": 393,
+      "x": 1892,
+      "y": 0
+    },
+    "F06-Settings.dc.html": {
+      "h": 852,
+      "page": "future",
+      "radius": 56,
+      "title": "Настройки",
+      "w": 393,
+      "x": 2365,
+      "y": 0
+    },
+    "F07-Stats.dc.html": {
+      "h": 852,
+      "page": "future",
+      "radius": 56,
+      "title": "Статистика",
+      "w": 393,
+      "x": 2838,
+      "y": 0
+    },
+    "F08-AllNotes.dc.html": {
+      "h": 852,
+      "page": "future",
+      "radius": 56,
+      "title": "Все заметки",
+      "w": 393,
+      "x": 0,
+      "y": 972
+    },
+    "F09-NoteEdit.dc.html": {
+      "h": 852,
+      "page": "future",
+      "radius": 56,
+      "title": "Заметка — правка и удаление",
+      "w": 393,
+      "x": 473,
+      "y": 972
+    },
+    "F10-ReminderAsk.dc.html": {
+      "h": 852,
+      "page": "future",
+      "radius": 56,
+      "title": "Напоминания — запрос разрешения",
+      "w": 393,
+      "x": 946,
+      "y": 972
+    },
+    "F11-ReminderTime.dc.html": {
+      "h": 852,
+      "page": "future",
+      "radius": 56,
+      "title": "Напоминания — время",
+      "w": 393,
+      "x": 1419,
+      "y": 972
+    },
+    "F12-Dictation.dc.html": {
+      "h": 852,
+      "page": "future",
+      "radius": 56,
+      "title": "Диктант — ввод",
+      "w": 393,
+      "x": 1892,
+      "y": 972
+    },
+    "F13-DictationAnswered.dc.html": {
+      "h": 852,
+      "page": "future",
+      "radius": 56,
+      "title": "Диктант — разбор ошибки",
+      "w": 393,
+      "x": 2365,
+      "y": 972
+    },
+    "F14-Speak.dc.html": {
+      "h": 852,
+      "page": "future",
+      "radius": 56,
+      "title": "Произнеси",
+      "w": 393,
+      "x": 2838,
+      "y": 972
+    },
+    "F15-Pairs.dc.html": {
+      "h": 852,
+      "page": "future",
+      "radius": 56,
+      "title": "Сопоставление пар",
+      "w": 393,
+      "x": 0,
+      "y": 1944
+    },
+    "F16-DynamicType.dc.html": {
+      "h": 852,
+      "page": "future",
+      "radius": 56,
+      "title": "Dynamic Type — список",
+      "w": 393,
+      "x": 473,
+      "y": 1944
+    },
+    "F17-DynamicTypeCard.dc.html": {
+      "h": 852,
+      "page": "future",
+      "radius": 56,
+      "title": "Dynamic Type — карточка",
+      "w": 393,
+      "x": 946,
+      "y": 1944
+    },
+    "F19-AllDone.dc.html": {
+      "h": 852,
+      "page": "future",
+      "radius": 56,
+      "title": "Всё повторено",
+      "w": 393,
+      "x": 1419,
+      "y": 1944
+    },
+    "F20-LongWord.dc.html": {
+      "h": 852,
+      "page": "future",
+      "radius": 56,
+      "title": "Длинное слово и длинный перевод",
+      "w": 393,
+      "x": 1892,
+      "y": 1944
+    },
+    "L01-Lessons.dc.html": {
+      "h": 852,
+      "page": "lessons",
+      "radius": 56,
+      "title": "01 · Список уроков",
+      "w": 393,
+      "x": 0,
+      "y": 0
+    },
+    "L01b-LessonsData.dc.html": {
+      "h": 852,
+      "page": "lessons",
+      "radius": 56,
+      "title": "01 · Список уроков — «Данные»",
+      "w": 393,
+      "x": 473,
+      "y": 0
+    },
+    "L02-LessonRules.dc.html": {
+      "h": 852,
+      "page": "lessons",
+      "radius": 56,
+      "title": "02 · Урок — Правила",
+      "w": 393,
+      "x": 946,
+      "y": 0
+    },
+    "L03-Rule.dc.html": {
+      "h": 852,
+      "page": "lessons",
+      "radius": 56,
+      "title": "03 · Правило",
+      "w": 393,
+      "x": 1892,
+      "y": 0
+    },
+    "L04-NotesEmpty.dc.html": {
+      "h": 852,
+      "page": "lessons",
+      "radius": 56,
+      "title": "04 · Заметки — пусто",
+      "w": 393,
+      "x": 2365,
+      "y": 0
+    },
+    "L04b-NotesFilled.dc.html": {
+      "h": 852,
+      "page": "lessons",
+      "radius": 56,
+      "title": "04 · Заметки — с текстом",
+      "w": 393,
+      "x": 2838,
+      "y": 0
+    },
+    "L08-LessonWords.dc.html": {
+      "h": 852,
+      "page": "lessons",
+      "radius": 56,
+      "title": "08 · Урок — Слова",
+      "w": 393,
+      "x": 1419,
+      "y": 0
+    },
+    "Main.dc.html": {
+      "h": 1240,
+      "page": "base",
+      "title": "Цвета",
+      "w": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "P10-Words.dc.html": {
+      "h": 852,
+      "page": "practice",
+      "radius": 56,
+      "title": "10 · Практика — Слова",
+      "w": 393,
+      "x": 0,
+      "y": 0
+    },
+    "P11-Range.dc.html": {
+      "h": 852,
+      "page": "practice",
+      "radius": 56,
+      "title": "11 · Диапазон выбран",
+      "w": 393,
+      "x": 473,
+      "y": 0
+    },
+    "P12-CardFront.dc.html": {
+      "h": 852,
+      "page": "practice",
+      "radius": 56,
+      "title": "12 · Карточка — лицо",
+      "w": 393,
+      "x": 1419,
+      "y": 0
+    },
+    "P13-CardBack.dc.html": {
+      "h": 852,
+      "page": "practice",
+      "radius": 56,
+      "title": "13 · Карточка — оборот",
+      "w": 393,
+      "x": 1892,
+      "y": 0
+    },
+    "P13b-CardSummary.dc.html": {
+      "h": 852,
+      "page": "practice",
+      "radius": 56,
+      "title": "13 · Итог сессии",
+      "w": 393,
+      "x": 2365,
+      "y": 0
+    },
+    "P14-Sets.dc.html": {
+      "h": 852,
+      "page": "practice",
+      "radius": 56,
+      "title": "14 · Мои наборы",
+      "w": 393,
+      "x": 946,
+      "y": 0
+    },
+    "P15-Forms.dc.html": {
+      "h": 852,
+      "page": "practice",
+      "radius": 56,
+      "title": "15 · Практика — Формы",
+      "w": 393,
+      "x": 2838,
+      "y": 0
+    },
+    "P16-DrillQuestion.dc.html": {
+      "h": 852,
+      "page": "practice",
+      "radius": 56,
+      "title": "16 · Формы — вопрос",
+      "w": 393,
+      "x": 0,
+      "y": 972
+    },
+    "P17-DrillAnswered.dc.html": {
+      "h": 852,
+      "page": "practice",
+      "radius": 56,
+      "title": "17 · Формы — ответ",
+      "w": 393,
+      "x": 473,
+      "y": 972
+    },
+    "P17a-Rules.dc.html": {
+      "h": 852,
+      "page": "practice",
+      "radius": 56,
+      "title": "17a · Практика — Правила",
+      "w": 393,
+      "x": 1419,
+      "y": 972
+    },
+    "P17b-RuleQuestion.dc.html": {
+      "h": 852,
+      "page": "practice",
+      "radius": 56,
+      "title": "17b · Правило — вопрос",
+      "w": 393,
+      "x": 1892,
+      "y": 972
+    },
+    "P17c-RuleAnswered.dc.html": {
+      "h": 852,
+      "page": "practice",
+      "radius": 56,
+      "title": "17c · Правило — ответ",
+      "w": 393,
+      "x": 2365,
+      "y": 972
+    },
+    "P17d-DrillSummary.dc.html": {
+      "h": 852,
+      "page": "practice",
+      "radius": 56,
+      "title": "17 · Формы — итог",
+      "w": 393,
+      "x": 946,
+      "y": 972
+    },
+    "R40-Reference.dc.html": {
+      "h": 852,
+      "page": "ref",
+      "radius": 56,
+      "title": "40 · Справочник",
+      "w": 393,
+      "x": 0,
+      "y": 0
+    },
+    "R40b-ReferencePhrases.dc.html": {
+      "h": 852,
+      "page": "ref",
+      "radius": 56,
+      "title": "40b · Справочник — выражения",
+      "w": 393,
+      "x": 473,
+      "y": 0
+    },
+    "R41-Prepositions.dc.html": {
+      "h": 852,
+      "page": "ref",
+      "radius": 56,
+      "title": "41 · Раздел — Предлоги",
+      "w": 393,
+      "x": 1419,
+      "y": 0
+    },
+    "R41b-Articles.dc.html": {
+      "h": 852,
+      "page": "ref",
+      "radius": 56,
+      "title": "41b · Раздел — Артикли",
+      "w": 393,
+      "x": 1892,
+      "y": 0
+    },
+    "R42-GapQuestion.dc.html": {
+      "h": 852,
+      "page": "ref",
+      "radius": 56,
+      "title": "42 · Вставь слово — вопрос",
+      "w": 393,
+      "x": 3311,
+      "y": 0
+    },
+    "R43-GapAnswered.dc.html": {
+      "h": 852,
+      "page": "ref",
+      "radius": 56,
+      "title": "43 · Вставь слово — ответ",
+      "w": 393,
+      "x": 3784,
+      "y": 0
+    },
+    "R44-AllRules.dc.html": {
+      "h": 852,
+      "page": "ref",
+      "radius": 56,
+      "title": "44 · Правила одного вида",
+      "w": 393,
+      "x": 946,
+      "y": 0
+    },
+    "R45-Idioms.dc.html": {
+      "h": 852,
+      "page": "ref",
+      "radius": 56,
+      "title": "45 · Идиомы — строки без разбора",
+      "w": 393,
+      "x": 2365,
+      "y": 0
+    },
+    "R46-VerbsPrep.dc.html": {
+      "h": 852,
+      "page": "ref",
+      "radius": 56,
+      "title": "46 · Глаголы с предлогом",
+      "w": 393,
+      "x": 2838,
+      "y": 0
+    },
+    "S01-NotFound.dc.html": {
+      "h": 852,
+      "page": "sys",
+      "radius": 56,
+      "title": "Урок / правило / раздел не найден",
+      "w": 393,
+      "x": 0,
+      "y": 0
+    },
+    "S02-Error.dc.html": {
+      "h": 852,
+      "page": "sys",
+      "radius": 56,
+      "title": "Что-то пошло не так",
+      "w": 393,
+      "x": 473,
+      "y": 0
+    },
+    "S03-Launch.dc.html": {
+      "h": 852,
+      "page": "sys",
+      "radius": 56,
+      "title": "Launch screen",
+      "w": 393,
+      "x": 946,
+      "y": 0
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-11-13T17:30:00Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "launch": {
+    "page": "base",
+    "view": "canvas"
+  },
+  "notes": {
+    "n-analysis": {
+      "kind": "title1",
+      "maxW": 3231,
+      "page": "analysis",
+      "text": "Разбор: читалка и слово",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "n-base": {
+      "kind": "title1",
+      "maxW": 6720,
+      "page": "base",
+      "text": "Основа: цвета, шрифты, разметка, иконки, движение",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "n-comp": {
+      "kind": "title1",
+      "maxW": 6720,
+      "page": "comp",
+      "text": "Компоненты",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "n-dict": {
+      "kind": "title1",
+      "maxW": 4177,
+      "page": "dict",
+      "text": "Поиск и словарь",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "n-future": {
+      "kind": "title1",
+      "maxW": 3231,
+      "page": "future",
+      "text": "На будущее: ещё не в приложении",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "n-lessons": {
+      "kind": "title1",
+      "maxW": 3231,
+      "page": "lessons",
+      "text": "Уроки",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "n-practice": {
+      "kind": "title1",
+      "maxW": 3231,
+      "page": "practice",
+      "text": "Практика: слова, формы, правила",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "n-ref": {
+      "kind": "title1",
+      "maxW": 4177,
+      "page": "ref",
+      "text": "Справочник",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "n-sys": {
+      "kind": "title1",
+      "maxW": 1339,
+      "page": "sys",
+      "text": "Системное",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "Base-Type.dc.html",
+    "Base-Markup.dc.html",
+    "Base-Icons.dc.html",
+    "Base-Motion.dc.html",
+    "Comp-Rows.dc.html",
+    "Comp-Blocks.dc.html",
+    "Comp-Progress.dc.html",
+    "Comp-Session.dc.html",
+    "Comp-Overlays.dc.html",
+    "L01-Lessons.dc.html",
+    "L01b-LessonsData.dc.html",
+    "L02-LessonRules.dc.html",
+    "L08-LessonWords.dc.html",
+    "L03-Rule.dc.html",
+    "L04-NotesEmpty.dc.html",
+    "L04b-NotesFilled.dc.html",
+    "P10-Words.dc.html",
+    "P11-Range.dc.html",
+    "P14-Sets.dc.html",
+    "P12-CardFront.dc.html",
+    "P13-CardBack.dc.html",
+    "P13b-CardSummary.dc.html",
+    "P15-Forms.dc.html",
+    "P16-DrillQuestion.dc.html",
+    "P17-DrillAnswered.dc.html",
+    "P17d-DrillSummary.dc.html",
+    "P17a-Rules.dc.html",
+    "P17b-RuleQuestion.dc.html",
+    "P17c-RuleAnswered.dc.html",
+    "A20-Reader.dc.html",
+    "A20a-ReaderLegend.dc.html",
+    "A20b-ReaderRules.dc.html",
+    "A20c-ReaderReading.dc.html",
+    "A20d-ReaderPopover.dc.html",
+    "A21e-WordEmpty.dc.html",
+    "A21-Word.dc.html",
+    "A21f-WordForms.dc.html",
+    "A21a-WordUse.dc.html",
+    "A21b-WordGenders.dc.html",
+    "A21c-WordExamples.dc.html",
+    "A21g-WordSenses.dc.html",
+    "A21h-WordMissing.dc.html",
+    "R40-Reference.dc.html",
+    "R40b-ReferencePhrases.dc.html",
+    "R44-AllRules.dc.html",
+    "R41-Prepositions.dc.html",
+    "R41b-Articles.dc.html",
+    "R45-Idioms.dc.html",
+    "R46-VerbsPrep.dc.html",
+    "R42-GapQuestion.dc.html",
+    "R43-GapAnswered.dc.html",
+    "D22-Dictionary.dc.html",
+    "D23-Search.dc.html",
+    "D23b-SearchEmpty.dc.html",
+    "D22b-Favorites.dc.html",
+    "D22d-FavoritesEmpty.dc.html",
+    "D22c-FavoritesSet.dc.html",
+    "D24-Backup.dc.html",
+    "D24b-BackupConfirm.dc.html",
+    "D24c-BackupResult.dc.html",
+    "S01-NotFound.dc.html",
+    "S02-Error.dc.html",
+    "S03-Launch.dc.html",
+    "F01-LessonsLong.dc.html",
+    "F02-RangeLong.dc.html",
+    "F03-Onboarding1.dc.html",
+    "F04-Onboarding2.dc.html",
+    "F05-Onboarding3.dc.html",
+    "F06-Settings.dc.html",
+    "F07-Stats.dc.html",
+    "F08-AllNotes.dc.html",
+    "F09-NoteEdit.dc.html",
+    "F10-ReminderAsk.dc.html",
+    "F11-ReminderTime.dc.html",
+    "F12-Dictation.dc.html",
+    "F13-DictationAnswered.dc.html",
+    "F14-Speak.dc.html",
+    "F15-Pairs.dc.html",
+    "F16-DynamicType.dc.html",
+    "F17-DynamicTypeCard.dc.html",
+    "F19-AllDone.dc.html",
+    "F20-LongWord.dc.html"
+  ],
+  "pages": [
+    {
+      "id": "base",
+      "name": "1 · Основа"
+    },
+    {
+      "id": "comp",
+      "name": "2 · Компоненты"
+    },
+    {
+      "id": "lessons",
+      "name": "3 · Уроки"
+    },
+    {
+      "id": "practice",
+      "name": "4 · Практика"
+    },
+    {
+      "id": "analysis",
+      "name": "5 · Разбор"
+    },
+    {
+      "id": "ref",
+      "name": "6 · Справочник"
+    },
+    {
+      "id": "dict",
+      "name": "7 · Словарь"
+    },
+    {
+      "id": "sys",
+      "name": "8 · Системное"
+    },
+    {
+      "id": "future",
+      "name": "9 · На будущее"
+    }
+  ],
+  "title": "Français — полный дизайн, тёмная тема"
+}

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Карточка — лицевая сторона</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div class="app ph" style="width:393px;height:852px">
+<div class="sb" aria-hidden="true"><span>9:41</span><i class="sig"></i><i class="wifi"></i><i class="bat"></i></div>
+<div class="sf">
+<div class="nb"><button class="gb gl" aria-label="Закрыть сессию"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"></path></svg></button><b>Уроки 5–10</b><span class="mono sh m">3 / 10</span></div>
+<div class="pb" role="progressbar" aria-label="Пройдено карточек" aria-valuemin="0" aria-valuemax="10" aria-valuenow="2"><i style="width:20%"></i></div>
+</div>
+<main class="sc" style="padding:0 16px">
+<button class="qcard" aria-label="Перевернуть карточку: les enfants">
+<span class="chip c-new" style="position:absolute;left:20px;top:20px">Новое</span>
+<span class="fr" style="font:600 44px/48px var(--sans);letter-spacing:-.03em">les enfants</span>
+<span class="sh m">Вспомните перевод и коснитесь карточки</span>
+</button>
+</main>
+<button class="ib gl" aria-label="Прослушать: les enfants" style="position:absolute;right:32px;top:136px;border:0;z-index:2"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.6v4.8h3.4l4.6 4V5.6l-4.6 4H4zM15.4 9.2a4 4 0 0 1 0 5.6M17.9 6.6a7.6 7.6 0 0 1 0 10.8"></path></svg></button>
+<div class="bot">
+<button class="btn q">Показать ответ</button>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":393,"height":852}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

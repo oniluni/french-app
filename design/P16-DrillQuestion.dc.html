@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Формы — вопрос</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div class="app ph" style="width:393px;height:852px">
+<div class="sb" aria-hidden="true"><span>9:41</span><i class="sig"></i><i class="wifi"></i><i class="bat"></i></div>
+<div class="sf">
+<div class="nb"><button class="gb gl" aria-label="Закрыть тренировку"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"></path></svg></button><b>Спряжения</b><span class="mono sh m">3 / 8</span></div>
+<div class="pb" role="progressbar" aria-label="Пройдено вопросов" aria-valuemin="0" aria-valuemax="8" aria-valuenow="2"><i style="width:25%"></i></div>
+</div>
+<main class="sc" style="padding:16px 16px 0">
+<p class="task">Выберите форму глагола для этого лица и времени</p>
+<div class="qcard">
+<span class="hst g8"><span class="chip">aller</span><span class="chip">Présent</span></span>
+<span class="fr" style="font:600 40px/48px var(--sans);letter-spacing:-.03em">nous <span class="gap" style="min-width:96px"></span></span>
+<span class="t3" style="font-weight:500">мы идём</span>
+<span class="sh m">1-е лицо, множественное число</span>
+</div>
+</main>
+<div class="bot">
+<div class="opts">
+<button class="opt fr">vont</button>
+<button class="opt fr">allez</button>
+<button class="opt fr">allons</button>
+<button class="opt fr">va</button>
+</div>
+<button class="btn x" disabled>Дальше</button>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":393,"height":852}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

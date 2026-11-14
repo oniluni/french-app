@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Онбординг 3 — повторения</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+.dots{display:flex;justify-content:center;gap:8px}
+.dots i{width:8px;height:8px;border-radius:4px;background:var(--s4)}
+.dots i.on{width:24px;background:var(--acc)}
+</style>
+</helmet>
+<div class="app ph" style="width:393px;height:852px">
+<div class="sb" aria-hidden="true"><span>9:41</span><i class="sig"></i><i class="wifi"></i><i class="bat"></i></div>
+<div class="nb"></div>
+<main class="sc" style="padding:24px 24px 0;gap:24px">
+<div class="col g8">
+<h1 class="t1">Повторяйте, когда слово начнёт забываться</h1>
+<p class="m">После карточки вы оцениваете, как легко вспомнили. Приложение само решает, когда показать её снова.</p>
+</div>
+<div class="grs">
+<div class="gr r" style="height:84px">Снова<small>1 мин</small></div>
+<div class="gr y" style="height:84px">Трудно<small>2 дня</small></div>
+<div class="gr g" style="height:84px">Хорошо<small>5 дней</small></div>
+</div>
+<div class="card">
+<div class="row"><span class="mono t3" style="font-weight:500;width:36px">10</span><span class="sh grow">карточек в одной сессии</span></div>
+<div class="row"><span class="mono t3" style="font-weight:500;width:36px">1×</span><span class="sh grow">в день достаточно — счётчик на вкладке «Уроки»</span></div>
+</div>
+</main>
+<div class="bot">
+<div class="dots" aria-label="Шаг 3 из 3" role="img"><i></i><i></i><i class="on"></i></div>
+<button class="btn p mt8">Начать с урока 1</button>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":393,"height":852}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

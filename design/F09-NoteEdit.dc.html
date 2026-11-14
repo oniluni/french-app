@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Заметка — правка и удаление</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div class="app ph" style="width:393px;height:852px">
+<div class="sb" aria-hidden="true"><span>9:41</span><i class="sig"></i><i class="wifi"></i><i class="bat"></i></div>
+<div class="nb"><button class="gb gl" aria-label="Отменить правку"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"></path></svg></button><b>Заметка</b><button class="btn p sm" style="height:44px">Готово</button></div>
+<main class="sc">
+<a class="hst g8 card pad" href="L03-Rule.dc.html" style="color:var(--t1)"><span class="g grow col"><span class="c1 m">Урок 5</span><span class="w5">Определённый артикль</span></span><svg class="ic sm chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 5.5L16 12l-6.5 6.5"></path></svg></a>
+<label class="col g8 mt16"><span class="fn m" style="margin-left:4px">Текст</span><textarea class="inp foc" rows="6">После l' род не виден — проверять в словаре: l'élève может быть и «ученик», и «ученица».</textarea></label>
+<p class="foot">Создана 12 ноября, изменена сегодня.</p>
+<button class="btn r mt24"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12"></path></svg>Удалить заметку</button>
+</main>
+
+<div class="scrim"></div>
+<div class="alert gl2" role="alertdialog" aria-label="Удалить заметку?" style="top:auto;bottom:24px;transform:none;left:8px;right:8px">
+<span class="t3">Удалить заметку?</span>
+<span class="sh m">Её нельзя будет вернуть.</span>
+<button class="btn r">Удалить</button>
+<button class="btn q" style="margin-top:2px">Отмена</button>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":393,"height":852}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

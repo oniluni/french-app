@@ -2,13 +2,6 @@ import FrenchCore
 import OSLog
 import SwiftUI
 
-/// Cards to go through in one sitting.
-struct SessionRequest: Identifiable {
-    let id = UUID()
-    let title: String
-    let entries: [Entry]
-}
-
 /// Forms to drill in one sitting.
 struct DrillRequest: Identifiable {
     let id = UUID()
@@ -25,7 +18,7 @@ struct PracticeView: View {
     @State private var part = Part.words
 
     var body: some View {
-        Group {
+        Screen {
             switch part {
             case .words: WordsPractice()
             case .forms: FormsPractice()
@@ -42,7 +35,6 @@ struct PracticeView: View {
                 .frame(minWidth: 280)
             }
         }
-        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
@@ -50,6 +42,7 @@ private struct WordsPractice: View {
     @Environment(Library.self) private var library
     @Environment(Store.self) private var store
     @State private var session: SessionRequest?
+    @State private var range: ClosedRange<Int>?
 
     var body: some View {
         let cards = store.data.cards
@@ -57,45 +50,39 @@ private struct WordsPractice: View {
         // Starred lesson words already are lesson cards; only the others are added.
         let everything = library.content.entries + favorites.filter { $0.lesson == 0 }
         let due = Session.due(in: everything, cards: cards, now: .now)
-        List {
-            Section("Сегодня") {
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(plural(due.count, "карточка", "карточки", "карточек")).font(.title3.weight(.semibold))
-                        Text(due.isEmpty ? "На сегодня всё повторено" : "пора повторить").font(.subheadline).foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                    Button("Повторить") { session = SessionRequest(title: "Сегодня", entries: due) }
-                        .buttonStyle(.borderedProminent)
-                        .disabled(due.isEmpty)
-                }
-            }
 
-            LessonRangeSection(
-                header: "Новый набор",
-                footer: "Карточка показывает слово: вспомните перевод и произношение, откройте ответ и оцените себя. Набор сохранится в «Моих наборах».",
-                describe: { plural(library.content.entries(in: $0).count, "слово", "слова", "слов") }
-            ) { range in
-                start(store.saveSet(first: range.lowerBound, last: range.upperBound))
-            }
-
-            if !store.data.sets.isEmpty || !favorites.isEmpty {
-                Section("Мои наборы") {
-                    ForEach(store.data.sets) { set in
-                        setRow(title: title(of: set), entries: library.content.entries(in: set.lessons)) { start(set) }
-                    }
-                    .onDelete { offsets in
-                        for set in offsets.map({ store.data.sets[$0] }) { store.delete(set) }
-                    }
-                    if !favorites.isEmpty {
-                        setRow(title: "Избранное", entries: favorites) {
-                            session = SessionRequest(title: "Избранное", entries: favorites)
-                        }
-                    }
-                }
-            }
+        // The main button moves to «Начать» once a range is chosen.
+        DueTile(count: due.count, button: range == nil ? .primary : .quiet) {
+            session = SessionRequest(title: "Сегодня", entries: due)
         }
         .fullScreenCover(item: $session) { CardSessionView(request: $0) }
+
+        SectionHeader(title: "Новый набор")
+        LessonRangeCard(range: $range) { range in
+            let words = library.content.entries(in: range).count
+            return "\(plural(words, "слово", "слова", "слов")) · \(min(words, Session.size)) в сессии"
+        } start: { range in
+            start(store.saveSet(first: range.lowerBound, last: range.upperBound))
+        }
+        Footer(text: "Карточка показывает слово: вспомните перевод и произношение, откройте ответ и оцените себя. Набор сохранится в «Моих наборах».")
+
+        if !store.data.sets.isEmpty || !favorites.isEmpty {
+            SectionHeader(title: "Мои наборы", trailing: "\(store.data.sets.count + (favorites.isEmpty ? 0 : 1))")
+            Card {
+                if !favorites.isEmpty {
+                    setRow(title: "Избранное", entries: favorites, icon: true) {
+                        session = SessionRequest(title: "Избранное", entries: favorites)
+                    }
+                }
+                ForEach(store.data.sets) { set in
+                    setRow(title: title(of: set), entries: library.content.entries(in: set.lessons)) { start(set) }
+                        .contextMenu {
+                            Button("Удалить набор", systemImage: "trash", role: .destructive) { store.delete(set) }
+                        }
+                }
+            }
+            Footer(text: "Чтобы удалить набор, нажмите на него и подержите.")
+        }
     }
 
     private func title(of set: StudySet) -> String {
@@ -106,103 +93,105 @@ private struct WordsPractice: View {
         session = SessionRequest(title: title(of: set), entries: library.content.entries(in: set.lessons))
     }
 
-    private func setRow(title: String, entries: [Entry], action: @escaping () -> Void) -> some View {
+    /// A set: its progress, how much of it is started, what is due.
+    private func setRow(title: String, entries: [Entry], icon: Bool = false, action: @escaping () -> Void) -> some View {
         let cards = store.data.cards
         let started = entries.filter { cards[$0.id] != nil }.count
         let due = Session.due(in: entries, cards: cards, now: .now).count
+        let progress = Session.progress(of: entries, cards: cards)
+        let state = due > 0 ? "\(due) пора повторить" : started > 0 ? "всё повторено" : "не начат"
         return Button(action: action) {
-            HStack(spacing: 14) {
-                ProgressRing(progress: Session.progress(of: entries, cards: cards)) {
-                    Image(systemName: "rectangle.on.rectangle.angled").font(.footnote).foregroundStyle(Color.accentColor)
+            HStack(spacing: 12) {
+                if icon {
+                    EmptyIcon(systemImage: "star.fill", color: Theme.acc, fill: Theme.accSoft, size: 40)
+                } else {
+                    ProgressRing(progress: progress) {
+                        Text("\(Int((progress * 100).rounded()))%").font(Theme.mono(11, .medium, relativeTo: .caption2))
+                    }
                 }
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(title).font(.headline).foregroundStyle(Color.primary)
-                    Text("Начато \(started) из \(entries.count)" + (due > 0 ? " · повторить \(due)" : ""))
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                    Text(title).font(Theme.bodyMedium)
+                    Text(icon ? "\(plural(entries.count, "слово", "слова", "слов")) · \(state)" : "\(started) из \(entries.count) · \(state)")
+                        .font(Theme.mono(14, relativeTo: .subheadline))
+                        .foregroundStyle(Theme.t2)
                 }
-                Spacer()
-                Image(systemName: "play.fill").foregroundStyle(Color.accentColor)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                Chevron()
             }
+            .row()
         }
+        .buttonStyle(RowButtonStyle())
     }
 }
 
-/// «Урок 3», «Уроки 3–5».
-private func lessonsTitle(_ range: ClosedRange<Int>) -> String {
-    range.count == 1 ? "Урок \(range.lowerBound)" : "Уроки \(range.lowerBound)–\(range.upperBound)"
-}
-
 /// A grid of lesson numbers: the first tap sets the start, the second the end, a third starts over.
-private struct LessonRangeSection: View {
-    let header: String
-    let footer: String
-    /// What the range holds: «12 слов».
+private struct LessonRangeCard: View {
+    @Binding var range: ClosedRange<Int>?
+    /// What the range holds: «12 слов · 10 в сессии».
     let describe: (ClosedRange<Int>) -> String
     let start: (ClosedRange<Int>) -> Void
 
     @Environment(Library.self) private var library
-    @State private var first: Int?
-    @State private var last: Int?
-
-    private var range: ClosedRange<Int>? {
-        guard let first else { return nil }
-        return min(first, last ?? first)...max(first, last ?? first)
-    }
+    /// Set by the second tap; until then the range is one lesson.
+    @State private var hasEnd = false
 
     var body: some View {
-        Section {
+        VStack(spacing: 12) {
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 5), spacing: 8) {
                 ForEach(library.content.lessons) { lesson in
-                    let isChosen = range?.contains(lesson.id) ?? false
-                    Button {
-                        choose(lesson.id)
-                    } label: {
-                        Text("\(lesson.id)")
-                            .font(.body.weight(.semibold))
-                            .monospacedDigit()
-                            .frame(maxWidth: .infinity, minHeight: 44)
-                            .foregroundStyle(isChosen ? Color.white : Color.primary)
-                            .background(isChosen ? Color.accentColor : Color(uiColor: .tertiarySystemFill), in: RoundedRectangle(cornerRadius: 12))
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel("Урок \(lesson.id)")
-                    .accessibilityAddTraits(isChosen ? .isSelected : [])
+                    cell(lesson.id)
                 }
             }
-            .padding(.vertical, 4)
-            HStack {
-                if let range {
-                    Text(lessonsTitle(range))
-                    Text("· \(describe(range))").foregroundStyle(.secondary)
-                } else {
-                    Text("Выберите первый и последний урок").foregroundStyle(.secondary)
+            HStack(spacing: 12) {
+                VStack(alignment: .leading, spacing: 0) {
+                    if let range {
+                        Text(lessonsTitle(range)).font(Theme.bodyMedium)
+                        Text(describe(range)).font(Theme.mono(14, relativeTo: .subheadline)).foregroundStyle(Theme.t2)
+                    } else {
+                        Text("Выберите первый урок").font(Theme.bodyMedium)
+                        Text("Потом последний — получится диапазон").font(Theme.subhead).foregroundStyle(Theme.t2)
+                    }
                 }
-                Spacer()
+                .frame(maxWidth: .infinity, alignment: .leading)
                 Button("Начать") {
                     guard let range else { return }
                     start(range)
-                    first = nil
-                    last = nil
+                    self.range = nil
+                    hasEnd = false
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(.pill(.primary, small: true))
                 .disabled(range == nil)
             }
-            .font(.subheadline)
-        } header: {
-            Text(header)
-        } footer: {
-            Text(footer)
         }
+        .panel()
         .sensoryFeedback(.selection, trigger: range)
     }
 
+    private func cell(_ lesson: Int) -> some View {
+        let isEnd = range.map { $0.lowerBound == lesson || $0.upperBound == lesson } ?? false
+        let isInside = (range?.contains(lesson) ?? false) && !isEnd
+        return Button {
+            choose(lesson)
+        } label: {
+            Text("\(lesson)")
+                .font(Theme.mono(16, .medium))
+                .foregroundStyle(isEnd ? Theme.ink : isInside ? Theme.acc : Theme.t1)
+                .frame(maxWidth: .infinity, minHeight: 48)
+                .background(isEnd ? Theme.acc : isInside ? Theme.accSoft : Theme.s2, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .overlay { if !isEnd && !isInside { RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(Theme.line) } }
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Урок \(lesson)")
+        .accessibilityAddTraits(isEnd || isInside ? .isSelected : [])
+    }
+
     private func choose(_ lesson: Int) {
-        if first == nil || last != nil {
-            first = lesson
-            last = nil
+        if let range, !hasEnd {
+            self.range = min(range.lowerBound, lesson)...max(range.lowerBound, lesson)
+            hasEnd = true
         } else {
-            last = lesson
+            range = lesson...lesson
+            hasEnd = false
         }
     }
 }
@@ -211,19 +200,23 @@ private struct LessonRangeSection: View {
 private struct TopicRow: View {
     let title: String
     let detail: String
+    var isDetailFrench = false
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            HStack {
+            HStack(spacing: 12) {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(title).font(.headline).foregroundStyle(Color.primary)
-                    Text(detail).font(.subheadline).foregroundStyle(.secondary)
+                    Text(title).font(Theme.bodyMedium)
+                    Text(detail).font(Theme.subhead).foregroundStyle(Theme.t2)
+                        .environment(\.locale, Locale(identifier: isDetailFrench ? "fr" : "ru"))
                 }
-                Spacer()
-                Image(systemName: "play.fill").foregroundStyle(Color.accentColor)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                Chevron()
             }
+            .row()
         }
+        .buttonStyle(RowButtonStyle())
         .accessibilityIdentifier("topic-\(title)")
     }
 }
@@ -232,67 +225,84 @@ private struct FormsPractice: View {
     @Environment(Library.self) private var library
     @State private var drill: DrillRequest?
     @State private var words: [FormWord] = []
+    @State private var tense = Grammar.tenseNames.first ?? "Présent"
+    @State private var range: ClosedRange<Int>?
 
     var body: some View {
         let verbs = words.filter { $0.wordClass == .verb }
         let nouns = words.filter { $0.wordClass == .noun }
         let adjectives = words.filter { $0.wordClass == .adjective }
-        List {
-            Section {
-                Button {
-                    start("Смешанная тренировка", forms: words, genders: nouns)
-                } label: {
-                    Label("Смешанная тренировка", systemImage: "shuffle")
-                }
+        let lessons = library.content.lessons.map(\.id)
+
+        HStack(spacing: 12) {
+            EmptyIcon(systemImage: "shuffle", color: Theme.acc, fill: Theme.accSoft, size: 44)
+            VStack(alignment: .leading, spacing: 0) {
+                Text("Смешанная тренировка").font(Theme.bodyMedium)
+                Text(plural(FormsPractice.count, "вопрос", "вопроса", "вопросов")).font(Theme.subhead).foregroundStyle(Theme.t2)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            Button("Начать") { start("Смешанная тренировка", forms: words, genders: nouns) }
+                .buttonStyle(.pill(.primary, small: true))
                 .disabled(words.isEmpty)
-            } footer: {
-                Text("Восемь вопросов по словам всех уроков: спряжения, род, артикли и число.")
-            }
+                .accessibilityIdentifier("mixed-drill")
+        }
+        .panel()
+        Footer(text: "Восемь вопросов по словам всех уроков: спряжения, род, артикли и число.")
 
-            LessonRangeSection(
-                header: "По урокам",
-                footer: "Вопросы о формах слов из выбранных уроков. В каждом вопросе нужно выбрать одну форму из нескольких.",
-                describe: { range in plural(words.filter { range.contains($0.entry.lesson) }.count, "слово", "слова", "слов") + " с формами" }
-            ) { range in
-                let chosen = words.filter { range.contains($0.entry.lesson) }
-                start(lessonsTitle(range), forms: chosen, genders: chosen.filter { $0.wordClass == .noun })
+        SectionHeader(title: "Спряжения")
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 8) {
+                ForEach(Grammar.tenseNames, id: \.self) { name in
+                    FilterChip(title: name, isOn: tense == name, isFrench: true) { tense = name }
+                }
             }
-
-            Section {
-                ForEach(Grammar.tenseNames, id: \.self) { tense in
-                    TopicRow(title: tense, detail: "\(plural(verbs.count, "глагол", "глагола", "глаголов")) из уроков") {
-                        start(tense, forms: verbs, tense: tense)
-                    }
+            HStack(spacing: 12) {
+                VStack(alignment: .leading, spacing: 0) {
+                    Text("Глаголы уроков \(lessons.min() ?? 0)–\(lessons.max() ?? 0)").font(Theme.bodyMedium)
+                    Text("лицо и число в \(tense)").font(Theme.subhead).foregroundStyle(Theme.t2)
                 }
-            } header: {
-                Text("Спряжения")
-            } footer: {
-                Text("Дано местоимение, например nous…: выберите форму глагола, которая к нему подходит.")
-            }
-
-            Section {
-                TopicRow(title: "Род существительных", detail: "un или une: мужской или женский род") {
-                    start("Род существительных", forms: [], genders: nouns)
-                }
-                TopicRow(title: "Артикль и число", detail: "le, la, les · un, une, des") {
-                    start("Артикль и число", forms: nouns)
-                }
-                TopicRow(title: "Прилагательные", detail: "мужской и женский род, единственное и множественное число") {
-                    start("Прилагательные", forms: adjectives)
-                }
-            } header: {
-                Text("Род и число")
+                .frame(maxWidth: .infinity, alignment: .leading)
+                Button("Начать") { start(tense, forms: verbs, tense: tense) }
+                    .buttonStyle(.pill(.tinted, small: true))
+                    .disabled(verbs.isEmpty)
+                    .accessibilityIdentifier("conjugation-drill")
             }
         }
-        // Finding the lemmas of every lesson word takes a moment: not on the first frame.
-        .task { words = library.formWords }
-        .fullScreenCover(item: $drill) { DrillSessionView(request: $0) }
+        .panel()
+        Footer(text: "Дано местоимение, например nous…: выберите форму глагола, которая к нему подходит.")
+
+        SectionHeader(title: "Род и число")
+        Card {
+            TopicRow(title: "Род существительных", detail: "un или une", isDetailFrench: true) {
+                start("Род существительных", forms: [], genders: nouns)
+            }
+            TopicRow(title: "Артикль и число", detail: "le, la, l', les · un, une, des", isDetailFrench: true) {
+                start("Артикль и число", forms: nouns)
+            }
+            TopicRow(title: "Прилагательные", detail: "мужской и женский род, множественное число") {
+                start("Прилагательные", forms: adjectives)
+            }
+        }
+
+        SectionHeader(title: "По урокам")
+        LessonRangeCard(range: $range) { range in
+            plural(words.filter { range.contains($0.entry.lesson) }.count, "слово", "слова", "слов") + " с формами"
+        } start: { range in
+            let chosen = words.filter { range.contains($0.entry.lesson) }
+            start(lessonsTitle(range), forms: chosen, genders: chosen.filter { $0.wordClass == .noun })
+        }
+        Footer(text: "Вопросы о формах слов из выбранных уроков. В каждом вопросе нужно выбрать одну форму из нескольких.")
+            // Finding the lemmas of every lesson word takes a moment: not on the first frame.
+            .task { words = library.formWords }
+            .fullScreenCover(item: $drill) { DrillSessionView(request: $0) }
     }
+
+    private static let count = 8
 
     /// Eight questions: forms of `forms` (in `tense` only, if given), and a couple on the gender of
     /// `genders` (all eight when there are no forms to ask).
     private func start(_ title: String, forms: [FormWord], genders: [FormWord] = [], tense: String? = nil) {
-        let count = 8
+        let count = FormsPractice.count
         var generator = SystemRandomNumberGenerator()
         let grammar = library.grammar
         let genderQuestions = grammar.genderQuestions(nouns: genders.map(\.lemma), count: forms.isEmpty ? count : 2, using: &generator)
@@ -306,33 +316,35 @@ private struct FormsPractice: View {
 private struct RulesPractice: View {
     @Environment(Library.self) private var library
     @State private var quiz: RuleRequest?
+    @State private var range: ClosedRange<Int>?
 
     private static let kinds = ["Грамматика", "Произношение", "Чтение"]
+    private static let count = 8
 
     var body: some View {
         let rules = library.content.lessons.flatMap(\.rules).filter(\.isAsked)
-        List {
-            LessonRangeSection(
-                header: "По урокам",
-                footer: "Вы увидите фразу со словами выбранных уроков и четыре правила. Выберите правило, которое в этой фразе работает; после ответа слова, к которым оно относится, выделятся.",
-                describe: { range in plural(rules.filter { range.contains($0.lesson) }.count, "правило", "правила", "правил") }
-            ) { range in
-                start(lessonsTitle(range), rules.filter { range.contains($0.lesson) })
-            }
+        SectionHeader(title: "По урокам", top: 4)
+            .fullScreenCover(item: $quiz) { RuleSessionView(request: $0) }
+        LessonRangeCard(range: $range) { range in
+            let count = rules.filter { range.contains($0.lesson) }.count
+            return "\(plural(count, "правило", "правила", "правил")) · \(plural(RulesPractice.count, "вопрос", "вопроса", "вопросов"))"
+        } start: { range in
+            start("Правила · \(lessonsTitle(range).lowercased())", rules.filter { range.contains($0.lesson) })
+        }
+        Footer(text: "Вы увидите фразу со словами выбранных уроков и четыре правила. Выберите правило, которое в этой фразе работает; после ответа слова, к которым оно относится, выделятся.")
 
-            Section("По видам") {
-                ForEach(RulesPractice.kinds, id: \.self) { kind in
-                    let pool = rules.filter { $0.kind == kind }
-                    // One rule is no choice: it would be the answer to every question.
-                    if pool.count > 1 {
-                        TopicRow(title: kind, detail: "\(plural(pool.count, "правило", "правила", "правил")) из всех уроков") {
-                            start(kind, pool)
-                        }
+        SectionHeader(title: "По видам")
+        Card {
+            ForEach(RulesPractice.kinds, id: \.self) { kind in
+                let pool = rules.filter { $0.kind == kind }
+                // One rule is no choice: it would be the answer to every question.
+                if pool.count > 1 {
+                    TopicRow(title: kind, detail: plural(pool.count, "правило", "правила", "правил")) {
+                        start(kind, pool)
                     }
                 }
             }
         }
-        .fullScreenCover(item: $quiz) { RuleSessionView(request: $0) }
     }
 
     private static let log = Logger(subsystem: "io.github.oniluni.french", category: "rules-practice")
@@ -341,7 +353,8 @@ private struct RulesPractice: View {
         var generator = SystemRandomNumberGenerator()
         let questions: [RuleQuestion]
         do {
-            questions = try library.content.ruleQuestions(on: rules, reader: library.reader, examples: library.examples, count: 8, using: &generator)
+            questions = try library.content.ruleQuestions(on: rules, reader: library.reader, examples: library.examples,
+                                                          count: RulesPractice.count, using: &generator)
         } catch {
             // A broken examples file is a build mistake; the session then says it has no questions.
             RulesPractice.log.error("Rule questions for \(title, privacy: .public): broken examples: \(String(describing: error), privacy: .public)")

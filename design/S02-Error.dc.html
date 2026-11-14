@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Что-то пошло не так</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div class="app ph" style="width:393px;height:852px">
+<div class="sb" aria-hidden="true"><span>9:41</span><i class="sig"></i><i class="wifi"></i><i class="bat"></i></div>
+<main class="sc">
+<div class="empty" style="padding-bottom:40px">
+<span class="eic" style="color:var(--red);background:var(--red-s);border:0"><svg class="ic lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5l8.5 14.5h-17zM12 10v4.5M12 16.8v.2"></path></svg></span>
+<span class="t3">Не удалось открыть уроки</span>
+<span class="sh m">Файл с уроками в приложении повреждён. Ваши карточки, заметки и избранное хранятся отдельно и не пострадали.</span>
+<button class="btn p sm mt8">Попробовать снова</button>
+<button class="btn q sm">Сохранить копию прогресса</button></div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":393,"height":852}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

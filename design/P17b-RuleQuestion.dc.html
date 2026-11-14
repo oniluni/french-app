@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Правило — вопрос</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div class="app ph" style="width:393px;height:852px">
+<div class="sb" aria-hidden="true"><span>9:41</span><i class="sig"></i><i class="wifi"></i><i class="bat"></i></div>
+<div class="sf">
+<div class="nb"><button class="gb gl" aria-label="Закрыть тренировку"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"></path></svg></button><b>Правила · уроки 3–5</b><span class="mono sh m">2 / 8</span></div>
+<div class="pb" role="progressbar" aria-label="Пройдено вопросов" aria-valuemin="0" aria-valuemax="8" aria-valuenow="1"><i style="width:12.5%"></i></div>
+</div>
+<main class="sc" style="padding:16px 16px 0">
+<p class="task">Какое правило работает в этой фразе?</p>
+<div class="qcard">
+<span class="fr" style="font:500 28px/36px var(--sans);letter-spacing:-.02em">Je ne parle pas français.</span>
+<span class="m">Я не говорю по-французски.</span>
+<span class="c2 d" style="position:absolute;bottom:14px">Tatoeba</span>
+</div>
+</main>
+<div class="bot">
+<div class="opts c1x">
+<button class="opt">Определённый артикль</button>
+<button class="opt">Отрицание ne… pas</button>
+<button class="opt">Выпадение гласных (элизия)</button>
+<button class="opt">Множественное число существительных</button>
+</div>
+<button class="btn x" disabled>Дальше</button>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":393,"height":852}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

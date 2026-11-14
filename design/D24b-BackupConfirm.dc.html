@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Резервная копия — подтверждение</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div class="app ph" style="width:393px;height:852px">
+<div class="sb" aria-hidden="true"><span>9:41</span><i class="sig"></i><i class="wifi"></i><i class="bat"></i></div>
+<div class="nb"><div class="seg gl"><button class="on" aria-pressed="true">Все слова</button><button aria-pressed="false">Избранное</button></div></div>
+<main class="sc">
+<h2 class="sec" style="margin-top:4px">Резервная копия</h2>
+<div class="card">
+<div class="row a"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4.5M8 8l4-4 4 4M5 12.5V18a1.5 1.5 0 0 0 1.5 1.5h11A1.5 1.5 0 0 0 19 18v-5.5"></path></svg><span class="g"><span class="w5">Сохранить в Файлы</span><span class="sh m">Последняя копия: 2 ноября</span></span></div>
+<div class="row a"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5V15M8 11.5l4 4 4-4M5 12.5V18a1.5 1.5 0 0 0 1.5 1.5h11A1.5 1.5 0 0 0 19 18v-5.5"></path></svg><span class="g"><span class="w5">Восстановить</span><span class="sh m">Из файла .json, сохранённого раньше</span></span></div>
+</div>
+</main>
+
+<div class="scrim"></div>
+<div class="alert gl2" role="alertdialog" aria-label="Заменить текущий прогресс копией?">
+<span class="t3">Заменить текущий прогресс копией?</span>
+<span class="sh m">Файл от 2 ноября: 412 карточек, 9 заметок, 14 слов в избранном. Всё, что вы сделали после, пропадёт.</span>
+<button class="btn r">Заменить</button>
+<button class="btn q" style="margin-top:2px">Отмена</button>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":393,"height":852}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

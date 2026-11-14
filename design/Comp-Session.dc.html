@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Компоненты — сессии</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div class="app doc" style="width:1280px;height:1200px">
+<h1>Сессии</h1>
+
+<div class="grid3">
+<div class="cell">
+<h2>Рамка сессии</h2>
+<div class="demo">
+<div class="sf" style="padding:0">
+<div class="nb"><button class="gb gl" aria-label="Закрыть"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"></path></svg></button><b>Уроки 5–10</b><span class="mono sh m">3 / 10</span></div>
+<div class="pb"><i style="width:30%"></i></div>
+</div>
+</div>
+</div>
+
+<div class="cell">
+<h2>Кнопки</h2>
+<div class="demo">
+<button class="btn q">Показать ответ</button>
+<button class="btn p">Дальше</button>
+<button class="btn p">Готово</button>
+<button class="btn x" disabled>Дальше</button>
+</div>
+</div>
+
+<div class="cell">
+<h2>Три оценки</h2>
+<div class="demo">
+<div class="grs">
+<button class="gr r">Снова<small>1 мин</small></button>
+<button class="gr y">Трудно<small>2 дня</small></button>
+<button class="gr g">Хорошо<small>5 дней</small></button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="grid2">
+<div class="cell">
+<h2>Сетка вариантов ответа</h2>
+<div class="grid2">
+<div class="col g8"><span class="fn m">До ответа</span><div class="opts"><button class="opt">parle</button><button class="opt">parles</button><button class="opt">parlons</button><button class="opt">parlent</button></div></div>
+<div class="col g8"><span class="fn m">Выбран верный</span><div class="opts"><button class="opt ok"><svg class="ic sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>parle</button><button class="opt dim">parles</button><button class="opt dim">parlons</button><button class="opt dim">parlent</button></div></div>
+<div class="col g8"><span class="fn m">Выбран неверный</span><div class="opts"><button class="opt ok"><svg class="ic sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>parle</button><button class="opt bad"><svg class="ic sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"></path></svg>parles</button><button class="opt dim">parlons</button><button class="opt dim">parlent</button></div></div>
+<div class="col g8"><span class="fn m">Длинные варианты — в один столбец</span><div class="opts c1x"><button class="opt">Отрицание ne… pas</button><button class="opt ok"><svg class="ic sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>Слитный артикль du, des</button></div></div>
+</div>
+<div class="hst g16"><span class="vd ok"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M8.2 12.4l2.6 2.6 5-5.4"></path></svg>Верно</span><span class="vd bad"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M9 9l6 6M15 9l-6 6"></path></svg>Правильный ответ: parle</span></div>
+</div>
+
+<div class="cell">
+<h2>Итог</h2>
+<div class="grid2">
+<div class="demo ctr" style="align-items:center;padding:24px 16px">
+<span class="mono" style="font-size:44px;line-height:48px;font-weight:500">7<span class="m" style="font-size:22px"> из 10</span></span>
+<span class="w5">Тренировка окончена</span>
+<span class="sh m">3 ошибки</span>
+</div>
+<div class="demo" style="gap:0;padding:4px 16px">
+<div class="spec"><span class="hst g8"><span class="chip c-due">Снова</span></span><span class="mono">2</span></div>
+<div class="spec"><span class="hst g8"><span class="chip c-lrn">Трудно</span></span><span class="mono">3</span></div>
+<div class="spec"><span class="hst g8"><span class="chip c-ok">Хорошо</span></span><span class="mono">5</span></div>
+<div class="spec"><span class="m">Следующее повторение</span><span class="w5">завтра, 14 ноября</span></div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1200}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

@@ -8,7 +8,7 @@ options:
 settings:
   base:
     SWIFT_VERSION: "5.0"
-    MARKETING_VERSION: "0.4.2"
+    MARKETING_VERSION: "0.5.0"
     CURRENT_PROJECT_VERSION: "1"
 packages:
   FrenchCore:
@@ -25,8 +25,9 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: io.github.oniluni.french
         GENERATE_INFOPLIST_FILE: YES
+        # Fonts and the launch screen have no INFOPLIST_KEY_ setting; Xcode merges this file in.
+        INFOPLIST_FILE: App/Info.plist
         INFOPLIST_KEY_CFBundleDisplayName: Français
-        INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.education
         TARGETED_DEVICE_FAMILY: "1"

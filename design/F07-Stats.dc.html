@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Статистика</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+.wk{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.wk i{height:28px;border-radius:8px;background:var(--s3)}
+.wk i.on{background:var(--acc)}
+.wk i.td{box-shadow:0 0 0 2px var(--t1) inset}
+.bar{display:flex;height:12px;border-radius:6px;overflow:hidden;gap:2px}
+.bar i{display:block}
+.lb{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;align-items:end;height:72px}
+.lb i{display:block;border-radius:6px 6px 2px 2px;background:var(--acc)}
+</style>
+</helmet>
+<div class="app ph" style="width:393px;height:852px">
+<div class="sb" aria-hidden="true"><span>9:41</span><i class="sig"></i><i class="wifi"></i><i class="bat"></i></div>
+<div class="nb"><button class="gb gl" aria-label="Назад"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5l-7 7 7 7"></path></svg></button><b>Статистика</b></div>
+<main class="sc">
+<div class="card pad col g12">
+<div class="hst g12"><span class="mono" style="font-size:40px;line-height:44px;font-weight:500">6</span><div class="col"><span class="w5">дней подряд</span><span class="sh m">лучшая серия: 21</span></div></div>
+<div class="wk" role="img" aria-label="Занятия за неделю: пн–ср да, сегодня ещё нет"><i class="on"></i><i class="on"></i><i class="on"></i><i class="td"></i><i></i><i></i><i></i></div>
+<div class="wk c2 d ctr"><span>пн</span><span>вт</span><span>ср</span><span>чт</span><span>пт</span><span>сб</span><span>вс</span></div>
+</div>
+
+<h2 class="sec">Слова по статусам</h2>
+<div class="card pad col g12">
+<div class="bar" role="img" aria-label="Новое 31%, учу 28%, пора повторить 6%, знаю 35%"><i style="width:31%;background:var(--acc)"></i><i style="width:28%;background:var(--amb)"></i><i style="width:6%;background:var(--red)"></i><i style="width:35%;background:var(--grn)"></i></div>
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 16px">
+<span class="hst g8 sh"><span class="chip c-new">Новое</span><span class="mono">341</span></span>
+<span class="hst g8 sh"><span class="chip c-lrn">Учу</span><span class="mono">308</span></span>
+<span class="hst g8 sh"><span class="chip c-due">Пора повторить</span><span class="mono">66</span></span>
+<span class="hst g8 sh"><span class="chip c-ok">Знаю</span><span class="mono">385</span></span>
+</div>
+</div>
+
+<h2 class="sec">Прогресс по урокам</h2>
+<div class="card pad col g8">
+<div class="lb" role="img" aria-label="Доля выученных слов в уроках 1–5"><i style="height:100%"></i><i style="height:100%"></i><i style="height:75%"></i><i style="height:60%"></i><i style="height:49%"></i></div>
+<div class="lb c1 m mono ctr" style="height:auto"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":393,"height":852}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

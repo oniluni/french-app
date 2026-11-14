@@ -13,73 +13,95 @@ struct RuleRequest: Identifiable {
 struct RuleSessionView: View {
     let request: RuleRequest
 
-    @State private var index = 0
-    @State private var chosen: Int?
-    @State private var right = 0
+    @Environment(Library.self) private var library
+    @Environment(Navigator.self) private var navigator
+    @Environment(\.dismiss) private var dismiss
+    @State private var progress = QuizProgress()
 
     var body: some View {
-        SessionFrame(title: request.title, done: index, total: request.questions.count) {
-            if index < request.questions.count {
-                question(request.questions[index])
+        let questions = request.questions
+        let isOver = progress.index >= questions.count
+        SessionFrame(title: request.title, current: progress.index + 1, total: questions.count,
+                     done: progress.index + (progress.chosen == nil ? 0 : 1)) {
+            if isOver {
+                ScoreSummary(right: progress.right, total: questions.count, mistakes: progress.mistakes)
             } else {
-                ScoreSummary(right: right, total: request.questions.count)
+                question(questions[progress.index]).padding(.vertical, 16)
+            }
+        } bottom: {
+            if isOver {
+                Button("Готово") { dismiss() }.buttonStyle(.pill(.primary, wide: true))
+            } else {
+                let question = questions[progress.index]
+                ChoiceGrid(options: question.options.map(\.title), answer: question.answer, chosen: $progress.chosen, isFrench: false)
+                NextButton(isEnabled: progress.chosen != nil) {
+                    progress.next(answer: question.answer) {
+                        Mistake(marked: nil, plain: question.options[question.answer].title, isFrench: false,
+                                answered: progress.chosen.map { question.options[$0].title } ?? "")
+                    }
+                }
             }
         }
-        .sensoryFeedback(trigger: chosen) { _, picked in
-            guard let picked, index < request.questions.count else { return nil }
-            return picked == request.questions[index].answer ? .success : .error
+        .sensoryFeedback(trigger: progress.chosen) { _, picked in
+            guard let picked, progress.index < questions.count else { return nil }
+            return picked == questions[progress.index].answer ? .success : .error
         }
-        .sensoryFeedback(.success, trigger: index == request.questions.count)
+        .sensoryFeedback(.success, trigger: isOver)
     }
 
     private func question(_ question: RuleQuestion) -> some View {
         let rule = question.options[question.answer]
-        return VStack(spacing: 14) {
-            ScrollView {
-                VStack(spacing: 12) {
-                    Instruction(text: "Какое правило работает в этой фразе?")
-                    HStack(alignment: .firstTextBaseline, spacing: 10) {
-                        Text(phrase(question))
-                            .font(Theme.french(.title3))
-                            .multilineTextAlignment(.center)
+        let read = library.reader.read(question.phrase)
+        return VStack(spacing: 0) {
+            Instruction(text: "Какое правило работает в этой фразе?").padding(.bottom, 16)
+            QuestionCard {
+                ScrollView {
+                    VStack(spacing: 10) {
+                        Text(phrase(question, read: read))
+                            .lineSpacing(6)
                             .environment(\.locale, Locale(identifier: "fr"))
                             .accessibilityIdentifier("rule-phrase")
-                        SpeakButton(text: question.phrase)
-                    }
-                    Text(question.ru).font(.subheadline).foregroundStyle(.secondary).multilineTextAlignment(.center)
-                    if let chosen {
-                        let isRight = chosen == question.answer
-                        Label(isRight ? "Верно" : "Правильный ответ", systemImage: isRight ? "checkmark.circle.fill" : "xmark.circle.fill")
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(isRight ? Theme.good : Theme.again)
-                            .padding(.top, 6)
-                        VStack(spacing: 4) {
-                            Text(rule.title).font(.headline)
-                            Text(rule.summary.isEmpty ? "Урок \(rule.lesson)" : "Урок \(rule.lesson) · \(rule.summary)").font(.subheadline).foregroundStyle(.secondary)
+                        if progress.chosen != nil, read.allSatisfy(\.isKnown) { IPAText(ipa: read.ipa, size: 15) }
+                        Text(question.ru).foregroundStyle(Theme.t2)
+                        if let chosen = progress.chosen {
+                            Verdict(isRight: chosen == question.answer)
+                            if chosen != question.answer { Text(rule.title).font(Theme.headline) }
+                            Text(rule.summary.isEmpty ? "Урок \(rule.lesson)" : rule.summary).font(Theme.subhead).foregroundStyle(Theme.t2)
+                            Button("Открыть правило") {
+                                dismiss()
+                                navigator.push(.rule(rule.id))
+                            }
+                            .buttonStyle(.pill(.tinted, small: true))
+                            .padding(.top, 8)
                         }
-                        .multilineTextAlignment(.center)
                     }
+                    .frame(maxWidth: .infinity)
                 }
-                .padding(20)
-                .frame(maxWidth: .infinity)
+                .scrollBounceBehavior(.basedOnSize)
+                .defaultScrollAnchor(.center)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 28))
-
-            ChoiceGrid(options: question.options.map(\.title), answer: question.answer, chosen: $chosen, isFrench: false)
-            NextButton(chosen: $chosen, answer: question.answer, index: $index, right: $right)
+            .overlay(alignment: .topTrailing) {
+                if progress.chosen != nil { SpeakButton(text: question.phrase, kind: .glass).padding(16) }
+            }
         }
     }
 
-    /// Once answered, the words the rule applies to stand out.
-    private func phrase(_ question: RuleQuestion) -> AttributedString {
+    /// The phrase with its marks, when the reader split it the same way; once answered, the
+    /// words the rule applies to stand out.
+    private func phrase(_ question: RuleQuestion, read: [ReadWord]) -> AttributedString {
+        let isMarked = progress.chosen != nil && read.count == question.words.count
         var text = AttributedString()
         for (index, word) in question.words.enumerated() {
             if index > 0 { text += AttributedString(" ") }
-            var part = AttributedString(word)
-            if chosen != nil, question.highlighted.contains(index) {
-                part.swiftUI.foregroundColor = .accentColor
-                part.swiftUI.font = Theme.french(.title3).bold()
+            var part: AttributedString
+            if isMarked, let marked = read[index].marked {
+                part = AttributedString(marked: marked, size: 28, weight: .medium)
+            } else {
+                part = AttributedString(word)
+                part.swiftUI.font = Theme.sans(28, .medium, relativeTo: .title)
+            }
+            if progress.chosen != nil, question.highlighted.contains(index) {
+                part.swiftUI.backgroundColor = Theme.accSoft
             }
             text += part
         }

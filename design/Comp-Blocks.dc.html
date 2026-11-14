@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Компоненты — блоки правила</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div class="app doc" style="width:1280px;height:1200px">
+<h1>Блоки правила</h1>
+
+<div class="grid3">
+<div class="cell">
+<h2>Заголовок, абзац, списки</h2>
+<div class="demo blk">
+<h3 class="t3">Отрицание ne… pas</h3>
+<p><i lang="fr">ne</i> ставится перед глаголом, <i lang="fr">pas</i> — после него. Перед гласным <i lang="fr">ne</i> превращается в <i lang="fr">n'</i>.</p>
+<ol>
+<li>Найдите спрягаемый глагол.</li>
+<li>Поставьте <i lang="fr">ne</i> перед ним.</li>
+<li>Поставьте <i lang="fr">pas</i> сразу после.</li>
+</ol>
+<ul>
+<li><i lang="fr" class="fr">Il ne li<span class="s">t</span> pa<span class="s">s</span>.</i> — Он не читает.</li>
+<li><i lang="fr" class="fr">Elle n'<span class="s">h</span>abit<span class="s">e</span> pa<span class="s">s</span> ici.</i> — Она здесь не живёт.</li>
+</ul>
+</div>
+</div>
+
+<div class="cell">
+<h2>Таблица</h2>
+<div class="demo blk">
+<div class="tw" tabindex="0" role="region" aria-label="Определённый артикль">
+<table>
+<thead><tr><th>Форма</th><th>Когда</th><th>Пример</th><th>IPA</th></tr></thead>
+<tbody>
+<tr><td class="fr w5">le</td><td style="white-space:nowrap">м. р., ед. ч.</td><td class="fr" style="white-space:nowrap">le pie<span class="s">d</span></td><td class="ipa">lə pje</td></tr>
+<tr><td class="fr w5">la</td><td style="white-space:nowrap">ж. р., ед. ч.</td><td class="fr" style="white-space:nowrap">la fleur</td><td class="ipa">la flœʁ</td></tr>
+<tr><td class="fr w5">l'</td><td style="white-space:nowrap">перед гласным</td><td class="fr" style="white-space:nowrap">l'<span class="s">h</span>eur<span class="s">e</span></td><td class="ipa">lœʁ</td></tr>
+<tr><td class="fr w5">le<span class="s">s</span></td><td style="white-space:nowrap">мн. ч.</td><td class="fr" style="white-space:nowrap">le<span class="l">s</span><span class="arc"> </span>ami<span class="s">s</span></td><td class="ipa">le z‿ami</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="cell">
+<h2>Выноски и разделитель</h2>
+<div class="demo blk">
+<div class="call"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 11v5.5M12 7.8v.2"></path></svg><p>После <i lang="fr">l'</i> род не виден: <i lang="fr">l'élève</i> (м. р.), <i lang="fr">l'heure</i> (ж. р.). Его надо запомнить.</p></div>
+<div class="call w"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5l8.5 14.5h-17zM12 10v4.5M12 16.8v.2"></path></svg><p>«Свой» переводят по владельцу: <i lang="fr">Ils écrivent à leur mère</i>, а не <i lang="fr">sa mère</i>.</p></div>
+<hr>
+<p class="m">После разделителя идёт следующая часть правила.</p>
+</div>
+</div>
+</div>
+
+<div class="cell" style="gap:0">
+<h2 style="margin-bottom:10px">Раскладка блоков</h2>
+<div class="grid2" style="gap:0 32px">
+<div class="col">
+<div class="spec"><span>Между блоками</span><span class="tk">14</span></div>
+<div class="spec"><span>Абзац и пункт списка</span><span class="tk">body · 16/24</span></div>
+<div class="spec"><span>Между пунктами списка</span><span class="tk">6</span></div>
+<div class="spec"><span>Заголовок внутри правила</span><span class="tk">title3 · 19/24 · отступ сверху 10</span></div>
+</div>
+<div class="col">
+<div class="spec"><span>Ячейка таблицы</span><span class="tk">10 × 14 · callout 15/20</span></div>
+<div class="spec"><span>Шапка таблицы</span><span class="tk">caption1 · 500 · t2</span></div>
+<div class="spec"><span>Выноска</span><span class="tk">12 × 14 · радиус 16 · иконка 20</span></div>
+<div class="spec"><span>Разделитель</span><span class="tk">1px line · на всю ширину</span></div>
+</div>
+</div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1200}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Словарь — все слова</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div class="app ph" style="width:393px;height:852px">
+<div class="sb" aria-hidden="true"><span>9:41</span><i class="sig"></i><i class="wifi"></i><i class="bat"></i></div>
+<div class="nb"><div class="seg gl"><button class="on" aria-pressed="true">Все слова</button><button aria-pressed="false">Избранное</button></div></div>
+<main class="sc">
+<h1 class="lt">Словарь</h1>
+<div class="hst g8" style="overflow:hidden;margin:0 -16px;padding:0 16px">
+<button class="fchip on" aria-pressed="true">Все уроки</button><button class="fchip" aria-pressed="false">Урок 1</button><button class="fchip" aria-pressed="false">Урок 2</button><button class="fchip" aria-pressed="false">Урок 3</button>
+</div>
+
+<h2 class="sec"><span>Урок 5</span><span class="mono">72</span></h2>
+<div class="card">
+<button class="row"><span class="g"><span class="hst g8"><span class="fr fw">l'<span class="s">h</span>eur<span class="s">e</span></span><span class="chip lv">A1</span></span><span class="sh m">час</span><span class="c1 d">сущ., ж. р.</span></span><span class="chip c-ok">Знаю</span></button>
+<button class="row"><span class="g"><span class="hst g8"><span class="fr fw">l'ami</span><span class="chip lv">A1</span></span><span class="sh m">друг</span><span class="c1 d">сущ., м. р.</span></span><span class="gb a" aria-label="В избранном"><svg class="ic f" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.8l2.5 5.2 5.7.8-4.1 4 1 5.6-5.1-2.7-5.1 2.7 1-5.6-4.1-4 5.7-.8z"></path></svg></span></button>
+<button class="row"><span class="g"><span class="hst g8"><span class="fr fw">la fleur</span><span class="chip lv">A1</span></span><span class="sh m">цветок</span><span class="c1 d">сущ., ж. р.</span></span><span class="chip c-new">Новое</span></button>
+<button class="row"><span class="g"><span class="hst g8"><span class="fr fw">regarde<span class="s">r</span></span><span class="chip lv">A1</span></span><span class="sh m">смотреть</span><span class="c1 d">глагол I группы</span></span><span class="chip c-due">Пора повторить</span></button>
+</div>
+</main>
+
+<nav class="tb" aria-label="Разделы">
+<button class="tbs gl" aria-label="Вернуться: Уроки"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.6C10 5 7.4 4.6 4 4.6v13c3.4 0 6 .4 8 2 2-1.6 4.6-2 8-2v-13c-3.4 0-6 .4-8 2zM12 6.6v13"></path></svg></button>
+<label class="sfield gl"><svg class="ic m" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg><input type="search" aria-label="Слово или перевод" placeholder="Слово или перевод"></label>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":393,"height":852}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

@@ -100,6 +100,21 @@ public struct Word: Codable, Hashable, Sendable {
         self.pos = pos
     }
 
+    /// The groups a lesson lists its words under, in this order.
+    public static let groups = ["Существительные", "Глаголы", "Прилагательные", "Наречия", "Выражения", "Другие слова", "Имена собственные"]
+
+    /// Which of `groups` the word goes under, read from the vault's free-form part of speech
+    /// («существительное, ж. р.», «местоимённый глагол I группы», «безличный оборот»).
+    public var group: String {
+        let pos = pos.lowercased()
+        if pos.hasPrefix("имя собственное") || pos.hasSuffix(" имя") || pos == "фамилия" { return "Имена собственные" }
+        if pos.hasPrefix("существительн") { return "Существительные" }
+        if pos.contains("оборот") || pos.contains("выражение") || pos.contains("словосочетани") || pos.contains("предложение") { return "Выражения" }
+        if pos.contains("глагол") { return "Глаголы" }
+        if pos.hasPrefix("прилагательное") { return "Прилагательные" }
+        if pos.hasPrefix("наречие") { return "Наречия" }
+        return "Другие слова"
+    }
 }
 
 /// A word as a card: the same spelling taught in two lessons is two cards.

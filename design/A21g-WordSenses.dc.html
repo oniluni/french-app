@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Разбор слова — несколько значений</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div class="app ph" style="width:393px;height:852px">
+<div class="sb" aria-hidden="true"><span>9:41</span><i class="sig"></i><i class="wifi"></i><i class="bat"></i></div>
+<div class="nb">
+<button class="gb gl" aria-label="Назад"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5l-7 7 7 7"></path></svg></button>
+<b>Разбор слова</b>
+<button class="gb gl" aria-label="В избранное" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.8l2.5 5.2 5.7.8-4.1 4 1 5.6-5.1-2.7-5.1 2.7 1-5.6-4.1-4 5.7-.8z"></path></svg></button>
+</div>
+<main class="sc" style="padding-top:12px">
+<p class="sh m" style="margin:0 4px 8px">«livre» — это два разных слова</p>
+<div class="seg in"><button class="on" aria-pressed="true">le livre · книга</button><button aria-pressed="false">livrer · доставлять</button></div>
+
+<div class="card pad col g8 mt12">
+<div class="hst g12" style="align-items:flex-start">
+<div class="col grow g4">
+<h1 class="fr" style="font:600 40px/44px var(--sans);letter-spacing:-.03em">le livr<span class="s">e</span></h1>
+<span class="ipa" style="font-size:17px;line-height:22px">[lə livʁ]</span>
+</div>
+<button class="ib" aria-label="Прослушать: le livre"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.6v4.8h3.4l4.6 4V5.6l-4.6 4H4zM15.4 9.2a4 4 0 0 1 0 5.6M17.9 6.6a7.6 7.6 0 0 1 0 10.8"></path></svg></button>
+</div>
+<p class="t2" style="font-weight:500">книга</p>
+<div class="hst g6"><span class="chip">сущ., м. р.</span><span class="chip lv">A1</span><span class="chip c-ok">Знаю</span></div>
+</div>
+
+<h2 class="sec">Формы</h2>
+<div class="fgrid">
+<button class="fcell on"><span class="c1 m">определённый, ед. ч.</span><span class="fr fw">le livr<span class="s">e</span></span><span class="ipa">lə livʁ</span></button>
+<button class="fcell"><span class="c1 m">определённый, мн. ч.</span><span class="fr fw">le<span class="s">s</span> livr<span class="s">es</span></span><span class="ipa">le livʁ</span></button>
+</div>
+<button class="btn q mt12">Открыть урок 3<svg class="ic sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 5.5L16 12l-6.5 6.5"></path></svg></button>
+</main>
+
+<nav class="tb" aria-label="Разделы">
+<div class="tbc gl">
+<button class="tab"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.6C10 5 7.4 4.6 4 4.6v13c3.4 0 6 .4 8 2 2-1.6 4.6-2 8-2v-13c-3.4 0-6 .4-8 2zM12 6.6v13"></path></svg>Уроки</button>
+<button class="tab"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="8.5" width="15" height="11" rx="2.8"></rect><path d="M7 5.6h10M9 2.9h6"></path></svg>Практика</button>
+<button class="tab on" aria-current="page"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4M8 7v10M12 4v16M16 8v8M20 10.5v3"></path></svg>Разбор</button>
+<button class="tab"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4.5" width="4.5" height="15" rx="1"></rect><rect x="9" y="4.5" width="4.5" height="15" rx="1"></rect><path d="M15 7.2l3.9-1 3 11.6-3.9 1z"></path></svg>Справочник</button>
+</div>
+<button class="tbs gl" aria-label="Поиск"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg></button>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":393,"height":852}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

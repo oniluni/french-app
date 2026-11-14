@@ -209,3 +209,26 @@ final class GrammarTests: XCTestCase {
         XCTAssertEqual(Drill.questions(from: paradigms, tense: "Imparfait", count: 50, using: &limited).filter { $0.wordClass == .verb }.count, 0)
     }
 }
+
+final class WordGroupTests: XCTestCase {
+    func testGroupsFollowTheVaultsPartsOfSpeech() {
+        let cases = [
+            ("существительное, ж. р.", "Существительные"),
+            ("существительные, ж. р.", "Существительные"),
+            ("местоимённый глагол I группы", "Глаголы"),
+            ("глагол III группы aller, 1-е л. ед. ч.", "Глаголы"),
+            ("прилагательное (м. / ж. р.)", "Прилагательные"),
+            ("наречие", "Наречия"),
+            ("наречное выражение", "Выражения"),
+            ("безличный оборот (вопрос)", "Выражения"),
+            ("имя собственное, город", "Имена собственные"),
+            ("женское имя", "Имена собственные"),
+            ("предлог", "Другие слова"),
+            ("", "Другие слова"),
+        ]
+        for (pos, group) in cases {
+            XCTAssertEqual(Word(fr: "x", ipa: "", ru: "", pos: pos).group, group, pos)
+            XCTAssertTrue(Word.groups.contains(group))
+        }
+    }
+}

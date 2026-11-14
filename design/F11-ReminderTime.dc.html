@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Напоминания — время</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+.tg{width:51px;height:31px;flex:none;border-radius:16px;background:var(--s4);position:relative}
+.tg::after{content:"";position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fafafa}
+.tg[aria-checked="true"]{background:var(--acc)}
+.tg[aria-checked="true"]::after{left:22px;background:#0a0a0a}
+.wheel{position:relative;height:200px;display:flex;justify-content:center;gap:8px;font:400 22px/40px var(--mono);overflow:hidden}
+.wheel::before{content:"";position:absolute;left:16px;right:16px;top:80px;height:40px;border-radius:10px;background:var(--s3)}
+.wheel>div{position:relative;width:64px;display:flex;flex-direction:column;align-items:center}
+.wheel span{color:var(--t3)}
+.wheel span.on{color:var(--t1);font-weight:500}
+.day{width:40px;height:44px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;background:var(--s2);border:1px solid var(--line);color:var(--t2)}
+.day.on{background:var(--acc-s);border-color:transparent;color:var(--acc)}
+</style>
+</helmet>
+<div class="app ph" style="width:393px;height:852px">
+<div class="sb" aria-hidden="true"><span>9:41</span><i class="sig"></i><i class="wifi"></i><i class="bat"></i></div>
+<div class="nb"><button class="gb gl" aria-label="Назад"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5l-7 7 7 7"></path></svg></button><b>Напоминание</b></div>
+<main class="sc">
+<div class="card">
+<div class="row"><span class="grow">Напоминать о повторении</span><button class="tg" role="switch" aria-checked="true" aria-label="Напоминать о повторении"></button></div>
+</div>
+
+<h2 class="sec">Время</h2>
+<div class="card">
+<div class="wheel" role="group" aria-label="Время напоминания: 20:00">
+<div><span>18</span><span>19</span><span class="on">20</span><span>21</span><span>22</span></div>
+<div><span>50</span><span>55</span><span class="on">00</span><span>05</span><span>10</span></div>
+</div>
+</div>
+
+<h2 class="sec">Дни</h2>
+<div class="hst" style="justify-content:space-between">
+<button class="day on" aria-pressed="true">пн</button><button class="day on" aria-pressed="true">вт</button><button class="day on" aria-pressed="true">ср</button><button class="day on" aria-pressed="true">чт</button><button class="day on" aria-pressed="true">пт</button><button class="day" aria-pressed="false">сб</button><button class="day" aria-pressed="false">вс</button>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":393,"height":852}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

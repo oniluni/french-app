@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Основа — разметка произношения</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div class="app doc" style="width:1280px;height:1240px">
+<h1>Разметка произношения</h1>
+
+<div class="grid4">
+<div class="cell">
+<h2>Немая буква</h2>
+<span class="fr" style="font:600 40px/48px var(--sans)">parl<span class="s">ent</span></span>
+<span class="tk">parl(ent)</span>
+<span class="sh m">Бледнее, обычным весом, с точками снизу. Три признака сразу: немота не передаётся одним цветом.</span>
+</div>
+<div class="cell">
+<h2>Носовой гласный</h2>
+<span class="fr" style="font:600 40px/48px var(--sans)">mat<span class="n">in</span></span>
+<span class="tk">mat[in]</span>
+<span class="sh m">Охристая подложка под буквами, которые дают один носовой звук. Цвет букв не меняется.</span>
+</div>
+<div class="cell">
+<h2>Согласный в связывании</h2>
+<span class="fr" style="font:600 40px/48px var(--sans)">le<span class="l">s</span></span>
+<span class="tk">le{s}</span>
+<span class="sh m">Буква, которая звучит только из-за связывания: акцентный цвет и жирный вес.</span>
+</div>
+<div class="cell">
+<h2>Дуга связывания</h2>
+<span class="fr" style="font:600 40px/48px var(--sans)">le<span class="l">s</span><span class="arc"> </span>ami<span class="s">s</span></span>
+<span class="tk">le{s}‿ami(s)</span>
+<span class="sh m">Дуга под пробелом между словами. В IPA пишется как z‿ami.</span>
+</div>
+</div>
+
+<div class="grid3">
+<div class="cell">
+<h2>На карточке</h2>
+<div class="demo ctr" style="align-items:center;padding:36px 16px;border-radius:32px">
+<span class="fr" style="font:600 40px/44px var(--sans);letter-spacing:-.03em">le<span class="l">s</span><span class="arc"> </span><span class="n">en</span>f<span class="n">an</span><span class="s">ts</span></span>
+<span class="ipa" style="font-size:16px">[le z‿ɑ̃fɑ̃]</span>
+<span class="t3" style="font-weight:500">дети</span>
+</div>
+</div>
+
+<div class="cell">
+<h2>В строке списка</h2>
+<div class="demo" style="padding:0;gap:0">
+<div class="row"><div class="g"><span class="fr w5" style="font-size:19px;line-height:24px">le peti<span class="s">t</span> déjeune<span class="s">r</span></span><span class="ipa">lə p(ə)ti deʒœne</span><span class="sh m">первый завтрак</span></div><span class="chip lv">A1</span></div>
+<div class="row"><div class="g"><span class="fr w5" style="font-size:19px;line-height:24px">l'<span class="s">h</span>eur<span class="s">e</span></span><span class="ipa">lœʁ</span><span class="sh m">час</span></div><span class="chip lv">A1</span></div>
+<div class="row"><div class="g"><span class="fr w5" style="font-size:19px;line-height:24px">le mat<span class="n">in</span></span><span class="ipa">lə matɛ̃</span><span class="sh m">утро</span></div><span class="chip lv">A1</span></div>
+</div>
+</div>
+
+<div class="cell">
+<h2>В абзаце читалки</h2>
+<div class="demo">
+<div class="ft" lang="fr">
+<span class="pair"><span class="tok"><span>Le<span class="l">s</span></span><span class="ipa">le</span></span><span class="arc"> </span><span class="tok sel"><span><span class="n">en</span>f<span class="n">an</span><span class="s">ts</span></span><span class="ipa">z‿ɑ̃fɑ̃</span></span></span>
+<span class="tok"><span><span class="s">h</span>abit<span class="s">ent</span></span><span class="ipa">abit</span></span>
+<span class="tok"><span>à</span><span class="ipa">a</span></span>
+<span class="tok"><span>Pari<span class="s">s</span>.</span><span class="ipa">paʁi</span></span>
+<span class="pair"><span class="tok"><span>Il<span class="l">s</span></span><span class="ipa">il</span></span><span class="arc"> </span><span class="tok"><span><span class="n">on</span><span class="s">t</span></span><span class="ipa">z‿ɔ̃</span></span></span>
+<span class="tok"><span><span class="n">un</span></span><span class="ipa">œ̃</span></span>
+<span class="tok unk"><span>axolotl.</span><span class="ipa">—</span></span>
+</div>
+</div>
+</div>
+</div>
+
+<div class="grid2">
+<div class="cell">
+<h2>Состояния слова в тексте</h2>
+<div class="grid3">
+<div class="col g8"><div class="demo ctr" style="align-items:center"><span class="tok sel" style="font-size:21px;margin:0"><span><span class="n">en</span>f<span class="n">an</span><span class="s">ts</span></span></span></div><span class="sh w5">Выбрано</span><span class="fn m">Открыт попап слова: мягкий акцент и кольцо.</span></div>
+<div class="col g8"><div class="demo ctr" style="align-items:center"><span class="hit" style="font-size:21px"><span class="s">h</span>eur<span class="s">es</span></span></div><span class="sh w5">Подсветка правила</span><span class="fn m">Слова, к которым относится правило из списка под текстом.</span></div>
+<div class="col g8"><div class="demo ctr" style="align-items:center"><span class="tok unk" style="font-size:21px;margin:0"><span>axolotl</span></span></div><span class="sh w5">Нет в словаре</span><span class="fn m">Пунктир снизу, IPA заменяет тире, слово не озвучивается по буквам.</span></div>
+</div>
+</div>
+<div class="cell" style="gap:0">
+<h2 style="margin-bottom:10px">Правила</h2>
+<div class="spec"><span>Одна система во всём приложении</span><span class="m">уроки, карточки, правила, читалка, разбор слова, тренировки</span></div>
+<div class="spec"><span>IPA</span><span class="m">под словом в читалке, в скобках [ ] в остальных местах</span></div>
+<div class="spec"><span>Текст без меток</span><span class="m">показывается как написан и не разбирается</span></div>
+<div class="spec"><span>Минимальный размер</span><span class="m">15 pt: ниже точки под немой буквой сливаются</span></div>
+<div class="spec"><span>VoiceOver</span><span class="m">читает слово целиком и IPA, метки не озвучивает</span></div>
+</div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1240}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

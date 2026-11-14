@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Формы — итог</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div class="app ph" style="width:393px;height:852px">
+<div class="sb" aria-hidden="true"><span>9:41</span><i class="sig"></i><i class="wifi"></i><i class="bat"></i></div>
+<div class="sf">
+<div class="nb"><button class="gb gl" aria-label="Закрыть тренировку"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"></path></svg></button><b>Спряжения</b><span class="mono sh m">8 / 8</span></div>
+<div class="pb" role="progressbar" aria-label="Пройдено вопросов" aria-valuemin="0" aria-valuemax="8" aria-valuenow="8"><i style="width:100%"></i></div>
+</div>
+<main class="sc" style="padding:0 16px;justify-content:center;gap:20px">
+<div class="col ctr g6" style="align-items:center">
+<span class="mono" style="font-size:64px;line-height:68px;font-weight:500">5<span class="m" style="font-size:28px"> из 8</span></span>
+<h1 class="t1">Тренировка окончена</h1>
+<p class="m">3 ошибки</p>
+</div>
+<h2 class="sec" style="margin:0 4px -12px">Где ошиблись</h2>
+<div class="card">
+<div class="row"><div class="g"><span class="fr fw">nou<span class="l">s</span><span class="arc"> </span>all<span class="n">on</span><span class="s">s</span></span><span class="sh m">вы ответили: allez</span></div><span class="ipa">nu z‿alɔ̃</span></div>
+<div class="row"><div class="g"><span class="fr fw">il<span class="s">s</span> v<span class="n">on</span><span class="s">t</span></span><span class="sh m">вы ответили: va</span></div><span class="ipa">il vɔ̃</span></div>
+<div class="row"><div class="g"><span class="fr fw">tu vien<span class="s">s</span></span><span class="sh m">вы ответили: vient</span></div><span class="ipa">ty vjɛ̃</span></div>
+</div>
+</main>
+<div class="bot">
+<button class="btn p">Готово</button>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":393,"height":852}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

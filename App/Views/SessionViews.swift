@@ -1,34 +1,103 @@
 import FrenchCore
 import SwiftUI
 
-/// The frame shared by card and drill sessions: close button, title, counter, progress.
-struct SessionFrame<Content: View>: View {
+/// The frame shared by every session: close button, title, counter, progress bar; the question
+/// in the middle and its buttons at the bottom.
+struct SessionFrame<Content: View, Bottom: View>: View {
     let title: String
-    let done: Int
+    /// The number of the current question or card, from 1; `total` once finished.
+    let current: Int
     let total: Int
+    /// Questions answered, for the bar.
+    let done: Int
     @ViewBuilder let content: Content
+    @ViewBuilder let bottom: Bottom
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        VStack(spacing: 16) {
-            HStack {
-                Button { dismiss() } label: {
-                    Image(systemName: "xmark").font(.body.weight(.semibold)).frame(width: 28, height: 28)
+        VStack(spacing: 0) {
+            VStack(spacing: 10) {
+                ZStack {
+                    Text(title).font(Theme.bodyMedium).lineLimit(1).padding(.horizontal, 72)
+                    HStack {
+                        Button { dismiss() } label: { Image(systemName: "xmark") }
+                            .buttonStyle(IconButtonStyle(kind: .glass))
+                            .accessibilityLabel("Закрыть")
+                        Spacer()
+                        Text("\(min(current, total)) / \(total)").font(Theme.mono(14)).foregroundStyle(Theme.t2)
+                    }
                 }
-                .buttonStyle(.glass)
-                .buttonBorderShape(.circle)
-                .accessibilityLabel("Закрыть")
-                Spacer()
-                Text(title).font(.headline).lineLimit(1)
-                Spacer()
-                Text("\(min(done, total)) / \(total)").font(.subheadline).monospacedDigit().foregroundStyle(.secondary).frame(minWidth: 44, alignment: .trailing)
+                ProgressBar(value: total == 0 ? 1 : Double(done) / Double(total))
             }
-            ProgressView(value: Double(min(done, total)), total: Double(max(total, 1)))
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
             content
+                .padding(.horizontal, 16)
+                .frame(maxHeight: .infinity)
+            VStack(spacing: 10) { bottom }
+                .padding(.horizontal, 16)
+                .padding(.bottom, 12)
         }
-        .padding(16)
-        .background(Color(uiColor: .systemGroupedBackground))
+        .background(Theme.bg)
     }
+}
+
+/// The large card a question or a word is shown on.
+struct QuestionCard<Content: View>: View {
+    @ViewBuilder let content: Content
+
+    var body: some View {
+        VStack(spacing: 10) { content }
+            .multilineTextAlignment(.center)
+            .padding(24)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .surface(radius: 32)
+    }
+}
+
+/// What the learner has to do, over a question.
+struct Instruction: View {
+    let text: String
+
+    var body: some View {
+        Text(text)
+            .font(Theme.footnote)
+            .foregroundStyle(Theme.t2)
+            .multilineTextAlignment(.center)
+            .frame(maxWidth: .infinity)
+            .accessibilityIdentifier("instruction")
+    }
+}
+
+/// «Верно» or «Правильный ответ: …», with its icon.
+struct Verdict: View {
+    let isRight: Bool
+    var answer: String?
+
+    var body: some View {
+        Label(isRight ? "Верно" : answer.map { "Правильный ответ: \($0)" } ?? "Правильный ответ",
+              systemImage: isRight ? "checkmark.circle" : "xmark.circle")
+            .font(Theme.sans(15, .semibold, relativeTo: .callout))
+            .foregroundStyle(isRight ? Theme.green : Theme.red)
+            .padding(.top, 8)
+    }
+}
+
+/// The blank of a sentence or a form: an accent line.
+func blank(width: Int = 8) -> AttributedString {
+    var blank = AttributedString(String(repeating: "\u{00A0}", count: width))
+    blank.underlineStyle = Text.LineStyle(pattern: .solid, color: Theme.acc)
+    blank.accessibilityLabel = "пропуск"
+    return blank
+}
+
+// MARK: - Cards
+
+/// Cards to go through in one sitting.
+struct SessionRequest: Identifiable {
+    let id = UUID()
+    let title: String
+    let entries: [Entry]
 }
 
 /// Cards in the Anki manner: look at the word, recall, turn it over, grade yourself.
@@ -36,25 +105,39 @@ struct CardSessionView: View {
     let request: SessionRequest
 
     @Environment(Store.self) private var store
+    @Environment(Library.self) private var library
+    @Environment(Navigator.self) private var navigator
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var queue: [Entry] = []
     @State private var total = 0
     @State private var isFlipped = false
     @State private var counts: [Grade: Int] = [:]
-    /// The soonest a card of this session comes back.
-    @State private var nextReview: TimeInterval?
+    /// Cards graded in this session, for the summary.
+    @State private var graded: [Entry] = []
 
-    private static let grades: [(grade: Grade, label: String, color: Color)] = [
-        (.again, "Снова", Theme.again), (.hard, "Трудно", Theme.hard), (.good, "Хорошо", Theme.good), (.easy, "Легко", .accentColor),
+    /// «Легко» is left out: the design has three grades.
+    private static let grades: [(grade: Grade, label: String, color: Color, fill: Color)] = [
+        (.again, "Снова", Theme.red, Theme.redSoft), (.hard, "Трудно", Theme.amber, Theme.amberSoft), (.good, "Хорошо", Theme.green, Theme.greenSoft),
     ]
 
     var body: some View {
-        SessionFrame(title: request.title, done: total - queue.count, total: total) {
+        let done = total - queue.count
+        SessionFrame(title: request.title, current: done + 1, total: total, done: done) {
             if let entry = queue.first {
-                card(entry)
-                if isFlipped { gradeButtons(entry) } else { showAnswerButton }
+                card(entry).padding(.vertical, 16)
             } else {
                 summary
+            }
+        } bottom: {
+            if let entry = queue.first {
+                if isFlipped {
+                    gradeButtons(entry)
+                } else {
+                    Button("Показать ответ") { flip() }.buttonStyle(.pill(.quiet, wide: true))
+                }
+            } else {
+                Button("Готово") { dismiss() }.buttonStyle(.pill(.primary, wide: true))
             }
         }
         .onAppear {
@@ -67,267 +150,181 @@ struct CardSessionView: View {
         .sensoryFeedback(trigger: queue.isEmpty) { wasEmpty, isEmpty in !wasEmpty && isEmpty && total > 0 ? .success : nil }
     }
 
-    private func card(_ entry: Entry) -> some View {
-        Button {
-            isFlipped = true
-        } label: {
-            VStack(spacing: 14) {
-                Spacer()
-                if isFlipped {
-                    MarkedText(marked: entry.word.m, plain: entry.word.fr, style: .largeTitle)
-                    if !entry.word.ipa.isEmpty { Text("[\(entry.word.ipa)]").font(.body).foregroundStyle(.secondary) }
-                    Divider().frame(width: 60)
-                    Text(entry.word.ru).font(.title3).multilineTextAlignment(.center)
-                } else {
-                    Text(entry.word.fr).font(Theme.french(.largeTitle))
-                    Text("Вспомните перевод и произношение, потом откройте ответ").font(.subheadline).foregroundStyle(.secondary)
-                }
-                Spacer()
-            }
-            .multilineTextAlignment(.center)
-            .foregroundStyle(Color.primary)
-            .padding(20)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 28))
-        }
-        .buttonStyle(.plain)
-        .overlay(alignment: .topTrailing) { SpeakButton(text: entry.word.fr).padding(14) }
-        .accessibilityIdentifier("card")
+    private func flip() {
+        withAnimation(reduceMotion ? .easeInOut(duration: 0.2) : .spring(response: 0.45, dampingFraction: 0.82)) { isFlipped = true }
     }
 
-    private var showAnswerButton: some View {
-        Button { isFlipped = true } label: {
-            Text("Показать ответ").font(.headline).frame(maxWidth: .infinity, minHeight: 36)
+    private func card(_ entry: Entry) -> some View {
+        let status = store.status(of: entry)
+        return ZStack {
+            QuestionCard {
+                MarkedText(marked: nil, plain: entry.word.fr, size: 44, weight: .semibold)
+                Text("Вспомните перевод и коснитесь карточки").font(Theme.subhead).foregroundStyle(Theme.t2)
+            }
+            .opacity(isFlipped ? 0 : 1)
+            QuestionCard { back(entry) }
+                .opacity(isFlipped ? 1 : 0)
+                // Turned with the card, so that it reads the right way round once flipped.
+                .rotation3DEffect(.degrees(reduceMotion ? 0 : 180), axis: (x: 0, y: 1, z: 0))
         }
-        .buttonStyle(.borderedProminent)
-        .buttonBorderShape(.capsule)
+        .rotation3DEffect(.degrees(isFlipped && !reduceMotion ? 180 : 0), axis: (x: 0, y: 1, z: 0), perspective: 0.4)
+        .overlay(alignment: .topLeading) { Chip(text: status.label, tone: status.tone).padding(20) }
+        .contentShape(Rectangle())
+        .onTapGesture { if !isFlipped { flip() } }
+        // The face is one button until it is turned; the back holds a button of its own.
+        .accessibilityElement(children: isFlipped ? .contain : .combine)
+        .accessibilityAddTraits(isFlipped ? [] : .isButton)
+        .accessibilityIdentifier("card")
+        .overlay(alignment: .topTrailing) { SpeakButton(text: entry.word.m ?? entry.word.fr, kind: .glass).padding(16) }
+    }
+
+    @ViewBuilder private func back(_ entry: Entry) -> some View {
+        MarkedText(marked: entry.word.m, plain: entry.word.fr, size: 44, weight: .semibold)
+        if !entry.word.ipa.isEmpty { IPAText(ipa: entry.word.ipa, size: 17) }
+        Theme.line2.frame(width: 40, height: 1).padding(.vertical, 8)
+        Text(entry.word.ru).font(Theme.sans(22, .medium, relativeTo: .title2))
+        if !entry.word.pos.isEmpty { Text(entry.word.pos).font(Theme.subhead).foregroundStyle(Theme.t2) }
+        if let rule = readingRule(of: entry.word.fr) {
+            Spacer().frame(height: 52)
+            Button {
+                dismiss()
+                navigator.push(.rule(rule.rule))
+            } label: {
+                Text("Почему так читается · \(rule.label)").frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.pill(.tinted, small: true, wide: true))
+        }
+    }
+
+    /// The reading rule of the lessons that explains the word, as the reader finds it.
+    private func readingRule(of word: String) -> ReadingRule? {
+        let content = library.content
+        return library.reader.read(word).ruleSubjects.lazy.compactMap { content.readingRule(for: $0.subject) }.first.map { content.readingRules[$0] }
     }
 
     private func gradeButtons(_ entry: Entry) -> some View {
-        VStack(spacing: 8) {
-            Text("Насколько легко вы вспомнили?").font(.subheadline).foregroundStyle(.secondary)
-            HStack(spacing: 8) {
+        VStack(spacing: 10) {
+            Text("Насколько легко вспомнили?").font(Theme.footnote).foregroundStyle(Theme.t2)
+            HStack(spacing: 10) {
                 ForEach(CardSessionView.grades, id: \.grade) { item in
+                    let delay = Scheduler.delay(store.data.cards[entry.id], grade: item.grade, now: .now).shortDelay
                     Button {
                         grade(entry, item.grade)
                     } label: {
-                        VStack(spacing: 2) {
-                            Text(item.label).font(.subheadline.weight(.semibold))
-                            Text(Scheduler.delay(store.data.cards[entry.id], grade: item.grade, now: .now).shortDelay).font(.caption)
+                        VStack(spacing: 4) {
+                            Text(item.label).font(Theme.sans(15, .semibold, relativeTo: .callout))
+                            Text(delay).font(Theme.mono(12))
                         }
-                        .frame(maxWidth: .infinity, minHeight: 40)
+                        .foregroundStyle(item.color)
+                        .frame(maxWidth: .infinity, minHeight: 62)
+                        .background(item.fill, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
                     }
-                    .buttonStyle(.bordered)
-                    .tint(item.color)
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("\(item.label), \(delay)")
                 }
             }
         }
+        .transition(.opacity.combined(with: .offset(y: reduceMotion ? 0 : 8)))
     }
 
     private func grade(_ entry: Entry, _ grade: Grade) {
-        let delay = Scheduler.delay(store.data.cards[entry.id], grade: grade, now: .now)
         store.grade(entry, grade)
         counts[grade, default: 0] += 1
-        nextReview = min(nextReview ?? delay, delay)
+        if !graded.contains(entry) { graded.append(entry) }
         queue.removeFirst()
         // «Снова» puts the card back at the end of the queue.
         if grade == .again { queue.append(entry) }
         isFlipped = false
     }
 
-    private var summary: some View {
-        VStack(spacing: 18) {
-            Spacer()
-            Image(systemName: "checkmark.circle.fill").font(.system(size: 56)).foregroundStyle(Theme.good)
-            Text(total == 0 ? "В этом наборе нет карточек" : "Сессия пройдена").font(.title2.bold())
-            if total > 0 {
-                HStack(spacing: 18) {
+    @ViewBuilder private var summary: some View {
+        if total == 0 {
+            EmptyState(systemImage: "checkmark", iconColor: Theme.green, iconFill: Theme.greenSoft,
+                       title: "Повторять нечего", text: "В этом наборе нет карточек.")
+        } else {
+            let cards = store.data.cards
+            let next = graded.compactMap { cards[$0.id]?.due }.min()
+            let calendar = Calendar.current
+            let tomorrow = calendar.date(byAdding: .day, value: 1, to: .now) ?? .now
+            let returning = graded.filter { cards[$0.id].map { calendar.isDate($0.due, inSameDayAs: tomorrow) } ?? false }.count
+            let fresh = request.entries.filter { cards[$0.id] == nil }.count
+            VStack(spacing: 20) {
+                VStack(spacing: 6) {
+                    EmptyIcon(systemImage: "checkmark", color: Theme.green, fill: Theme.greenSoft)
+                    Text("Сессия окончена").font(Theme.title1)
+                    Text("\(plural(total, "карточка", "карточки", "карточек")) из набора «\(request.title)»").foregroundStyle(Theme.t2)
+                }
+                .multilineTextAlignment(.center)
+                HStack(spacing: 10) {
                     ForEach(CardSessionView.grades, id: \.grade) { item in
-                        VStack(spacing: 2) {
-                            Text("\(counts[item.grade] ?? 0)").font(.title3.weight(.semibold)).monospacedDigit().foregroundStyle(item.color)
-                            Text(item.label).font(.caption).foregroundStyle(.secondary)
+                        VStack(spacing: 4) {
+                            Text("\(counts[item.grade] ?? 0)").font(Theme.mono(28, .medium, relativeTo: .title))
+                            Text(item.label).font(Theme.sans(15, .semibold, relativeTo: .callout))
                         }
+                        .foregroundStyle(item.color)
+                        .frame(maxWidth: .infinity, minHeight: 84)
+                        .background(item.fill, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                        .accessibilityElement(children: .combine)
                     }
                 }
-                if let nextReview {
-                    Text("Следующее повторение через \(nextReview.shortDelay)").font(.subheadline).foregroundStyle(.secondary)
+                Card {
+                    if let next { summaryRow("Следующее повторение", next.dayAndTime) }
+                    summaryRow("Завтра вернётся", plural(returning, "карточка", "карточки", "карточек"))
+                    summaryRow("Осталось новых в наборе", "\(fresh)")
                 }
             }
-            Spacer()
-            Button { dismiss() } label: {
-                Text("Готово").font(.headline).frame(maxWidth: .infinity, minHeight: 36)
-            }
-            .buttonStyle(.borderedProminent)
-            .buttonBorderShape(.capsule)
+            .frame(maxHeight: .infinity)
         }
+    }
+
+    private func summaryRow(_ title: String, _ value: String) -> some View {
+        HStack {
+            Text(title).foregroundStyle(Theme.t2)
+            Spacer(minLength: 12)
+            Text(value).font(Theme.bodyMedium)
+        }
+        .row()
     }
 }
 
-/// A drill of word forms: pick the right one out of four.
-struct DrillSessionView: View {
-    let request: DrillRequest
-
-    @Environment(Library.self) private var library
-    @State private var index = 0
-    @State private var chosen: Int?
-    @State private var right = 0
-
-    var body: some View {
-        SessionFrame(title: request.title, done: index, total: request.questions.count) {
-            if index < request.questions.count {
-                question(request.questions[index])
-            } else {
-                ScoreSummary(right: right, total: request.questions.count)
-            }
-        }
-        .sensoryFeedback(trigger: chosen) { _, picked in
-            guard let picked, index < request.questions.count else { return nil }
-            return picked == request.questions[index].answer ? .success : .error
-        }
-        .sensoryFeedback(.success, trigger: index == request.questions.count)
-    }
-
-    /// «я иду» when the lessons teach this very form, otherwise «я · идти, ехать».
-    private func translation(of question: DrillQuestion) -> String? {
-        switch library.content.translation(ofForm: question.solution.plain, lemma: question.lemma) {
-        case .form(let russian): russian
-        case .lemma(let russian) where question.wordClass == .verb: "\(question.wordClass.cellLabels[question.solution.cell]) · \(russian)"
-        case .lemma(let russian): russian
-        case nil: nil
-        }
-    }
-
-    private func question(_ question: DrillQuestion) -> some View {
-        VStack(spacing: 14) {
-            VStack(spacing: 10) {
-                Instruction(text: question.instruction)
-                Spacer()
-                if question.wordClass == .verb {
-                    HStack(alignment: .firstTextBaseline, spacing: 0) {
-                        MarkedText(marked: question.prompt, style: .largeTitle)
-                        Text("…").font(Theme.french(.largeTitle)).foregroundStyle(.secondary)
-                    }
-                    Text("\(question.lemma) · \(question.task)").font(.subheadline).foregroundStyle(.secondary)
-                } else {
-                    Text(question.prompt).font(Theme.french(.largeTitle))
-                    Text(question.task).font(.subheadline).foregroundStyle(.secondary)
-                }
-                if let translation = translation(of: question) {
-                    Text(translation)
-                        .font(.title3)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 16)
-                        .accessibilityIdentifier("drill-translation")
-                }
-                if let chosen {
-                    let isRight = chosen == question.answer
-                    Label(isRight ? "Верно" : "Правильный ответ", systemImage: isRight ? "checkmark.circle.fill" : "xmark.circle.fill")
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(isRight ? Theme.good : Theme.again)
-                        .padding(.top, 6)
-                    HStack(spacing: 10) {
-                        VStack(spacing: 2) {
-                            MarkedText(marked: question.solution.marked, style: .title2)
-                            Text("[\(question.solution.ipa)]").font(Theme.ipa).foregroundStyle(.secondary)
-                        }
-                        SpeakButton(text: question.solution.marked)
-                    }
-                }
-                Spacer()
-            }
-            .padding(.vertical, 20)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 28))
-
-            ChoiceGrid(options: question.options, answer: question.answer, chosen: $chosen)
-            NextButton(chosen: $chosen, answer: question.answer, index: $index, right: $right)
-        }
-    }
-}
-
-/// Gap-fill sentences to go through in one sitting.
-struct GapRequest: Identifiable {
-    let id = UUID()
-    let title: String
-    let questions: [GapQuestion]
-}
-
-/// «Вставь слово»: a sentence with one preposition or conjunction taken out, and four to choose from.
-struct GapSessionView: View {
-    let request: GapRequest
-
-    @State private var index = 0
-    @State private var chosen: Int?
-    @State private var right = 0
-
-    var body: some View {
-        SessionFrame(title: request.title, done: index, total: request.questions.count) {
-            if index < request.questions.count {
-                question(request.questions[index])
-            } else {
-                ScoreSummary(right: right, total: request.questions.count)
-            }
-        }
-        .sensoryFeedback(trigger: chosen) { _, picked in
-            guard let picked, index < request.questions.count else { return nil }
-            return picked == request.questions[index].answer ? .success : .error
-        }
-        .sensoryFeedback(.success, trigger: index == request.questions.count)
-    }
-
-    private func question(_ question: GapQuestion) -> some View {
-        let gap = question.gap
-        let filled = chosen.map { _ in gap.answer } ?? "____"
-        return VStack(spacing: 14) {
-            VStack(spacing: 14) {
-                Instruction(text: "Вставьте пропущенное слово")
-                Spacer()
-                Text(sentence(gap, filled: filled))
-                    .font(Theme.french(.title2))
-                    .multilineTextAlignment(.center)
-                    .environment(\.locale, Locale(identifier: "fr"))
-                    .accessibilityIdentifier("gap-sentence")
-                Text(gap.ru).font(.subheadline).foregroundStyle(.secondary).multilineTextAlignment(.center)
-                if let chosen {
-                    let isRight = chosen == question.answer
-                    Label(isRight ? "Верно" : "Правильный ответ: \(gap.answer)", systemImage: isRight ? "checkmark.circle.fill" : "xmark.circle.fill")
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(isRight ? Theme.good : Theme.again)
-                    SpeakButton(text: gap.before + gap.answer + gap.after)
-                }
-                Spacer()
-            }
-            .padding(20)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 28))
-
-            ChoiceGrid(options: question.options, answer: question.answer, chosen: $chosen)
-            NextButton(chosen: $chosen, answer: question.answer, index: $index, right: $right)
-        }
-    }
-
-    /// The sentence with the gap, or with the answer in place once chosen.
-    private func sentence(_ gap: Gap, filled: String) -> AttributedString {
-        var middle = AttributedString(filled)
-        middle.swiftUI.foregroundColor = chosen == nil ? .secondary : .accentColor
-        middle.swiftUI.font = Theme.french(.title2).bold()
-        return AttributedString(gap.before) + middle + AttributedString(gap.after)
+extension Date {
+    /// «сегодня, 21:40», «завтра, 14 ноября», «16 ноября».
+    var dayAndTime: String {
+        let calendar = Calendar.current
+        let russian = Locale(identifier: "ru")
+        if calendar.isDateInToday(self) { return "сегодня, \(formatted(.dateTime.hour().minute().locale(russian)))" }
+        let day = formatted(.dateTime.day().month(.wide).locale(russian))
+        return calendar.isDateInTomorrow(self) ? "завтра, \(day)" : day
     }
 }
 
 // MARK: - Parts shared by the quizzes: drills, gap-fill, rules
 
-/// What the learner has to do, at the top of a question.
-struct Instruction: View {
-    let text: String
+/// A wrong answer, listed at the end of a quiz.
+struct Mistake: Identifiable {
+    let id = UUID()
+    /// The right answer: French with marks, or as written.
+    let marked: String?
+    let plain: String
+    var ipa = ""
+    var isFrench = true
+    /// What the learner chose.
+    let answered: String
+}
 
-    var body: some View {
-        Text(text)
-            .font(.subheadline.weight(.semibold))
-            .foregroundStyle(.secondary)
-            .multilineTextAlignment(.center)
-            .padding(.horizontal, 16)
-            .accessibilityIdentifier("instruction")
+/// Where a quiz is: which question, the pick on it, the mistakes so far.
+struct QuizProgress {
+    var index = 0
+    var chosen: Int?
+    var mistakes: [Mistake] = []
+
+    var right: Int { index - mistakes.count }
+
+    /// Counts the pick and moves to the next question.
+    mutating func next(answer: Int, mistake: () -> Mistake) {
+        if let chosen, chosen != answer { mistakes.append(mistake()) }
+        chosen = nil
+        index += 1
     }
 }
 
@@ -340,73 +337,109 @@ struct ChoiceGrid: View {
     var isFrench = true
 
     var body: some View {
-        let columns = Array(repeating: GridItem(.flexible(), spacing: 8), count: isFrench ? 2 : 1)
-        LazyVGrid(columns: columns, spacing: 8) {
+        let columns = Array(repeating: GridItem(.flexible(), spacing: 10), count: isFrench ? 2 : 1)
+        LazyVGrid(columns: columns, spacing: 10) {
             ForEach(Array(options.enumerated()), id: \.offset) { option, text in
                 Button {
                     if chosen == nil { chosen = option }
                 } label: {
-                    Text(text)
-                        .font(isFrench ? Theme.french(.title3) : .body)
-                        .multilineTextAlignment(.center)
-                        .frame(maxWidth: .infinity, minHeight: 40)
+                    label(text, option: option)
                 }
-                .buttonStyle(.bordered)
-                .tint(tint(for: option))
+                .buttonStyle(.plain)
+                .disabled(chosen != nil)
                 .accessibilityIdentifier("option-\(option)")
             }
         }
+        .animation(.easeOut(duration: 0.15), value: chosen)
     }
 
-    private func tint(for option: Int) -> Color {
-        guard let chosen else { return .accentColor }
-        if option == answer { return Theme.good }
-        return option == chosen ? Theme.again : .secondary
+    private func label(_ text: String, option: Int) -> some View {
+        let state = state(of: option)
+        return HStack(spacing: 8) {
+            if state == .right { Image(systemName: "checkmark.circle").accessibilityLabel("Верно") }
+            if state == .wrong { Image(systemName: "xmark.circle").accessibilityLabel("Неверно") }
+            Text(text)
+                .font(isFrench ? Theme.sans(18, relativeTo: .title3) : Theme.callout)
+                .multilineTextAlignment(isFrench ? .center : .leading)
+                .environment(\.locale, Locale(identifier: isFrench ? "fr" : "ru"))
+        }
+        .foregroundStyle(state == .right ? Theme.green : state == .wrong ? Theme.red : state == .dim ? Theme.t3 : Theme.t1)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 8)
+        .frame(maxWidth: .infinity, minHeight: 56, alignment: isFrench ? .center : .leading)
+        .background(state == .right ? Theme.greenSoft : state == .wrong ? Theme.redSoft : Theme.s2,
+                    in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous)
+            .strokeBorder(state == .right ? Theme.green : state == .wrong ? Theme.red : Theme.line))
+    }
+
+    private enum OptionState {
+        case open, right, wrong, dim
+    }
+
+    private func state(of option: Int) -> OptionState {
+        guard let chosen else { return .open }
+        if option == answer { return .right }
+        return option == chosen ? .wrong : .dim
     }
 }
 
-/// «Дальше»: counts the answer and moves on.
+/// «Дальше», grey until an answer is picked.
 struct NextButton: View {
-    @Binding var chosen: Int?
-    let answer: Int
-    @Binding var index: Int
-    @Binding var right: Int
+    let isEnabled: Bool
+    let action: () -> Void
 
     var body: some View {
-        Button {
-            if chosen == answer { right += 1 }
-            chosen = nil
-            index += 1
-        } label: {
-            Text("Дальше").font(.headline).frame(maxWidth: .infinity, minHeight: 36)
-        }
-        .buttonStyle(.borderedProminent)
-        .buttonBorderShape(.capsule)
-        .disabled(chosen == nil)
+        Button("Дальше", action: action)
+            .buttonStyle(.pill(.primary, wide: true))
+            .disabled(!isEnabled)
     }
 }
 
-/// «6 из 8» at the end of a quiz.
+/// «5 из 8» at the end of a quiz, and where the learner went wrong.
 struct ScoreSummary: View {
     let right: Int
     let total: Int
-    @Environment(\.dismiss) private var dismiss
+    let mistakes: [Mistake]
 
     var body: some View {
-        VStack(spacing: 14) {
-            Spacer()
-            if total == 0 {
-                Text("Для этого выбора нет вопросов").font(.title3).foregroundStyle(.secondary).multilineTextAlignment(.center)
-            } else {
-                Text("\(right) из \(total)").font(.system(size: 54, weight: .bold)).monospacedDigit()
-                Text(right == total ? "Без ошибок" : plural(total - right, "ошибка", "ошибки", "ошибок")).font(.title3).foregroundStyle(.secondary)
+        if total == 0 {
+            EmptyState(systemImage: "questionmark", title: "Вопросов нет", text: "Для этого выбора нет вопросов. Выберите другие уроки или тему.")
+        } else {
+            ScrollView {
+                VStack(spacing: 20) {
+                    VStack(spacing: 6) {
+                        Text("\(Text("\(right)").font(Theme.mono(64, .medium, relativeTo: .largeTitle)))\(Text(" из \(total)").font(Theme.mono(28, relativeTo: .title)).foregroundStyle(Theme.t2))")
+                        Text("Тренировка окончена").font(Theme.title1)
+                        Text(mistakes.isEmpty ? "Без ошибок" : plural(mistakes.count, "ошибка", "ошибки", "ошибок")).foregroundStyle(Theme.t2)
+                    }
+                    if !mistakes.isEmpty {
+                        VStack(alignment: .leading, spacing: 0) {
+                            SectionHeader(title: "Где ошиблись", top: 0)
+                            Card {
+                                ForEach(mistakes) { mistake in
+                                    HStack(spacing: 12) {
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            if mistake.isFrench {
+                                                MarkedText(marked: mistake.marked, plain: mistake.plain)
+                                            } else {
+                                                Text(mistake.plain).font(Theme.bodyMedium)
+                                            }
+                                            Text("вы ответили: \(mistake.answered)").font(Theme.subhead).foregroundStyle(Theme.t2)
+                                        }
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                        if !mistake.ipa.isEmpty { IPAText(ipa: mistake.ipa, isBracketed: false) }
+                                    }
+                                    .row()
+                                }
+                            }
+                        }
+                    }
+                }
+                .padding(.vertical, 24)
             }
-            Spacer()
-            Button { dismiss() } label: {
-                Text("Готово").font(.headline).frame(maxWidth: .infinity, minHeight: 36)
-            }
-            .buttonStyle(.borderedProminent)
-            .buttonBorderShape(.capsule)
+            .scrollBounceBehavior(.basedOnSize)
+            .defaultScrollAnchor(.center)
         }
     }
 }

@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Итог сессии карточек</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div class="app ph" style="width:393px;height:852px">
+<div class="sb" aria-hidden="true"><span>9:41</span><i class="sig"></i><i class="wifi"></i><i class="bat"></i></div>
+<div class="sf">
+<div class="nb"><button class="gb gl" aria-label="Закрыть сессию"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"></path></svg></button><b>Уроки 5–10</b><span class="mono sh m">10 / 10</span></div>
+<div class="pb" role="progressbar" aria-label="Пройдено карточек" aria-valuemin="0" aria-valuemax="10" aria-valuenow="10"><i style="width:100%"></i></div>
+</div>
+<main class="sc" style="padding:0 16px;justify-content:center;gap:20px">
+<div class="col ctr g6" style="align-items:center">
+<span class="eic" style="color:var(--grn);background:var(--grn-s);border:0"><svg class="ic lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
+<h1 class="t1">Сессия окончена</h1>
+<p class="m">10 карточек из набора «Уроки 5–10»</p>
+</div>
+<div class="grs">
+<div class="gr r" style="height:84px"><span class="mono" style="font-size:28px;line-height:32px;font-weight:500">2</span>Снова</div>
+<div class="gr y" style="height:84px"><span class="mono" style="font-size:28px;line-height:32px;font-weight:500">3</span>Трудно</div>
+<div class="gr g" style="height:84px"><span class="mono" style="font-size:28px;line-height:32px;font-weight:500">5</span>Хорошо</div>
+</div>
+<div class="card">
+<div class="row"><span class="grow m">Следующее повторение</span><span class="w5">завтра, 14 ноября</span></div>
+<div class="row"><span class="grow m">Завтра вернётся</span><span class="w5 mono">5 карточек</span></div>
+<div class="row"><span class="grow m">Осталось новых в наборе</span><span class="w5 mono">316</span></div>
+</div>
+</main>
+<div class="bot">
+<button class="btn p">Готово</button>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":393,"height":852}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

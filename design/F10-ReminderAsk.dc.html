@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Напоминания — запрос разрешения</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+.ntf{border-radius:24px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start}
+.ntf .ai{width:38px;height:38px;flex:none;border-radius:9px;background:#0a0a0a;border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;font:700 15px/1 var(--sans);letter-spacing:-.04em}
+.ntf .ai span{padding:0 3px 2px;border-radius:4px;background:rgba(226,176,72,.38)}
+</style>
+</helmet>
+<div class="app ph" style="width:393px;height:852px">
+<div class="sb" aria-hidden="true"><span>9:41</span><i class="sig"></i><i class="wifi"></i><i class="bat"></i></div>
+<div class="nb"><button class="gb gl" aria-label="Закрыть"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"></path></svg></button></div>
+<main class="sc" style="padding:24px 24px 0;gap:24px">
+<div class="ntf gl2" aria-hidden="true">
+<span class="ai"><span>un</span></span>
+<div class="col grow"><span class="hst"><span class="sh w5 grow">Français</span><span class="c1 m">20:00</span></span><span class="sh">Пора повторить: 12 карточек, около 4 минут.</span></div>
+</div>
+<div class="col g8">
+<h1 class="t1">Напоминать о повторении?</h1>
+<p class="m">Одно уведомление в день и только если есть карточки к повторению. Время выберете на следующем шаге.</p>
+</div>
+<div class="card">
+<div class="row"><svg class="ic a" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span class="sh grow">Без рекламы и новостей</span></div>
+<div class="row"><svg class="ic a" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span class="sh grow">Уведомления создаются на телефоне, без сервера</span></div>
+<div class="row"><svg class="ic a" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span class="sh grow">Выключаются в настройках приложения</span></div>
+</div>
+</main>
+<div class="bot">
+<button class="btn p">Включить напоминания</button>
+<button class="btn q">Не сейчас</button>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":393,"height":852}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

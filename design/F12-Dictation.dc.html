@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Диктант — ввод</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+.play{width:88px;height:88px;border-radius:50%;background:var(--acc);color:var(--ink);display:flex;align-items:center;justify-content:center}
+</style>
+</helmet>
+<div class="app ph" style="width:393px;height:852px">
+<div class="sb" aria-hidden="true"><span>9:41</span><i class="sig"></i><i class="wifi"></i><i class="bat"></i></div>
+<div class="sf">
+<div class="nb"><button class="gb gl" aria-label="Закрыть диктант"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"></path></svg></button><b>Диктант · урок 5</b><span class="mono sh m">4 / 10</span></div>
+<div class="pb" role="progressbar" aria-label="Пройдено слов" aria-valuemin="0" aria-valuemax="10" aria-valuenow="3"><i style="width:30%"></i></div>
+</div>
+<main class="sc" style="padding:16px 16px 0;align-items:center;gap:14px">
+<p class="task">Напишите слово, которое услышите</p>
+<button class="play mt8" aria-label="Прослушать слово"><svg class="ic lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.6v4.8h3.4l4.6 4V5.6l-4.6 4H4zM15.4 9.2a4 4 0 0 1 0 5.6M17.9 6.6a7.6 7.6 0 0 1 0 10.8"></path></svg></button>
+<button class="btn q sm">Медленнее</button>
+<span class="sh m">существительное, ж. р.</span>
+<div class="hst g8" style="width:100%;margin-top:8px">
+<input class="inp foc fr grow" type="text" aria-label="Ваш ответ" value="la boulang" lang="fr" style="font-size:20px">
+<button class="btn p sm" style="height:50px">Проверить</button>
+</div>
+</main>
+<div class="kb" aria-hidden="true">
+<div class="kr"><span class="k acc">é</span><span class="k acc">è</span><span class="k acc">ê</span><span class="k acc">à</span><span class="k acc">ç</span><span class="k acc">ù</span><span class="k acc">î</span><span class="k acc">ô</span><span class="k acc">œ</span></div>
+<div class="kr"><span class="k">a</span><span class="k">z</span><span class="k">e</span><span class="k">r</span><span class="k">t</span><span class="k">y</span><span class="k">u</span><span class="k">i</span><span class="k">o</span><span class="k">p</span></div>
+<div class="kr"><span class="k">q</span><span class="k">s</span><span class="k">d</span><span class="k">f</span><span class="k">g</span><span class="k">h</span><span class="k">j</span><span class="k">k</span><span class="k">l</span><span class="k">m</span></div>
+<div class="kr"><span class="k w">⇧</span><span class="k">w</span><span class="k">x</span><span class="k">c</span><span class="k">v</span><span class="k">b</span><span class="k">n</span><span class="k">'</span><span class="k w">⌫</span></div>
+<div class="kr"><span class="k w">123</span><span class="k sp">espace</span><span class="k w" style="width:88px">retour</span></div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":393,"height":852}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

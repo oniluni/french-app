@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Все заметки</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+.nt{display:flex;flex-direction:column;gap:4px;padding:14px 16px;width:100%}
+.nt+.nt{border-top:1px solid var(--line)}
+</style>
+</helmet>
+<div class="app ph" style="width:393px;height:852px">
+<div class="sb" aria-hidden="true"><span>9:41</span><i class="sig"></i><i class="wifi"></i><i class="bat"></i></div>
+<div class="nb"><button class="gb gl" aria-label="Назад"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5l-7 7 7 7"></path></svg></button><b>Заметки</b></div>
+<main class="sc">
+<label class="srch"><svg class="ic sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg><input type="search" placeholder="Поиск по заметкам" aria-label="Поиск по заметкам"></label>
+
+<h2 class="sec"><span>Урок 5</span><span class="mono">3</span></h2>
+<div class="card">
+<button class="nt"><span class="c1 a w5">Определённый артикль</span><span class="co cl2">После l' род не виден — проверять в словаре: l'élève может быть и «ученик», и «ученица».</span><span class="c1 d">12 ноября</span></button>
+<button class="nt"><span class="c1 a w5">Определённый артикль</span><span class="co cl2">le héros — без элизии, h придыхательное. Список таких слов в уроке 4.</span><span class="c1 d">10 ноября</span></button>
+<button class="nt"><span class="c1 a w5">Отрицание ne… pas</span><span class="co cl2">В разговорной речи ne часто пропадает: j'sais pas.</span><span class="c1 d">8 ноября</span></button>
+</div>
+
+<h2 class="sec"><span>Урок 3</span><span class="mono">1</span></h2>
+<div class="card">
+<button class="nt"><span class="c1 a w5">Множественное число существительных</span><span class="co cl2">-s во множественном числе не слышно: число узнаём по артиклю.</span><span class="c1 d">2 ноября</span></button>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":393,"height":852}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

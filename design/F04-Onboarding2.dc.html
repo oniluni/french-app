@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Онбординг 2 — уроки и практика</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+.dots{display:flex;justify-content:center;gap:8px}
+.dots i{width:8px;height:8px;border-radius:4px;background:var(--s4)}
+.dots i.on{width:24px;background:var(--acc)}
+.ti{width:44px;height:44px;flex:none;border-radius:14px;display:flex;align-items:center;justify-content:center;background:var(--acc-s);color:var(--acc)}
+</style>
+</helmet>
+<div class="app ph" style="width:393px;height:852px">
+<div class="sb" aria-hidden="true"><span>9:41</span><i class="sig"></i><i class="wifi"></i><i class="bat"></i></div>
+<div class="nb"><span></span><button class="btn sm" style="color:var(--t2);padding:0 4px">Пропустить</button></div>
+<main class="sc" style="padding:24px 24px 0;gap:24px">
+<div class="col g8">
+<h1 class="t1">Всё держится на номере урока</h1>
+<p class="m">Правила, слова и тренировки берутся из уроков, которые вы выбрали.</p>
+</div>
+<div class="card">
+<div class="row"><span class="ti"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.6C10 5 7.4 4.6 4 4.6v13c3.4 0 6 .4 8 2 2-1.6 4.6-2 8-2v-13c-3.4 0-6 .4-8 2zM12 6.6v13"></path></svg></span><div class="g"><span class="w5">Уроки</span><span class="sh m">правила и слова каждого урока</span></div></div>
+<div class="row"><span class="ti"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="8.5" width="15" height="11" rx="2.8"></rect><path d="M7 5.6h10M9 2.9h6"></path></svg></span><div class="g"><span class="w5">Практика</span><span class="sh m">карточки, формы и правила по диапазону уроков</span></div></div>
+<div class="row"><span class="ti"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4M8 7v10M12 4v16M16 8v8M20 10.5v3"></path></svg></span><div class="g"><span class="w5">Разбор</span><span class="sh m">любая фраза и любое слово с разметкой</span></div></div>
+<div class="row"><span class="ti"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4.5" width="4.5" height="15" rx="1"></rect><rect x="9" y="4.5" width="4.5" height="15" rx="1"></rect><path d="M15 7.2l3.9-1 3 11.6-3.9 1z"></path></svg></span><div class="g"><span class="w5">Справочник</span><span class="sh m">все правила, служебные слова, выражения</span></div></div>
+</div>
+</main>
+<div class="bot">
+<div class="dots" aria-label="Шаг 2 из 3" role="img"><i></i><i class="on"></i><i></i></div>
+<button class="btn p mt8">Дальше</button>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":393,"height":852}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Лист заметок — пусто</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div class="app ph" style="width:393px;height:852px">
+<div class="sb" aria-hidden="true"><span>9:41</span><i class="sig"></i><i class="wifi"></i><i class="bat"></i></div>
+<div class="nb">
+<button class="gb gl" aria-label="Назад к уроку 5"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5l-7 7 7 7"></path></svg></button>
+<b>Урок 5</b>
+</div>
+<main class="sc" style="padding:12px 20px 0">
+<div class="hst g8"><span class="chip">Грамматика</span></div>
+<h1 class="t1" style="margin:8px 0 16px">Определённый артикль</h1>
+<div class="blk">
+<p>Определённый артикль ставят перед существительным, о котором уже шла речь или которое единственно в своём роде. Перед гласным и немым h гласная артикля выпадает.</p>
+<div class="call"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 11v5.5M12 7.8v.2"></path></svg><p>После <i lang="fr">l'</i> род не виден: <i lang="fr">l'élève</i> (м. р.), <i lang="fr">l'heure</i> (ж. р.). Его надо запомнить.</p></div>
+</div>
+</main>
+
+<div class="scrim"></div>
+<div class="sheet gl2" role="dialog" aria-label="Заметки к правилу">
+<div class="grab"></div>
+<div class="hst" style="justify-content:space-between"><h2 class="t2">Заметки</h2><button class="gb" aria-label="Закрыть" style="background:var(--s3)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"></path></svg></button></div>
+<p class="sh m">Определённый артикль · урок 5</p>
+<div class="col g6 ctr" style="align-items:center;padding:28px 12px">
+<span class="eic"><svg class="ic lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.5 4.5H7A2.5 2.5 0 0 0 4.5 7v10A2.5 2.5 0 0 0 7 19.5h10a2.5 2.5 0 0 0 2.5-2.5v-5.5"></path><path d="M18 3.9a1.7 1.7 0 0 1 2.4 2.4l-7.7 7.7-3.2.8.8-3.2L18 3.9z"></path></svg></span>
+<span class="w5">Заметок пока нет</span>
+<span class="sh m">Запишите, что хотите запомнить об этом правиле.</span>
+</div>
+<label class="col g8"><span class="fn m" style="margin-left:4px">Новая заметка</span><textarea class="inp" rows="3" placeholder="Что стоит запомнить"></textarea></label>
+<button class="btn x mt12" disabled>Сохранить</button>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":393,"height":852}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

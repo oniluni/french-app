@@ -14,32 +14,42 @@ final class Library {
     let glossary: Glossary
     let reference: ReferenceBook
 
-    init(bundle: Bundle = .main) {
-        // A missing or broken bundled file is a build mistake; no screen can work without it.
-        func resource(_ name: String, _ type: String) -> Data {
+    /// A bundled file that is missing or does not match the model: a build mistake, shown by the
+    /// launch error screen instead of crashing, so that the learner can still save their progress.
+    struct Failure: LocalizedError {
+        let file: String
+        let reason: String
+
+        var errorDescription: String? { "\(file): \(reason)" }
+    }
+
+    init(bundle: Bundle = .main) throws {
+        func resource(_ name: String, _ type: String) throws -> Data {
             guard let url = bundle.url(forResource: name, withExtension: type) else {
-                fatalError("\(name).\(type) is missing from the app bundle. Run the scripts in tools/ and rebuild.")
+                throw Failure(file: "\(name).\(type)", reason: "missing from the app bundle; run the scripts in tools/ and rebuild")
             }
             do {
                 return try Data(contentsOf: url, options: .mappedIfSafe)
             } catch {
-                fatalError("Cannot read \(name).\(type): \(error)")
+                throw Failure(file: "\(name).\(type)", reason: "cannot be read: \(error)")
             }
         }
+        let contentData = try resource("content", "json")
         do {
-            content = try Content.decode(resource("content", "json"))
+            content = try Content.decode(contentData)
         } catch {
-            fatalError("content.json does not match the app's content model: \(error)")
+            throw Failure(file: "content.json", reason: "does not match the app's content model: \(error)")
         }
-        lexicon = Lexicon(forms: resource("lexicon", "tsv"), lemmas: resource("lemmas", "tsv"))
+        lexicon = Lexicon(forms: try resource("lexicon", "tsv"), lemmas: try resource("lemmas", "tsv"))
         reader = Reader(lexicon: lexicon)
         grammar = Grammar(lexicon: lexicon)
-        examples = Examples(data: resource("examples", "tsv"))
-        glossary = Glossary(data: resource("dictionary", "tsv"))
+        examples = Examples(data: try resource("examples", "tsv"))
+        glossary = Glossary(data: try resource("dictionary", "tsv"))
+        let referenceData = try resource("reference", "json")
         do {
-            reference = try ReferenceBook.decode(resource("reference", "json"))
+            reference = try ReferenceBook.decode(referenceData)
         } catch {
-            fatalError("reference.json does not match the app's model: \(error)")
+            throw Failure(file: "reference.json", reason: "does not match the app's model: \(error)")
         }
     }
 

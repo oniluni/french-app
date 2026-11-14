@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Диктант — разбор ошибки</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+.df{font:500 26px/34px var(--mono);letter-spacing:.02em}
+.df del{text-decoration:line-through 2px;color:var(--red);background:var(--red-s);border-radius:4px}
+.df ins{text-decoration:underline 2px;text-underline-offset:5px;color:var(--grn);background:var(--grn-s);border-radius:4px}
+.lbl{width:96px;flex:none}
+</style>
+</helmet>
+<div class="app ph" style="width:393px;height:852px">
+<div class="sb" aria-hidden="true"><span>9:41</span><i class="sig"></i><i class="wifi"></i><i class="bat"></i></div>
+<div class="sf">
+<div class="nb"><button class="gb gl" aria-label="Закрыть диктант"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"></path></svg></button><b>Диктант · урок 5</b><span class="mono sh m">4 / 10</span></div>
+<div class="pb" role="progressbar" aria-label="Пройдено слов" aria-valuemin="0" aria-valuemax="10" aria-valuenow="4"><i style="width:40%"></i></div>
+</div>
+<main class="sc" style="padding:16px 16px 0">
+<p class="task">Напишите слово, которое услышите</p>
+<div class="qcard" style="align-items:stretch;text-align:left;gap:16px">
+<span class="vd bad" style="align-self:center"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M9 9l6 6M15 9l-6 6"></path></svg>Почти: две ошибки</span>
+<div class="hst g8"><span class="lbl c1 m">Вы написали</span><span class="df">la boul<del>e</del>ng<del>é</del>rie</span></div>
+<div class="hst g8"><span class="lbl c1 m">Правильно</span><span class="df">la boul<ins>a</ins>ng<ins>e</ins>rie</span></div>
+<div style="height:1px;background:var(--line)"></div>
+<div class="col g4 ctr" style="align-items:center">
+<span class="fr" style="font:600 32px/38px var(--sans);letter-spacing:-.03em">la boul<span class="n">an</span>g<span class="s">e</span>ri<span class="s">e</span></span>
+<span class="ipa" style="font-size:16px">[la bulɑ̃ʒʁi]</span>
+<span class="w5">пекарня, булочная</span>
+</div>
+<p class="sh m">[ɑ̃] здесь пишется <i class="fr" style="font-style:normal;font-weight:600">an</i>, а <i class="fr" style="font-style:normal;font-weight:600">e</i> после g не читается — без ударения.</p>
+</div>
+</main>
+<div class="bot">
+<div class="hst g8"><button class="btn q grow">Прослушать ещё</button><button class="btn p grow">Дальше</button></div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":393,"height":852}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

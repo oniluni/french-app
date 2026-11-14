@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Компоненты — строки, чипы, сегменты</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div class="app doc" style="width:1280px;height:1200px">
+<h1>Строки, чипы, сегменты</h1>
+
+<div class="grid3">
+<div class="cell">
+<h2>Строка слова</h2>
+<div class="card">
+<button class="row"><span class="g"><span class="hst g8"><span class="fr w5" style="font-size:19px;line-height:24px">le peti<span class="s">t</span> déjeune<span class="s">r</span></span><span class="chip lv">A1</span></span><span class="ipa">lə p(ə)ti deʒœne</span><span class="sh m">первый завтрак</span></span><span class="gb" style="color:var(--t3)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.8l2.5 5.2 5.7.8-4.1 4 1 5.6-5.1-2.7-5.1 2.7 1-5.6-4.1-4 5.7-.8z"></path></svg></span></button>
+<button class="row"><span class="g"><span class="hst g8"><span class="fr w5" style="font-size:19px;line-height:24px">l'<span class="s">h</span>eur<span class="s">e</span></span><span class="chip lv">A1</span></span><span class="ipa">lœʁ</span><span class="sh m">час</span></span><span class="gb a"><svg class="ic f" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.8l2.5 5.2 5.7.8-4.1 4 1 5.6-5.1-2.7-5.1 2.7 1-5.6-4.1-4 5.7-.8z"></path></svg></span></button>
+<button class="row"><span class="g"><span class="hst g8"><span class="fr w5 nw" style="font-size:19px;line-height:24px">le mat<span class="n">in</span></span><span class="chip lv">A1</span></span><span class="ipa">lə matɛ̃</span><span class="sh m">утро</span></span><span class="chip c-due">Пора повторить</span></button>
+</div>
+</div>
+
+<div class="cell">
+<h2>Строка правила</h2>
+<div class="card">
+<button class="row"><span class="g"><span class="w5">Отрицание ne… pas</span><span class="sh m cl2">ne ставится перед глаголом, pas — после него. Перед гласным ne → n'.</span></span><svg class="ic sm chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 5.5L16 12l-6.5 6.5"></path></svg></button>
+<button class="row"><span class="g"><span class="w5">Предлог à</span></span><svg class="ic sm chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 5.5L16 12l-6.5 6.5"></path></svg></button>
+<button class="row"><span class="g"><span class="hst g8"><span class="chip">Чтение</span><span class="c1 m mono">Урок 5</span></span><span class="w5">Правила чтения</span></span><svg class="ic sm chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 5.5L16 12l-6.5 6.5"></path></svg></button>
+</div>
+</div>
+
+<div class="cell">
+<h2>Строка читалки: правило и его слова</h2>
+<div class="card">
+<button class="row"><span class="g"><span class="w5">s на конце слова обычно не читается</span><span class="sh m fr">heur<span class="s">es</span>, enfant<span class="s">s</span>, Pari<span class="s">s</span></span></span><svg class="ic sm chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 5.5L16 12l-6.5 6.5"></path></svg></button>
+<button class="row on" style="background:var(--acc-s)"><span class="g"><span class="w5">Связывание</span><span class="sh m fr">troi<span class="l">s</span><span class="arc"> </span>heures, le<span class="l">s</span><span class="arc"> </span>enfants</span></span><svg class="ic sm a" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 5.5L16 12l-6.5 6.5"></path></svg></button>
+</div>
+</div>
+</div>
+
+<div class="grid2">
+<div class="cell">
+<h2>Чипы и теги</h2>
+<div class="col">
+<div class="spec"><span>Уровень</span><span class="hst g6"><span class="chip lv">A1</span><span class="chip lv">A2</span><span class="chip lv">B1</span><span class="chip lv">B2</span><span class="chip lv">C1</span><span class="chip lv">C2</span></span></div>
+<div class="spec"><span>Статус карточки</span><span class="hst g6"><span class="chip c-new">Новое</span><span class="chip c-lrn">Учу</span><span class="chip c-due">Пора повторить</span><span class="chip c-ok">Знаю</span></span></div>
+<div class="spec"><span>Вид правила</span><span class="hst g6"><span class="chip">Грамматика</span><span class="chip">Произношение</span><span class="chip">Чтение</span><span class="chip">Примечания</span></span></div>
+<div class="spec"><span>Фильтр</span><span class="hst g6"><button class="fchip on">Présent</button><button class="fchip">Imparfait</button><button class="fchip">Futur</button></span></div>
+</div>
+</div>
+
+<div class="cell">
+<h2>Сегментированный переключатель — в навбаре, на стекле</h2>
+<div class="demo" style="align-items:center;gap:14px;background:#0a0a0a">
+<div class="seg gl"><button class="on" aria-pressed="true">Правила</button><button aria-pressed="false">Слова</button></div>
+<div class="seg gl"><button aria-pressed="false">Слова</button><button class="on" aria-pressed="true">Формы</button><button aria-pressed="false">Правила</button></div>
+<div class="seg gl"><button class="on" aria-pressed="true">Читалка</button><button aria-pressed="false">Слово</button></div>
+<div class="seg gl"><button aria-pressed="false">Все слова</button><button class="on" aria-pressed="true">Избранное</button></div>
+</div>
+<h2>В контенте — без стекла</h2>
+<div class="demo" style="align-items:center">
+<div class="seg in" style="align-self:stretch"><button class="on" aria-pressed="true">Présent</button><button aria-pressed="false">Imparfait</button><button aria-pressed="false">Futur</button></div>
+</div>
+</div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1200}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

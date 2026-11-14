@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Вставь слово — ответ</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div class="app ph" style="width:393px;height:852px">
+<div class="sb" aria-hidden="true"><span>9:41</span><i class="sig"></i><i class="wifi"></i><i class="bat"></i></div>
+<div class="sf">
+<div class="nb"><button class="gb gl" aria-label="Закрыть"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"></path></svg></button><b>Предлоги</b><span class="mono sh m">1 / 10</span></div>
+<div class="pb" role="progressbar" aria-label="Пройдено вопросов" aria-valuemin="0" aria-valuemax="10" aria-valuenow="1"><i style="width:10%"></i></div>
+</div>
+<main class="sc" style="padding:16px 16px 0">
+<p class="task">Вставьте пропущенное слово</p>
+<div class="qcard">
+<span class="fr" style="font:500 28px/38px var(--sans);letter-spacing:-.02em">Il ne faut pas être cruel <span class="a" style="font-weight:600">env<span class="n">er</span><span class="s">s</span></span> les animaux.</span>
+<span class="m">Не надо быть жестоким по отношению к животным.</span>
+<span class="vd bad mt8"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M9 9l6 6M15 9l-6 6"></path></svg>Правильный ответ: envers</span>
+<span class="sh m">envers — по отношению к кому-то</span>
+<button class="ib" aria-label="Прослушать фразу" style="margin-top:4px"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.6v4.8h3.4l4.6 4V5.6l-4.6 4H4zM15.4 9.2a4 4 0 0 1 0 5.6M17.9 6.6a7.6 7.6 0 0 1 0 10.8"></path></svg></button>
+<span class="c2 d" style="position:absolute;bottom:14px">Tatoeba</span>
+</div>
+</main>
+<div class="bot">
+<div class="opts">
+<button class="opt fr bad" disabled><svg class="ic sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"></path></svg>par</button>
+<button class="opt fr dim" disabled>derrière</button>
+<button class="opt fr dim" disabled>après</button>
+<button class="opt fr ok" disabled><svg class="ic sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>envers</button>
+</div>
+<button class="btn p">Дальше</button>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":393,"height":852}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>
