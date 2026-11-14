@@ -250,20 +250,27 @@ private struct ReaderView: View {
 
     private var rules: some View {
         let subjects = words.ruleSubjects
-        let applied = library.content.rulesApplying(to: subjects.map(\.subject)).map {
-            let indices = $0.words.map { subjects[$0].index }
-            return DisplayRule(id: "reading-\($0.rule.rule)", ruleID: $0.rule.rule,
-                               title: $0.rule.label, examples: examples(of: indices),
+        let applied = library.content.rulesApplying(to: subjects.map(\.subject)).enumerated().map { offset, item in
+            let indices = item.words.map { subjects[$0].index }
+            return DisplayRule(id: "reading-\(item.rule.rule)-\(offset)", ruleID: item.rule.rule,
+                               title: item.rule.label, examples: examples(of: indices),
                                words: indices, kind: "Чтение", isReading: true)
         }
-        let triggered = library.content.rulesTriggered(by: words, lexicon: library.lexicon).map {
-            DisplayRule(id: $0.rule.id, ruleID: $0.rule.id, title: $0.rule.title,
-                        examples: examples(of: $0.words), words: $0.words,
-                        kind: $0.rule.kind, isReading: false)
+        var seenRules = Set<String>()
+        let triggered = library.content.rulesTriggered(by: words, lexicon: library.lexicon).compactMap {
+            item -> DisplayRule? in
+            guard seenRules.insert(item.rule.id).inserted else { return nil }
+            return DisplayRule(id: item.rule.id, ruleID: item.rule.id, title: item.rule.title,
+                               examples: examples(of: item.words), words: item.words,
+                               kind: item.rule.kind, isReading: false)
         }
         let grammar = triggered.filter { $0.kind == "Грамматика" }
         let sounds = triggered.filter { $0.kind == "Произношение" }
-        let reading = applied + triggered.filter { $0.kind == "Чтение" }
+        // The same lesson rule can arrive from both lists: keep the one matched to the phrase.
+        var readingTitles = Set(applied.map(\.title))
+        let reading = applied + triggered.filter {
+            $0.kind == "Чтение" && readingTitles.insert($0.title).inserted
+        }
         return VStack(spacing: 0) {
             if !grammar.isEmpty { ruleSection("Грамматика в этой фразе", grammar) }
             if !reading.isEmpty { ruleSection("Чтение", reading) }

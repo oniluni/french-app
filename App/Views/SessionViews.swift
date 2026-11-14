@@ -122,7 +122,7 @@ struct CardSessionView: View {
 
     var body: some View {
         let done = total - queue.count
-        SessionFrame(title: request.title, current: done + 1, total: total, done: done) {
+        SessionFrame(title: request.title, current: max(done, 1), total: total, done: done) {
             if let entry = queue.first {
                 card(entry).padding(.vertical, 16)
             } else {
