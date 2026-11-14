@@ -84,6 +84,7 @@ private struct ReaderView: View {
                     .submitLabel(.done)
                     .focused($isEditing)
                     .onSubmit(read)
+                    .frame(minHeight: 48, alignment: .topLeading)
                     .fieldBackground(isFocused: isEditing)
                     .accessibilityIdentifier("reader-field")
                     .onChange(of: phrase) { _, new in
@@ -202,9 +203,14 @@ private struct ReaderView: View {
 
                 Divider().overlay(Theme.line)
 
-                HStack(spacing: 8) {
-                    if !unknownNote.isEmpty {
-                        Text(unknownNote).font(Theme.subhead).foregroundStyle(Theme.t3)
+                HStack(alignment: .center, spacing: 8) {
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text("[\(words.ipa)]")
+                            .font(Theme.sans(Theme.subhead.size, .medium))
+                            .foregroundStyle(Theme.t2)
+                        if !unknownNote.isEmpty {
+                            Text(unknownNote).font(Theme.subhead).foregroundStyle(Theme.t3)
+                        }
                     }
                     Spacer(minLength: 0)
                     SpeakButton(text: Markup.plain(phrase), kind: .plain)

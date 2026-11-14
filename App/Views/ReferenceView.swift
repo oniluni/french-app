@@ -133,7 +133,7 @@ struct CategoryView: View {
 
     @ViewBuilder private func wordSection(title: String, words: [ReferenceWord]) -> some View {
         if !words.isEmpty {
-            SectionHeader(title: title, trailing: "\(words.count)")
+            SectionHeader(title: title, trailing: title.hasPrefix("с предлогом") ? "\(words.count)" : nil)
             Card {
                 ForEach(Array(words.enumerated()), id: \.offset) { _, word in
                     wordRow(word)
