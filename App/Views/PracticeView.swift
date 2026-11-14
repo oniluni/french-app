@@ -242,6 +242,7 @@ private struct FormsPractice: View {
                 .buttonStyle(.pill(.primary, small: true))
                 .disabled(words.isEmpty)
                 .accessibilityIdentifier("mixed-drill")
+                .accessibilityLabel("Смешанная тренировка")
         }
         .panel()
         Footer(text: "Восемь вопросов по словам всех уроков: спряжения, род, артикли и число.")
