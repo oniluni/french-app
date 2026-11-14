@@ -238,11 +238,14 @@ private struct FormsPractice: View {
                 Text(plural(FormsPractice.count, "вопрос", "вопроса", "вопросов")).font(Theme.subhead).foregroundStyle(Theme.t2)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            Button("Начать") { start("Смешанная тренировка", forms: words, genders: nouns) }
-                .buttonStyle(.pill(.primary, small: true))
-                .disabled(words.isEmpty)
-                .accessibilityIdentifier("mixed-drill")
-                .accessibilityLabel("Смешанная тренировка")
+            Button("Начать") {
+                let source = words.isEmpty ? library.formWords : words
+                start("Смешанная тренировка", forms: source,
+                      genders: source.filter { $0.wordClass == .noun })
+            }
+            .buttonStyle(.pill(.primary, small: true))
+            .accessibilityIdentifier("mixed-drill")
+            .accessibilityLabel("Смешанная тренировка")
         }
         .panel()
         Footer(text: "Восемь вопросов по словам всех уроков: спряжения, род, артикли и число.")

@@ -34,6 +34,10 @@ struct DictionaryView: View {
 
         Screen {
             VStack(spacing: 0) {
+                NavSegments(options: Part.allCases.map { (value: $0, title: $0.rawValue) },
+                            selection: $part)
+                    .padding(.horizontal, 4)
+                    .padding(.top, 4)
                 if part == .all {
                     lessonChips
                     allWords(matches: matches, wanted: wanted)
@@ -44,12 +48,6 @@ struct DictionaryView: View {
         }
         .navigationTitle(part == .all ? "Словарь" : "Избранное")
         .fullScreenCover(item: $session) { CardSessionView(request: $0) }
-        .toolbar {
-            ToolbarItem(placement: .principal) {
-                NavSegments(options: Part.allCases.map { (value: $0, title: $0.rawValue) },
-                            selection: $part)
-            }
-        }
         .fileExporter(isPresented: Binding { exported != nil } set: { if !$0 { exported = nil } },
                       document: exported, contentType: .json, defaultFilename: BackupDocument.filename) { outcome in
             if case .failure(let error) = outcome {
