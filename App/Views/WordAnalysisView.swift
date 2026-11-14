@@ -1,20 +1,36 @@
 import FrenchCore
-import os
 import SwiftUI
 
-/// The pushed «Разбор слова» screen.
+/// A word pushed from the dictionary or the reference: the same body as the «Слово» tool,
+/// with the star of «Избранное» in the navigation bar.
 struct WordAnalysisView: View {
     let query: String
 
+    @Environment(Library.self) private var library
+
     var body: some View {
-        WordAnalysisBody(query: query)
-            .navigationTitle("Разбор слова")
-            .navigationBarTitleDisplayMode(.inline)
+        Screen {
+            WordAnalysisBody(query: query)
+        }
+        .navigationTitle("Разбор слова")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                FavoriteButton(word: favoriteWord)
+            }
+        }
+    }
+
+    private var favoriteWord: Word {
+        let analyses = library.grammar.analyses(of: query)
+        let lemma = analyses.first?.analysis.lemma ?? query
+        let pronunciation = library.lexicon.entry(for: lemma)?.pronunciations.first
+        return Word(fr: lemma, m: pronunciation?.marked, ipa: pronunciation?.ipa ?? "",
+                    ru: library.translation(of: lemma) ?? "")
     }
 }
 
-/// Everything about one word: base form, facts, every form with the typed one highlighted.
-/// Shown both in the «Слово» tool and as a pushed screen.
+/// The word card: meaning, what it is, its forms and examples.
 struct WordAnalysisBody: View {
     let query: String
 
@@ -22,243 +38,425 @@ struct WordAnalysisBody: View {
     @Environment(Store.self) private var store
     @Environment(Navigator.self) private var navigator
     @Environment(Speech.self) private var speech
-    /// Which of the readings of the form is shown: "lit" is a verb form and a noun.
+
     @State private var choice = 0
-    /// Nil until the learner picks a set: then the set holding the typed form is shown.
     @State private var tense: Int?
     @State private var drill: DrillRequest?
 
     private static let partsOfSpeech: [String: String] = [
-        "NOM": "существительное", "VER": "глагол", "ADJ": "прилагательное", "ADV": "наречие", "PRE": "предлог",
-        "CON": "союз", "ONO": "междометие", "ART:def": "определённый артикль", "ART:ind": "неопределённый артикль",
-        "PRO:per": "личное местоимение", "PRO:dem": "указательное местоимение", "PRO:ind": "неопределённое местоимение",
-        "PRO:pos": "притяжательное местоимение", "PRO:rel": "относительное местоимение", "PRO:int": "вопросительное местоимение",
-        "ADJ:num": "числительное", "ADJ:pos": "притяжательное прилагательное", "ADJ:dem": "указательное прилагательное",
-        "ADJ:ind": "неопределённое прилагательное", "ADJ:int": "вопросительное прилагательное",
+        "NOM": "существительное", "VER": "глагол", "ADJ": "прилагательное",
+        "ADV": "наречие", "PRE": "предлог", "CON": "союз", "ONO": "междометие",
+        "ART:def": "артикль", "ART:ind": "артикль",
+        "PRO:per": "местоимение", "PRO:dem": "местоимение", "PRO:ind": "местоимение",
+        "PRO:pos": "местоимение", "PRO:rel": "местоимение", "PRO:int": "местоимение",
+        "ADJ:num": "числительное", "ADJ:pos": "прилагательное", "ADJ:dem": "прилагательное",
+        "ADJ:ind": "прилагательное", "ADJ:int": "прилагательное",
     ]
 
     var body: some View {
         let found = library.grammar.analyses(of: query)
         if found.isEmpty {
-            // A phrase from the lessons ("par cœur") has no forms, but it is still a known entry.
             if let entry = library.entry(for: query) {
-                List { lessonSection(entry, heading: entry.word.m, ipa: entry.word.ipa) }
-            } else {
-                ContentUnavailableView("Нет в словаре", systemImage: "questionmark.circle",
-                    description: Text("Слово «\(query)» не найдено. Проверьте написание и диакритические знаки: é, è, ç."))
+                VStack(spacing: 0) {
+                    header(entry: entry)
+                    facts(entry: entry, analysis: nil, paradigm: nil)
+                    openButton(entry: entry, category: nil)
+                }
             }
         } else {
-            let current = found[min(choice, found.count - 1)]
-            let paradigm = current.analysis.wordClass.flatMap { library.grammar.paradigm(lemma: current.analysis.lemma, as: $0) }
-            List {
-                if found.count > 1 {
-                    Picker("Значение", selection: $choice) {
-                        ForEach(Array(found.enumerated()), id: \.offset) { index, item in
-                            Text("\(item.analysis.lemma) · \(WordAnalysisBody.partsOfSpeech[item.analysis.pos] ?? item.analysis.pos)").tag(index)
-                        }
-                    }
-                }
-                header(current.analysis, paradigm: paradigm)
-                facts(current, paradigm: paradigm)
-                if let paradigm, !paradigm.sets.isEmpty { forms(paradigm, typed: Lexicon.key(current.form)) }
-                examplesSection(lemma: current.analysis.lemma, form: current.form)
-                if let paradigm, !paradigm.sets.isEmpty {
-                    Section {
-                        Button {
-                            var generator = SystemRandomNumberGenerator()
-                            let questions = Drill.questions(from: [paradigm], count: 8, using: &generator)
-                            if !questions.isEmpty { drill = DrillRequest(title: paradigm.lemma, questions: questions) }
-                        } label: {
-                            Label("Тренировать формы", systemImage: "square.grid.2x2")
-                        }
-                    }
-                }
+            let index = min(choice, found.count - 1)
+            let current = found[index]
+            let paradigm = current.analysis.wordClass.flatMap {
+                library.grammar.paradigm(lemma: current.analysis.lemma, as: $0)
             }
-            .fullScreenCover(item: $drill) { DrillSessionView(request: $0) }
-            // The «Слово» tool reuses this view for the next word: start from its own defaults.
-            .onChange(of: query) {
+            let entry = library.entry(for: current.form) ?? library.entry(for: current.analysis.lemma)
+            let category = library.reference.categories.first {
+                $0.words.contains { Lexicon.key($0.fr) == Lexicon.key(current.form) }
+            }
+            VStack(spacing: 0) {
+                if found.count > 1 {
+                    senses(found)
+                }
+                header(current: current, entry: entry, paradigm: paradigm)
+                facts(entry: entry, analysis: current, paradigm: paradigm)
+                use(analysis: current)
+                openButton(entry: entry, category: category)
+                forms(paradigm: paradigm, analysis: current.analysis)
+                examples(analysis: current.analysis)
+            }
+            .onChange(of: query) { _, _ in
                 choice = 0
                 tense = nil
             }
-            .onChange(of: choice) { tense = nil }
+            .onChange(of: choice) { _, _ in
+                tense = nil
+            }
         }
     }
 
-    private func header(_ analysis: Analysis, paradigm: Paradigm?) -> some View {
-        let base = paradigm?.base ?? library.lexicon.entry(for: analysis.lemma)?.pronunciations.first ?? Pronunciation(marked: analysis.lemma, ipa: "")
-        return Group {
-            if let entry = library.entry(for: analysis.lemma) {
-                lessonSection(entry, heading: base.marked, ipa: base.ipa)
-            } else {
-                Section {
-                    title(base.marked, plain: analysis.lemma, ipa: base.ipa)
-                    if let translation = library.translation(of: analysis.lemma) { Text(translation) }
+    // MARK: Senses
+
+    private func senses(_ found: [(form: String, analysis: Analysis)]) -> some View {
+        VStack(spacing: 0) {
+            Text("«\(query)» — это \(found.count) разных слова")
+                .font(Theme.subhead)
+                .foregroundStyle(Theme.t2)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.top, 12)
+            InlineSegments(
+                options: found.enumerated().map { index, item in
+                    (value: index, title: senseTitle(item, index: index, of: found))
+                },
+                selection: $choice
+            )
+            .padding(.top, 8)
+        }
+    }
+
+    private func senseTitle(_ item: (form: String, analysis: Analysis), index: Int, of found: [(form: String, analysis: Analysis)]) -> String {
+        let translation = library.translation(of: item.analysis.lemma)
+        var title = translation.map { "\(item.analysis.lemma) · \($0)" } ?? item.analysis.lemma
+        if index > 0, found.first?.analysis.lemma == item.analysis.lemma {
+            title += " · \(Self.partsOfSpeech[item.analysis.pos] ?? item.analysis.pos)"
+        }
+        return title
+    }
+
+    // MARK: Header
+
+    private func header(current: (form: String, analysis: Analysis), entry: Entry?, paradigm: Paradigm?) -> some View {
+        let base = paradigm?.base ?? library.lexicon.entry(for: current.analysis.lemma)?.pronunciations.first
+            ?? Pronunciation(marked: current.analysis.lemma, ipa: "")
+        return Card {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(alignment: .top, spacing: 8) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        MarkedText(marked: base.marked, plain: current.analysis.lemma,
+                                   size: 40, weight: .semibold)
+                        if !base.ipa.isEmpty {
+                            Text("[\(base.ipa)]").font(Theme.ipa(17)).foregroundStyle(Theme.t2)
+                        }
+                    }
+                    Spacer(minLength: 0)
+                    SpeakButton(text: base.marked, kind: .plain)
                 }
-            }
-        }
-    }
-
-    /// The word large, its sound and level, with the buttons to hear it and to star it.
-    private func title(_ marked: String?, plain: String, ipa: String) -> some View {
-        HStack(alignment: .top) {
-            VStack(alignment: .leading, spacing: 4) {
-                MarkedText(marked: marked, plain: plain, style: .largeTitle)
-                HStack(spacing: 8) {
-                    if !ipa.isEmpty { Text("[\(ipa)]").font(.body).foregroundStyle(.secondary) }
-                    if let level = library.level(of: plain) { LevelTag(level: level) }
+                let translation = entry.flatMap { $0.word.ru.isEmpty ? nil : $0.word.ru }
+                    ?? library.translation(of: current.analysis.lemma)
+                if let translation, !translation.isEmpty {
+                    Text(translation).font(Theme.bodyMedium).foregroundStyle(Theme.t2)
                 }
-            }
-            Spacer()
-            SpeakButton(text: marked ?? plain)
-            FavoriteButton(word: Word(fr: plain, m: marked, ipa: ipa, ru: library.translation(of: plain) ?? ""))
-        }
-        .padding(.vertical, 4)
-    }
-
-    /// Head of the screen for a word the lessons teach: translation, lesson, card status.
-    private func lessonSection(_ entry: Entry, heading: String?, ipa: String) -> some View {
-        Section {
-            title(heading, plain: entry.word.fr, ipa: ipa)
-            Text(entry.word.ru)
-            LabeledContent("Карточка") { Text(store.status(of: entry).label).foregroundStyle(store.status(of: entry).color) }
-            Button("Открыть урок \(entry.lesson)") {
-                navigator.push(.lesson(entry.lesson))
-            }
-        }
-    }
-
-    private func facts(_ found: (form: String, analysis: Analysis), paradigm: Paradigm?) -> some View {
-        let analysis = found.analysis
-        var form: [String] = []
-        if analysis.gender == "m" { form.append("мужской род") }
-        if analysis.gender == "f" { form.append("женский род") }
-        if analysis.number == "s" { form.append("ед. число") }
-        if analysis.number == "p" { form.append("мн. число") }
-        form += analysis.tags.sorted { WordAnalysisBody.rank($0) < WordAnalysisBody.rank($1) }.map(WordAnalysisBody.describe)
-        return Section("О слове") {
-            if let paradigm {
-                ForEach(Array(paradigm.facts.enumerated()), id: \.offset) { _, fact in
-                    LabeledContent(fact.label) {
-                        if fact.isFrench { MarkedText(marked: fact.value) } else { Text(fact.value) }
+                HStack(spacing: 6) {
+                    Chip(text: Self.partsOfSpeech[current.analysis.pos] ?? current.analysis.pos, tone: .neutral)
+                    if let level = library.level(of: current.analysis.lemma) {
+                        LevelTag(level: level)
+                    }
+                    if let entry {
+                        let status = store.status(of: entry)
+                        Chip(text: status.label, tone: status.tone)
                     }
                 }
-            } else {
-                LabeledContent("Часть речи", value: WordAnalysisBody.partsOfSpeech[analysis.pos] ?? analysis.pos)
             }
-            // "ses" is listed as "son" only when the form itself is not: try the form first.
-            if let use = library.reference.use(of: found.form, pos: analysis.pos) ?? library.reference.use(of: analysis.lemma, pos: analysis.pos) {
-                LabeledContent("Для чего") { Text(use).multilineTextAlignment(.trailing) }
-            }
-            if Lexicon.key(found.form) != Lexicon.key(analysis.lemma) || !form.isEmpty {
-                LabeledContent("Форма «\(found.form)»", value: form.isEmpty ? "начальная" : form.joined(separator: "; "))
-            }
-            let marks = paradigm?.base.marked ?? ""
-            let silent = Markup.letters(of: .silent, in: marks).joined(separator: ", ")
-            let nasal = Markup.letters(of: .nasal, in: marks).joined(separator: ", ")
-            if !silent.isEmpty { LabeledContent("Немые буквы", value: silent) }
-            if !nasal.isEmpty { LabeledContent("Носовые гласные", value: nasal) }
+            .padding(16)
         }
     }
 
-    private static let moods = [("ind:pre", "Présent"), ("ind:imp", "Imparfait"), ("ind:fut", "Futur"), ("ind:pas", "Passé simple"),
-                                ("cnd:pre", "Conditionnel"), ("sub:pre", "Subjonctif présent"), ("sub:imp", "Subjonctif imparfait"),
-                                ("imp:pre", "Impératif")]
-
-    /// Tenses in the order of the forms table, so that "buvons" reads «Présent, мы; Impératif, мы».
-    private static func rank(_ tag: String) -> Int {
-        moods.firstIndex { tag.hasPrefix($0.0) } ?? moods.count
-    }
-
-    /// "ind:pre:1p" → «Présent, мы».
-    private static func describe(_ tag: String) -> String {
-        let moods = Dictionary(uniqueKeysWithValues: Self.moods)
-        let persons = ["1s": "я", "2s": "ты", "3s": "он, она", "1p": "мы", "2p": "вы", "3p": "они"]
-        let parts = tag.split(separator: ":").map(String.init)
-        switch tag {
-        case "inf": return "инфинитив"
-        case "par:pas": return "причастие прошедшего времени"
-        case "par:pre": return "причастие настоящего времени"
-        default:
-            guard parts.count == 3, let mood = moods["\(parts[0]):\(parts[1])"] else { return tag }
-            return "\(mood), \(persons[parts[2]] ?? parts[2])"
+    private func header(entry: Entry) -> some View {
+        Card {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(alignment: .top, spacing: 8) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        MarkedText(marked: entry.word.m, plain: entry.word.fr, size: 40, weight: .semibold)
+                        if !entry.word.ipa.isEmpty {
+                            Text("[\(entry.word.ipa)]").font(Theme.ipa(17)).foregroundStyle(Theme.t2)
+                        }
+                    }
+                    Spacer(minLength: 0)
+                    SpeakButton(text: entry.word.m ?? entry.word.fr, kind: .plain)
+                }
+                if !entry.word.ru.isEmpty {
+                    Text(entry.word.ru).font(Theme.bodyMedium).foregroundStyle(Theme.t2)
+                }
+                HStack(spacing: 6) {
+                    if !entry.word.pos.isEmpty {
+                        Chip(text: entry.word.pos, tone: .neutral)
+                    }
+                    if let level = library.level(of: entry.word.fr) {
+                        LevelTag(level: level)
+                    }
+                    let status = store.status(of: entry)
+                    Chip(text: status.label, tone: status.tone)
+                }
+            }
+            .padding(16)
         }
     }
 
-    private static let log = Logger(subsystem: "io.github.oniluni.french", category: "examples")
+    // MARK: About
 
-    /// Sentences from Tatoeba, those with the typed form first.
-    @ViewBuilder private func examplesSection(lemma: String, form: String) -> some View {
-        let found: [Example] = {
-            do {
-                return Array(try library.examples.of(lemma: lemma, preferring: form).prefix(6))
-            } catch {
-                WordAnalysisBody.log.error("Broken examples line for \(lemma, privacy: .public): \(String(describing: error), privacy: .public)")
-                return []
+    @ViewBuilder private func facts(entry: Entry?, analysis: (form: String, analysis: Analysis)?, paradigm: Paradigm?) -> some View {
+        let hasFacts = !(paradigm?.facts.isEmpty ?? true) || analysis != nil
+        if hasFacts {
+            SectionHeader(title: "О слове")
+            Card {
+                if let paradigm {
+                    ForEach(Array(paradigm.facts.enumerated()), id: \.offset) { _, fact in
+                        HStack(alignment: .firstTextBaseline, spacing: 12) {
+                            Text(fact.label).font(Theme.bodyMedium)
+                            Spacer(minLength: 8)
+                            if fact.isFrench {
+                                MarkedText(marked: fact.value, plain: Markup.plain(fact.value),
+                                           size: 16, weight: .medium)
+                            } else {
+                                Text(fact.value).font(Theme.bodyMedium)
+                            }
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 12)
+                    }
+                } else if let analysis {
+                    infoRow("Часть речи", Self.partsOfSpeech[analysis.analysis.pos] ?? analysis.analysis.pos)
+                }
+                if let analysis, Lexicon.key(analysis.form) != Lexicon.key(analysis.analysis.lemma) {
+                    infoRow("Форма", analysis.form)
+                }
+                if let paradigm {
+                    let silent = Markup.letters(of: .silent, in: paradigm.base.marked)
+                    if !silent.isEmpty { infoRow("Немые буквы", silent.joined(separator: ", ")) }
+                    let nasal = Markup.letters(of: .nasal, in: paradigm.base.marked)
+                    if !nasal.isEmpty { infoRow("Носовые гласные", nasal.joined(separator: ", ")) }
+                }
             }
-        }()
-        if !found.isEmpty {
-            Section {
-                ForEach(Array(found.enumerated()), id: \.offset) { _, example in
+        }
+    }
+
+    private func infoRow(_ label: String, _ value: String) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 12) {
+            Text(label).font(Theme.bodyMedium)
+            Spacer(minLength: 8)
+            Text(value).font(Theme.bodyMedium).foregroundStyle(Theme.t2)
+                .multilineTextAlignment(.trailing)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+    }
+
+    // MARK: Use
+
+    @ViewBuilder private func use(analysis: (form: String, analysis: Analysis)) -> some View {
+        let text = library.reference.use(of: analysis.form, pos: analysis.analysis.pos)
+            ?? library.reference.use(of: analysis.analysis.lemma, pos: analysis.analysis.pos)
+            ?? library.reference.categories.flatMap(\.words).first {
+                Lexicon.key($0.fr) == Lexicon.key(analysis.form)
+            }?.use
+        if let text, !text.isEmpty {
+            SectionHeader(title: "Для чего")
+            Card {
+                Text(text).font(Theme.subhead).foregroundStyle(Theme.t2)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(16)
+            }
+        }
+    }
+
+    // MARK: Lesson
+
+    @ViewBuilder private func openButton(entry: Entry?, category: ReferenceCategory?) -> some View {
+        if let entry {
+            Button {
+                navigator.push(.lesson(entry.lesson))
+            } label: {
+                HStack {
+                    Text("Открыть урок \(entry.lesson)")
+                    Spacer(minLength: 8)
+                    Image(systemName: "chevron.right").font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(Theme.t3)
+                }
+            }
+            .buttonStyle(.pill(.quiet))
+            .padding(.top, 16)
+        } else if let category {
+            Button {
+                navigator.push(.category(category.id))
+            } label: {
+                HStack {
+                    Text("Открыть раздел «\(category.title)»")
+                    Spacer(minLength: 8)
+                    Image(systemName: "chevron.right").font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(Theme.t3)
+                }
+            }
+            .buttonStyle(.pill(.quiet))
+            .padding(.top, 16)
+        }
+    }
+
+    // MARK: Forms
+
+    @ViewBuilder private func forms(paradigm: Paradigm?, analysis: Analysis) -> some View {
+        if let paradigm, !paradigm.sets.isEmpty {
+            let typedSet = paradigm.sets.firstIndex { set in
+                set.forms.contains {
+                    Lexicon.key($0.bodyPlain) == Lexicon.key(query) || Lexicon.key($0.plain) == Lexicon.key(query)
+                }
+            }
+            let shown = min(tense ?? typedSet ?? 0, paradigm.sets.count - 1)
+            let set = paradigm.sets[shown]
+            let typedForm = typedSet == shown ? query : ""
+            VStack(spacing: 0) {
+                SectionHeader(title: "Формы", trailing: formsNote(paradigm, analysis: analysis), trailingMono: false)
+                if paradigm.sets.count > 1 {
+                    InlineSegments(
+                        options: paradigm.sets.enumerated().map { (value: $0.offset, title: $0.element.name) },
+                        selection: Binding(get: { shown }, set: { tense = $0 })
+                    )
+                    .padding(.bottom, 8)
+                }
+                if paradigm.wordClass == .verb {
+                    Card {
+                        ForEach(Array(set.forms.enumerated()), id: \.offset) { _, form in
+                            formRow(form, label: paradigm.wordClass.cellLabels[form.cell],
+                                    isTyped: !typedForm.isEmpty && isTyped(form, key: typedForm))
+                        }
+                    }
+                } else {
+                    LazyVGrid(columns: [
+                        GridItem(.flexible(), spacing: 8),
+                        GridItem(.flexible(), spacing: 8),
+                    ], spacing: 8) {
+                        ForEach(Array(set.forms.enumerated()), id: \.offset) { _, form in
+                            formCell(form, label: paradigm.wordClass.cellLabels[form.cell],
+                                     isTyped: !typedForm.isEmpty && isTyped(form, key: typedForm))
+                        }
+                    }
+                }
+                if paradigm.wordClass == .verb, let note = library.content.verbNotes[paradigm.lemma] {
+                    Callout { Text(note) }.padding(.top, 8)
+                }
+                Button {
+                    var generator = SystemRandomNumberGenerator()
+                    let questions = Drill.questions(from: [paradigm], count: 8, using: &generator)
+                    drill = DrillRequest(title: "Формы", questions: questions)
+                } label: {
+                    Label("Тренировать формы", systemImage: "square.grid.2x2")
+                }
+                .buttonStyle(.pill(.primary))
+                .padding(.top, 12)
+            }
+            .fullScreenCover(item: $drill) { DrillSessionView(request: $0) }
+        }
+    }
+
+    private func formsNote(_ paradigm: Paradigm, analysis: Analysis) -> String? {
+        if paradigm.wordClass == .verb {
+            return paradigm.facts.first { $0.label == "Часть речи" }?.value
+        }
+        if paradigm.sets.count > 1 { return "род: мужской и женский" }
+        if paradigm.wordClass == .adjective { return "род и число" }
+        return nil
+    }
+
+    private func isTyped(_ form: Paradigm.Form, key: String) -> Bool {
+        Lexicon.key(form.bodyPlain) == Lexicon.key(key) || Lexicon.key(form.plain) == Lexicon.key(key)
+    }
+
+    private func formRow(_ form: Paradigm.Form, label: String, isTyped: Bool) -> some View {
+        Button {
+            speech.speak(form.marked)
+        } label: {
+            HStack(spacing: 12) {
+                Text(label)
+                    .font(Theme.sans(13, .medium, relativeTo: .footnote))
+                    .foregroundStyle(isTyped ? Theme.acc : Theme.t2)
+                    .frame(width: 92, alignment: .leading)
+                MarkedText(marked: form.marked, plain: form.plain, size: 19, weight: .medium)
+                Spacer(minLength: 8)
+                if !form.ipa.isEmpty {
+                    Text("[\(form.ipa)]").font(Theme.ipa(13)).foregroundStyle(Theme.t2)
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .frame(maxWidth: .infinity, minHeight: 52, alignment: .leading)
+            .background(isTyped ? Theme.accSoft : .clear)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func formCell(_ form: Paradigm.Form, label: String, isTyped: Bool) -> some View {
+        Button {
+            speech.speak(form.marked)
+        } label: {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(label).font(Theme.caption1.weight(.medium)).foregroundStyle(Theme.t2)
+                MarkedText(marked: form.marked, plain: form.plain, size: 19, weight: .medium)
+                if !form.ipa.isEmpty {
+                    Text("[\(form.ipa)]").font(Theme.ipa(13)).foregroundStyle(Theme.t2)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 12)
+            .background(isTyped ? Theme.accSoft : Theme.s1,
+                        in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .strokeBorder(isTyped ? Theme.accLine : Theme.line)
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: Examples
+
+    @ViewBuilder private func examples(analysis: Analysis) -> some View {
+        let found = (try? library.examples.of(lemma: analysis.lemma, preferring: query)) ?? []
+        let items = Array(found.prefix(6))
+        if !items.isEmpty {
+            SectionHeader(title: "Примеры", trailing: "\(items.count)")
+            Card {
+                ForEach(Array(items.enumerated()), id: \.offset) { _, example in
                     Button {
                         speech.speak(example.fr)
                     } label: {
                         VStack(alignment: .leading, spacing: 4) {
-                            MarkedText(marked: readerMarks(example.fr), plain: example.fr)
-                                .foregroundStyle(Color.primary)
-                                .multilineTextAlignment(.leading)
-                            Text(example.ru).font(.subheadline).foregroundStyle(.secondary)
+                            MarkedText(marked: readerMarks(example.fr), plain: example.fr,
+                                       size: 19, weight: .medium)
+                            Text(example.ru).font(Theme.subhead).foregroundStyle(Theme.t2)
+                            Text(example.src.hasPrefix("T") ? "Tatoeba" : example.src)
+                                .font(Theme.caption1).foregroundStyle(Theme.t3)
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 14)
+                        .contentShape(Rectangle())
                     }
-                    // Plain: the translation keeps its own colour instead of the tint.
                     .buttonStyle(.plain)
                     .accessibilityIdentifier("example")
                     .accessibilityHint("Прослушать")
                 }
-            } header: {
-                Text("Примеры")
             }
         }
     }
 
-    /// Marks for a sentence outside the lessons, if the dictionary knows every word of it.
     private func readerMarks(_ sentence: String) -> String? {
         let words = library.reader.read(sentence)
         return words.allSatisfy(\.isKnown) ? words.marked : nil
     }
 
-    private func forms(_ paradigm: Paradigm, typed: String) -> some View {
-        let holdingTyped = paradigm.sets.firstIndex { $0.forms.contains { Lexicon.key($0.bodyPlain) == typed } } ?? 0
-        let shown = min(tense ?? holdingTyped, paradigm.sets.count - 1)
-        let set = paradigm.sets[shown]
-        let labels = paradigm.wordClass.cellLabels
-        return Section {
-            if paradigm.sets.count > 1 {
-                Picker("Набор форм", selection: Binding { shown } set: { tense = $0 }) {
-                    ForEach(Array(paradigm.sets.enumerated()), id: \.offset) { index, item in Text(item.name).tag(index) }
-                }
-                .pickerStyle(.segmented)
+    // MARK: Tenses
+
+    private func syncTense(_ found: [(form: String, analysis: Analysis)], _ paradigm: Paradigm?) {
+        guard let paradigm, !paradigm.sets.isEmpty else { return }
+        if let index = paradigm.sets.firstIndex(where: { set in
+            set.forms.contains {
+                Lexicon.key($0.bodyPlain) == Lexicon.key(query) || Lexicon.key($0.plain) == Lexicon.key(query)
             }
-            ForEach(Array(set.forms.enumerated()), id: \.offset) { _, form in
-                let isTyped = Lexicon.key(form.bodyPlain) == typed
-                Button {
-                    speech.speak(form.marked)
-                } label: {
-                    HStack(alignment: .firstTextBaseline) {
-                        Text(labels[form.cell]).font(.subheadline).foregroundStyle(.secondary).frame(width: 118, alignment: .leading)
-                        MarkedText(marked: form.marked, style: .title3)
-                        Spacer(minLength: 8)
-                        Text("[\(form.ipa)]").font(Theme.ipa).foregroundStyle(.secondary)
-                    }
-                    .foregroundStyle(Color.primary)
-                }
-                .listRowBackground(isTyped ? Theme.accentSoft : nil)
-                .accessibilityAddTraits(isTyped ? .isSelected : [])
-            }
-            if set.name == "Présent", let note = library.content.verbNotes[paradigm.lemma] {
-                InlineText(md: note).font(.footnote).foregroundStyle(.secondary)
-            }
-        } header: {
-            Text(paradigm.sets.count > 1 ? "Формы" : set.name)
+        }) {
+            tense = index
+        } else {
+            tense = min(tense, paradigm.sets.count - 1)
         }
     }
 }

@@ -28,11 +28,8 @@ struct PracticeView: View {
         .navigationTitle("Практика")
         .toolbar {
             ToolbarItem(placement: .principal) {
-                Picker("Вид практики", selection: $part) {
-                    ForEach(Part.allCases, id: \.self) { Text($0.rawValue) }
-                }
-                .pickerStyle(.segmented)
-                .frame(minWidth: 280)
+                NavSegments(options: Part.allCases.map { (value: $0, title: $0.rawValue) },
+                            selection: $part)
             }
         }
     }

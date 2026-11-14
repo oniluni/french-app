@@ -34,6 +34,8 @@ struct SelectableWords: View {
     let words: [TextWord]
     /// Words currently shown in the popover.
     let picked: ClosedRange<Int>?
+    /// Words a chosen reading rule is about: ringed, as in the mockup.
+    var hit: Set<Int> = []
     let onPick: (ClosedRange<Int>, CGRect) -> Void
 
     @State private var frames = Frames()
@@ -68,18 +70,26 @@ struct SelectableWords: View {
 
     private func wordView(_ word: TextWord, index: Int) -> some View {
         let isSelected = (sweeping ?? picked)?.contains(index) ?? false
-        let font = Theme.french(.title3)
+        let isHit = hit.contains(index)
+        let font = Theme.sans(Theme.frRow.size, Theme.frRow.weight)
         return VStack(alignment: .leading, spacing: 1) {
             Text(word.marked.map { AttributedString(marked: $0, font: font) } ?? AttributedString(word.plain))
                 .font(font)
             Text(word.ipa.isEmpty ? " " : (word.link.isEmpty ? "" : "\(word.link)‿") + word.ipa)
-                .font(Theme.ipa)
-                .foregroundStyle(.secondary)
+                .font(Theme.ipa(12))
+                .foregroundStyle(Theme.t2)
         }
         .padding(.horizontal, 2)
-        .background(isSelected ? Theme.accentSoft : .clear, in: RoundedRectangle(cornerRadius: 6))
+        .background(isSelected || isHit ? Theme.accSoft : .clear, in: RoundedRectangle(cornerRadius: 6))
+        .overlay {
+            if isHit { RoundedRectangle(cornerRadius: 6).strokeBorder(Theme.accLine, lineWidth: 1) }
+        }
         .overlay(alignment: .topLeading) {
-            if word.isTied { LiaisonArc().stroke(Color.accentColor, lineWidth: 1.5).frame(width: 15, height: 5).offset(x: -11, y: 24) }
+            if word.isTied {
+                LiaisonArc().stroke(Theme.acc, lineWidth: 1.5)
+                    .frame(width: 15, height: 5)
+                    .offset(x: -11, y: 23)
+            }
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(word.plain)

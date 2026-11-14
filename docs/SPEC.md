@@ -1,32 +1,21 @@
 # French learning app: product spec
 
-Derived from the clickable prototype in `prototype/`. It tells whoever builds the real app
-what the prototype shows, which parts of it are fake, what was decided (section 8) and where
-the app departs from the prototype (section 8a).
+Derived from the design mockups in `design/`. It tells whoever builds the real app
+what the mockups show, what they leave to the app, what was decided (section 8) and where
+the app departs from them (section 8a).
 
 Interface text is Russian, study material is French. Screen and button names below are quoted
 as they appear in the UI.
 
 ## 1. Source of truth
 
-- `prototype/index.html` opens straight from disk; no server, no build, no dependencies.
-- Published copy: https://claude.ai/artifact/CV43veJEnAwrL2BELWaxZ2 (private to the owner).
-- A side rail (desktop width only) jumps to each screen. The same jumps work as URL hashes:
-  `#lessons #text #notes #rule #sets #card #drill #reader #word #dict`.
+- `design/app.css` holds the tokens (`:root`) and every component, in the dark theme only.
+- `design/*.dc.html` are the screen mockups, one file per state: `L*` lessons, `P*` practice,
+  `A20*` reader and `A21*` word analysis, `R4*` reference, `D2*` dictionary, `S*` the shell.
+  `Main`, `Base-*` and `Comp-*` are component references; `F*` flows are out of scope.
+- The mockups open straight from disk; no server, no build, no dependencies.
 
-| File | What it demonstrates |
-|---|---|
-| `styles.css` | Design tokens (`:root`), light and dark theme, every component |
-| `data.js` | Sample content and the content shapes (lessons, words, texts, rules, paradigms, notes) |
-| `pronunciation.js` | Pronunciation markup, annotated text, word and phrase selection, popover |
-| `lessons.js` | Lesson list, lesson screen, rule page, notes |
-| `practice.js` | Lesson-range sets, card session, list of form drills |
-| `forms.js` | Form lookup, word analysis, drill session |
-| `tools.js` | Reader and word-analysis tools |
-| `dictionary.js` | Search tab |
-| `app.js` | Navigation, overlays, shared screen parts |
-
-Where this spec and the prototype disagree: the prototype wins on look and interaction,
+Where this spec and the design disagree: the design wins on look and interaction,
 this spec wins on what has to be real (section 6).
 
 ## 2. Navigation
@@ -171,12 +160,12 @@ reader, word analysis, drills.
 - In a lesson text the liaison is a field on the following word, not a character in the string:
   the token carries the liaison consonant (`z`, `t`, `n`), and phrase IPA is written `il z‿ɔ̃`.
 - IPA must be set in a font that holds a base letter and its combining tilde in one file.
-  Subsetted web fonts split them and the nasal vowels render broken; the prototype uses
+  Subsetted web fonts split them and the nasal vowels render broken; the app uses
   system fonts for IPA for that reason.
 
 ## 5. Content model
 
-Shapes as used by the prototype. Names are suggestions; the relationships are the point.
+Shapes as used by the mockups. Names are suggestions; the relationships are the point.
 
 | Entity | Fields | Notes |
 |---|---|---|
@@ -192,9 +181,9 @@ Shapes as used by the prototype. Names are suggestions; the relationships are th
 | Set | first lesson, last lesson | Progress is derived from card states |
 | Card state | word, status (new, learning, due, known), scheduling data | Depends on the algorithm in 6.2 |
 
-## 6. What the prototype fakes
+## 6. What the mockups leave to the app
 
-Each item below works in the prototype only on hand-written samples or not at all.
+Each item below is shown in the mockups only on hand-written samples, or not at all.
 
 ### 6.1 Persistence
 Notes, saved sets, card states and added words live in memory and vanish on reload. The app
@@ -222,7 +211,7 @@ The app needs forms for any word in the lessons at least: conjugation by tense a
 gender and number for nouns and adjectives, and the reverse lookup from a form to its lemma.
 
 ### 6.5 Audio
-The prototype calls the browser's speech synthesis, which depends on an installed French voice.
+The mockups assume speech synthesis, which depends on an installed French voice.
 The app should use the system French voice on the device. Not designed: playback speed,
 highlighting words while they are read.
 
@@ -232,15 +221,20 @@ are Russian. Where real lesson content comes from is undecided (section 8).
 
 ## 7. Visual design
 
-- Tokens are defined once in `prototype/styles.css` under `:root`, with dark values in the two
-  dark blocks. Take colours, radii and type sizes from there instead of copying them here.
+- Tokens are defined once in `design/app.css` under `:root` and implemented once in
+  `App/Theme.swift`. Take colours, radii and type sizes from there instead of copying them here.
+- Shared components live in `App/Views/Components.swift`: `Screen`, `Card`, `SectionHeader`,
+  `NavSegments` (the glass segmented control in a navigation bar), `Chip`, `FilterChip`,
+  `InlineSegments` (the opaque segmented control in content), the pill and icon button styles,
+  `EmptyState`, `Callout` and the form rows. Screens compose these instead of restyling.
 - Glass (blur, light edge) is only for the navigation layer: tab bar, navigation buttons,
   popover, sheets, the notes button. Content sits on opaque surfaces.
-- Two type roles: the system sans for the interface, a serif for French study text.
+- One type family, Geist, with Geist Mono for counts, IPA and numeric detail. IPA is set in the
+  system font (see section 4). No serif role.
 - One accent (ultramarine) for interactive elements, selection and liaison. Ochre is reserved
   for nasal vowels. Red, amber and green appear only on grades, verdicts and card status.
 - Corner radii are concentric: an inner element's radius is the outer radius minus the gap.
-- Both themes are designed. Motion is disabled under the reduced-motion setting.
+- Dark theme only; iPhone only. Motion is disabled under the reduced-motion setting.
 - Touch targets are at least 44 pt.
 
 ## 8. Decisions
@@ -254,7 +248,7 @@ Taken by the owner on 2026-11-12.
      No iCloud, sync, push or widgets.
    - An update installs over the old app only when signed by a certificate of the same team.
      Otherwise the app is deleted with its data, hence «Сохранить копию в Файлы» and
-     «Восстановить из копии» on the lesson list (not in the prototype).
+     «Восстановить из копии» on the lesson list (not in the mockups).
    - Nobody can run a simulator; UI tests attach screenshots of every screen instead.
 2. **Content: the owner's lesson vault**, lessons 1–15. Lessons 16–29 there are raw OCR and are
    skipped until they are brought to the format of 1–15 (`lesson: N` front matter); the importer
@@ -264,7 +258,7 @@ Taken by the owner on 2026-11-12.
    aligning spelling with IPA (`tools/align.mjs`, 99 % of Lexique forms align). Lexique has no
    translations: the reader translates only words that the lessons teach.
 
-## 8a. Where the app departs from the prototype
+## 8a. Where the app departs from the mockups
 
 - Lessons have no French title in the vault: the list shows «Урок N» and the Russian topic.
 - A lesson has no «Текст»: the vault keeps theory, words and exercises only (phrases, texts and

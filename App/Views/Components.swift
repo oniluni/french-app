@@ -129,13 +129,18 @@ extension View {
 struct SectionHeader: View {
     let title: String
     var trailing: String?
+    /// Counts are mono; a note such as «род: мужской и женский» is sans.
+    var trailingMono = true
     var top: CGFloat = 20
 
     var body: some View {
         HStack(spacing: 12) {
             Text(title)
             Spacer(minLength: 0)
-            if let trailing { Text(trailing).font(Theme.mono(13)) }
+            if let trailing {
+                Text(trailing)
+                    .font(trailingMono ? Theme.mono(13) : Theme.sans(13, .medium, relativeTo: .footnote))
+            }
         }
         .font(Theme.sans(13, .medium, relativeTo: .footnote))
         .foregroundStyle(Theme.t2)
@@ -333,6 +338,38 @@ struct InlineSegments<Value: Hashable>: View {
     }
 }
 
+/// The glass switch that sits in the navigation bar, over the screen.
+struct NavSegments<Value: Hashable>: View {
+    let options: [(value: Value, title: String)]
+    @Binding var selection: Value
+
+    var body: some View {
+        HStack(spacing: 0) {
+            ForEach(options, id: \.value) { option in
+                let isOn = option.value == selection
+                Button {
+                    withAnimation(.easeOut(duration: 0.2)) { selection = option.value }
+                } label: {
+                    Text(option.title)
+                        .font(Theme.sans(13, .medium, relativeTo: .footnote))
+                        .lineLimit(1)
+                        .foregroundStyle(isOn ? Theme.t1 : Theme.t2)
+                        .padding(.horizontal, 14)
+                        .frame(minWidth: 84, minHeight: 36)
+                        .background(isOn ? Color(hex: 0x3A3A3E) : .clear, in: Capsule())
+                        .contentShape(Capsule())
+                }
+                .buttonStyle(.plain)
+                .accessibilityAddTraits(isOn ? .isSelected : [])
+            }
+        }
+        .padding(4)
+        .background(Color(hex: 0x202024).opacity(0.7), in: Capsule())
+        .overlay { Capsule().strokeBorder(.white.opacity(0.14)) }
+        .glassEffect(.regular.interactive(), in: Capsule())
+    }
+}
+
 // MARK: - Buttons
 
 /// The pill buttons of the design. A disabled one goes grey whatever its kind.
@@ -404,6 +441,8 @@ extension ButtonStyle where Self == PillButtonStyle {
 struct IconButtonStyle: ButtonStyle {
     enum Kind {
         case outline, filled, on, glass
+        /// No circle at all: a speaker in a tight row.
+        case plain
     }
 
     var kind = Kind.outline
@@ -412,12 +451,14 @@ struct IconButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         let label = configuration.label
             .font(.system(size: 18))
-            .foregroundStyle(kind == .on ? Theme.acc : Theme.t1)
+            .foregroundStyle(kind == .on ? Theme.acc : kind == .plain ? Theme.t2 : Theme.t1)
             .frame(width: 44, height: 44)
-            .contentShape(Circle())
+            .contentShape(kind == .plain ? AnyShape(Rectangle()) : AnyShape(Circle()))
             .opacity(configuration.isPressed ? 0.6 : 1)
         if kind == .glass {
             label.glassEffect(.regular.interactive(), in: Circle())
+        } else if kind == .plain {
+            label
         } else {
             label
                 .background(kind == .filled ? Theme.s3 : kind == .on ? Theme.accSoft : .clear, in: Circle())
