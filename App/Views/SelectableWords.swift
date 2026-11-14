@@ -80,7 +80,7 @@ struct SelectableWords: View {
         }
         let text: AttributedString
         if let marked = word.marked {
-            text = AttributedString(marked: marked, font: font)
+            text = AttributedString(marked: marked, size: Theme.frRow.size, weight: Theme.frRow.weight)
         } else {
             text = AttributedString(word.plain)
         }
