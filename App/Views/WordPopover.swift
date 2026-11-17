@@ -33,6 +33,11 @@ struct WordPopover: View {
 
             if let translation = picked.translation, !translation.isEmpty {
                 Text(translation).font(Theme.body)
+            } else if picked.isPhrase, let gloss = wordByWordGloss {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("По словам").font(Theme.footnote).foregroundStyle(Theme.t3)
+                    Text(gloss).font(Theme.subhead).foregroundStyle(Theme.t2)
+                }
             }
 
             if let word = picked.word, let form = library.shortForm(of: word.fr), !form.isEmpty {
@@ -85,6 +90,17 @@ struct WordPopover: View {
         .overlay { RoundedRectangle(cornerRadius: 26, style: .continuous).strokeBorder(Theme.line) }
         .presentationCompactAdaptation(.popover)
         .sensoryFeedback(.success, trigger: store.data.favorites.count)
+    }
+
+    /// A sentence has no single dictionary translation: show the words it is made of instead.
+    private var wordByWordGloss: String? {
+        let words = library.reader.read(picked.plain)
+        let parts = words.compactMap { word -> String? in
+            guard let translation = library.translation(of: word.text), !translation.isEmpty else { return nil }
+            let text = word.text.trimmingCharacters(in: CharacterSet.punctuationCharacters.union(.whitespaces))
+            return "\(text) — \(translation)"
+        }
+        return parts.isEmpty ? nil : parts.joined(separator: " · ")
     }
 
     @ViewBuilder private var actions: some View {
