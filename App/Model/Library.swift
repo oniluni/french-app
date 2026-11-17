@@ -13,6 +13,7 @@ final class Library {
     let examples: Examples
     let glossary: Glossary
     let reference: ReferenceBook
+    let nuances: Nuances
 
     /// A bundled file that is missing or does not match the model: a build mistake, shown by the
     /// launch error screen instead of crashing, so that the learner can still save their progress.
@@ -51,11 +52,24 @@ final class Library {
         } catch {
             throw Failure(file: "reference.json", reason: "does not match the app's model: \(error)")
         }
+        // The notes are an optional layer: an older build without the file still starts.
+        if let data = try? resource("nuances", "json"), let loaded = try? Nuances(data: data) {
+            nuances = loaded
+        } else {
+            nuances = Nuances()
+        }
     }
 
     /// The dictionary form of a word as typed or tapped: "amies" → "ami".
     func lemma(of word: String) -> String {
         grammar.analyses(of: word).first?.analysis.lemma ?? Content.bare(word)
+    }
+
+    /// Usage notes for a word, from the word itself and from its dictionary form.
+    func nuanceNotes(for word: String) -> [Nuance] {
+        var seen = Set<String>()
+        return (nuances.notes(for: word) + nuances.notes(for: lemma(of: word)))
+            .filter { seen.insert($0.fr).inserted }
     }
 
     /// The lessons' translation, else the dictionary's for the word, else for its lemma.

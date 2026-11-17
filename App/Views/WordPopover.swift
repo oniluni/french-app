@@ -39,6 +39,20 @@ struct WordPopover: View {
                 Text(form).font(Theme.subhead).foregroundStyle(Theme.t2)
             }
 
+            if let word = picked.word, let note = library.nuanceNotes(for: word.fr).first {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(note.title).font(Theme.sans(15, .semibold, relativeTo: .callout))
+                    Text(note.text).font(Theme.footnote).foregroundStyle(Theme.t2)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(12)
+                .background(Theme.s1, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .strokeBorder(Theme.line)
+                }
+            }
+
             if let rule = picked.rule {
                 Button {
                     onLeave()

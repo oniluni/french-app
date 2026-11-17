@@ -4,7 +4,6 @@ import SwiftUI
 /// Formatted lesson text: paragraphs, lists, tables and callouts of a rule or an explanation.
 struct BlocksView: View {
     let blocks: [Block]
-    @Environment(Speech.self) private var speech
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -15,13 +14,6 @@ struct BlocksView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         // body 16/24
         .lineSpacing(4)
-        // French examples are links with the scheme "speak": tapping one reads it aloud.
-        .environment(\.openURL, OpenURLAction { url in
-            guard url.scheme == InlineText.speakScheme,
-                  let text = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first?.value else { return .systemAction }
-            speech.speak(text)
-            return .handled
-        })
     }
 }
 
@@ -61,32 +53,35 @@ private struct BlockView: View {
     }
 }
 
-/// A table wider than the screen scrolls sideways instead of squeezing its columns.
+/// A table that fits the page: its columns share the width and every cell wraps.
+/// No horizontal scroll view: the whole table is always visible on the page.
 private struct TableView: View {
     let head: [String]
     let rows: [[String]]
 
     var body: some View {
-        ScrollView(.horizontal) {
-            Grid(alignment: .leading, horizontalSpacing: 0, verticalSpacing: 0) {
-                GridRow {
-                    ForEach(Array(head.enumerated()), id: \.offset) { column, cell in
-                        cellView(InlineText(md: cell).font(Theme.sans(12, .medium, relativeTo: .caption)).foregroundStyle(Theme.t2), column: column)
-                    }
+        Grid(alignment: .leading, horizontalSpacing: 0, verticalSpacing: 0) {
+            GridRow {
+                ForEach(Array(head.enumerated()), id: \.offset) { column, cell in
+                    cellView(InlineText(md: cell)
+                        .font(Theme.sans(12, .medium, relativeTo: .caption))
+                        .foregroundStyle(Theme.t2)
+                        .frame(maxWidth: .infinity, alignment: .leading), column: column)
                 }
-                ForEach(Array(rows.enumerated()), id: \.offset) { _, row in
-                    // A wrapped cell would otherwise read as two rows.
-                    Theme.line.frame(height: 1).gridCellUnsizedAxes(.horizontal)
-                    GridRow(alignment: .top) {
-                        ForEach(Array(row.enumerated()), id: \.offset) { column, cell in
-                            cellView(InlineText(md: cell).font(Theme.callout).frame(maxWidth: 240, alignment: .leading), column: column)
-                        }
+            }
+            ForEach(Array(rows.enumerated()), id: \.offset) { _, cells in
+                // A wrapped cell would otherwise read as two rows.
+                Theme.line.frame(height: 1).gridCellUnsizedAxes(.horizontal)
+                GridRow(alignment: .top) {
+                    ForEach(Array(cells.enumerated()), id: \.offset) { column, cell in
+                        cellView(InlineText(md: cell)
+                            .font(Theme.callout)
+                            .frame(maxWidth: .infinity, alignment: .leading), column: column)
                     }
                 }
             }
         }
-        // The columns past the edge are easy to miss: the indicator shows there is more.
-        .scrollIndicatorsFlash(onAppear: true)
+        .frame(maxWidth: .infinity)
         .surface(radius: 16)
     }
 
@@ -106,10 +101,45 @@ struct InlineText: View {
 
     let md: String
     @Environment(Library.self) private var library
+    @State private var picked: Picked?
 
     var body: some View {
         Text(InlineText.cache.text(for: md, reader: library.reader))
             .fixedSize(horizontal: false, vertical: true)
+            // A French example is a link with the scheme "speak". Instead of reading it at once,
+            // tapping it opens the same miniature analysis as the reader.
+            .environment(\.openURL, OpenURLAction { url in
+                guard url.scheme == InlineText.speakScheme,
+                      let text = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first?.value else { return .systemAction }
+                picked = makePicked(text)
+                return .handled
+            })
+            .popover(item: $picked) { item in
+                WordPopover(picked: item) { picked = nil }
+            }
+    }
+
+    /// The tapped French run as the reader sees it: one word gets its translation, gender and
+    /// reading rule; a whole example gets its transcription.
+    private func makePicked(_ text: String) -> Picked {
+        let words = library.reader.read(text)
+        let plain = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        let isPhrase = words.count != 1
+        let single = isPhrase ? nil : words.first
+        let translation = isPhrase ? nil : library.translation(of: plain)
+        let word: Word? = {
+            guard let single, single.isKnown else { return nil }
+            return Word(fr: Content.bare(plain), m: single.marked, ipa: single.ipa, ru: translation ?? "")
+        }()
+        let rule = words.ruleSubjects
+            .compactMap { library.content.readingRule(for: $0.subject) }
+            .first
+            .map { library.content.readingRules[$0] }
+        let marked: String? = isPhrase
+            ? (words.allSatisfy(\.isKnown) ? words.marked : nil)
+            : single?.marked
+        return Picked(range: 0...0, marked: marked, plain: plain, ipa: words.ipa,
+                      translation: translation, isPhrase: isPhrase, rule: rule, word: word)
     }
 
     @MainActor private static let cache = Cache()

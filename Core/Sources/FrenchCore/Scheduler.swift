@@ -86,12 +86,12 @@ public enum Scheduler {
 
 /// Which cards a session shows.
 public enum Session {
-    public static let size = 10
-
-    /// At most `limit` cards: due first, then new, then the ones being learned, then the known.
-    public static func queue(from entries: [Entry], cards: [String: CardState], now: Date, limit: Int = size) -> [Entry] {
+    /// Every card of the set: due first, then new, then the ones being learned, then the known.
+    /// Pass `limit` to cut the queue short; a session otherwise teaches the whole set.
+    public static func queue(from entries: [Entry], cards: [String: CardState], now: Date, limit: Int? = nil) -> [Entry] {
         let order: [CardStatus] = [.due, .new, .learning, .known]
         let ranked = order.flatMap { status in entries.filter { Scheduler.status(cards[$0.id], now: now) == status } }
+        guard let limit else { return ranked }
         return Array(ranked.prefix(limit))
     }
 

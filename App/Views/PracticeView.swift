@@ -40,6 +40,11 @@ private struct WordsPractice: View {
     @Environment(Store.self) private var store
     @State private var session: SessionRequest?
     @State private var range: ClosedRange<Int>?
+    @AppStorage(CardDirection.defaultsKey) private var directionRaw = CardDirection.frToRu.rawValue
+
+    private var direction: CardDirection {
+        CardDirection(rawValue: directionRaw) ?? .frToRu
+    }
 
     var body: some View {
         let cards = store.data.cards
@@ -54,10 +59,21 @@ private struct WordsPractice: View {
         }
         .fullScreenCover(item: $session) { CardSessionView(request: $0) }
 
+        SectionHeader(title: "Направление")
+        HStack(spacing: 8) {
+            FilterChip(title: CardDirection.frToRu.rawValue, isOn: direction == .frToRu) {
+                directionRaw = CardDirection.frToRu.rawValue
+            }
+            FilterChip(title: CardDirection.ruToFr.rawValue, isOn: direction == .ruToFr) {
+                directionRaw = CardDirection.ruToFr.rawValue
+            }
+        }
+        Footer(text: "FR → RU: на карточке французское слово, вспомните перевод. RU → FR: на карточке перевод, вспомните французское слово.")
+
         SectionHeader(title: "Новый набор")
         LessonRangeCard(range: $range) { range in
             let words = library.content.entries(in: range).count
-            return "\(plural(words, "слово", "слова", "слов")) · \(min(words, Session.size)) в сессии"
+            return "\(plural(words, "слово", "слова", "слов")) · все в сессии"
         } start: { range in
             start(store.saveSet(first: range.lowerBound, last: range.upperBound))
         }
@@ -124,7 +140,7 @@ private struct WordsPractice: View {
 /// A grid of lesson numbers: the first tap sets the start, the second the end, a third starts over.
 private struct LessonRangeCard: View {
     @Binding var range: ClosedRange<Int>?
-    /// What the range holds: «12 слов · 10 в сессии».
+    /// What the range holds: «12 слов · все в сессии».
     let describe: (ClosedRange<Int>) -> String
     let start: (ClosedRange<Int>) -> Void
 

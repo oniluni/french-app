@@ -60,6 +60,7 @@ struct WordAnalysisBody: View {
                 VStack(spacing: 0) {
                     header(entry: entry)
                     facts(entry: entry, analysis: nil, paradigm: nil)
+                    nuances(for: entry.word.fr)
                     openButton(entry: entry, category: nil)
                 }
             }
@@ -80,6 +81,7 @@ struct WordAnalysisBody: View {
                 header(current: current, entry: entry, paradigm: paradigm)
                 facts(entry: entry, analysis: current, paradigm: paradigm)
                 use(analysis: current)
+                nuances(for: current.analysis.lemma)
                 openButton(entry: entry, category: category)
                 forms(paradigm: paradigm, analysis: current.analysis)
                 examples(analysis: current.analysis)
@@ -254,6 +256,31 @@ struct WordAnalysisBody: View {
                 Text(text).font(Theme.subhead).foregroundStyle(Theme.t2)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(16)
+            }
+        }
+    }
+
+    // MARK: Nuances
+
+    @ViewBuilder private func nuances(for word: String) -> some View {
+        let notes = library.nuanceNotes(for: word)
+        if !notes.isEmpty {
+            SectionHeader(title: "Оттенки значения")
+            Card {
+                ForEach(Array(notes.enumerated()), id: \.offset) { _, note in
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text(note.title).font(Theme.bodyMedium)
+                        Text(note.text).font(Theme.subhead).foregroundStyle(Theme.t2)
+                        ForEach(Array(note.examples.prefix(2)), id: \.self) { example in
+                            Text(example)
+                                .font(Theme.sans(15, .medium, relativeTo: .callout))
+                                .foregroundStyle(Theme.t1)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
+                }
             }
         }
     }

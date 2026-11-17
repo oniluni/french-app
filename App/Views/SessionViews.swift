@@ -1,3 +1,4 @@
+import Foundation
 import FrenchCore
 import SwiftUI
 
@@ -103,11 +104,29 @@ func blank(width: Int = 8) -> AttributedString {
 
 // MARK: - Cards
 
+/// Which side of a card is shown first.
+enum CardDirection: String, CaseIterable, Identifiable {
+    case frToRu = "FR → RU"
+    case ruToFr = "RU → FR"
+
+    var id: String { rawValue }
+
+    static let defaultsKey = "cardDirection"
+
+    /// The direction chosen in Practice; every card session follows it.
+    static var current: CardDirection {
+        guard let raw = UserDefaults.standard.string(forKey: defaultsKey),
+              let direction = CardDirection(rawValue: raw) else { return .frToRu }
+        return direction
+    }
+}
+
 /// Cards to go through in one sitting.
 struct SessionRequest: Identifiable {
     let id = UUID()
     let title: String
     let entries: [Entry]
+    var direction: CardDirection = .current
 }
 
 /// Cards in the Anki manner: look at the word, recall, turn it over, grade yourself.
@@ -168,8 +187,15 @@ struct CardSessionView: View {
         let status = store.status(of: entry)
         return ZStack {
             QuestionCard {
-                MarkedText(marked: nil, plain: entry.word.fr, size: 44, weight: .semibold)
-                Text("Вспомните перевод и коснитесь карточки").font(Theme.subhead).foregroundStyle(Theme.t2)
+                if request.direction == .ruToFr {
+                    Text(entry.word.ru.isEmpty ? entry.word.fr : entry.word.ru)
+                        .font(Theme.sans(40, .semibold, relativeTo: .largeTitle))
+                        .multilineTextAlignment(.center)
+                    Text("Вспомните слово по-французски").font(Theme.subhead).foregroundStyle(Theme.t2)
+                } else {
+                    MarkedText(marked: nil, plain: entry.word.fr, size: 44, weight: .semibold)
+                    Text("Вспомните перевод и коснитесь карточки").font(Theme.subhead).foregroundStyle(Theme.t2)
+                }
             }
             .opacity(isFlipped ? 0 : 1)
             QuestionCard { back(entry) }
@@ -185,7 +211,12 @@ struct CardSessionView: View {
         .accessibilityElement(children: isFlipped ? .contain : .combine)
         .accessibilityAddTraits(isFlipped ? [] : .isButton)
         .accessibilityIdentifier("card")
-        .overlay(alignment: .topTrailing) { SpeakButton(text: entry.word.m ?? entry.word.fr, kind: .glass).padding(16) }
+        .overlay(alignment: .topTrailing) {
+            // In reverse mode the pronunciation would give the answer away before the flip.
+            if request.direction == .frToRu || isFlipped {
+                SpeakButton(text: entry.word.m ?? entry.word.fr, kind: .glass).padding(16)
+            }
+        }
     }
 
     @ViewBuilder private func back(_ entry: Entry) -> some View {

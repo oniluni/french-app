@@ -63,7 +63,8 @@ Appears under the selection, or above it when there is no room below. Closes on 
 on scroll and on Escape.
 
 - The word or phrase with pronunciation marks, its IPA, and a listen button.
-- One word: its gloss. A phrase: the translation of every sentence the selection touches,
+- One word: its gloss and, when the word has several close Russian equivalents, a short note on
+  which one to use. A phrase: the translation of every sentence the selection touches,
   labelled «Перевод предложения».
 - One word that has a reading rule: a row «Почему так читается» linking to that rule.
 - Actions, each shown only when it applies:
@@ -72,8 +73,10 @@ on scroll and on Escape.
   - «Заметка» opens the notes sheet with the fragment quoted (lesson texts only).
 
 ### 3.4 Rule
-Kind tag («Чтение» or «Грамматика»), title, prose, an optional table, examples. Tapping an
-example speaks it. Table cells and examples use the pronunciation marks. Has the notes button.
+Kind tag («Чтение» or «Грамматика»), title, prose, an optional table, examples. Tapping a
+French example opens its miniature analysis, as in the reader; the listen button there speaks it.
+Tables fit the page: columns share the width, cells wrap, and there is no horizontal scroll.
+Table cells and examples use the pronunciation marks. Has the notes button.
 
 ### 3.5 Notes
 A bottom sheet per lesson text and per rule.
@@ -84,6 +87,8 @@ A bottom sheet per lesson text and per rule.
 
 ### 3.6 «Практика» → «Слова»
 - «Сегодня»: number of cards due and «Повторить» (disabled at zero).
+- Direction: `FR → RU` shows the French word first; `RU → FR` shows the translation first.
+  The choice applies to every card session.
 - «Новый набор»: a grid of lesson numbers. The first tap sets the start, the second the end;
   a third tap starts over. The summary shows the range and its word count. «Начать» saves the
   range as a set and starts a session. One tap then «Начать» is a single-lesson set.
@@ -96,7 +101,8 @@ A bottom sheet per lesson text and per rule.
 - Tap the card or «Показать ответ» to flip. Back: the word with marks, IPA, translation.
 - Four grades with the next interval under each: «Снова», «Трудно», «Хорошо», «Легко».
   «Снова» puts the card back at the end of the queue.
-- A session holds at most 10 cards, taken in this order: due, new, learning, known.
+- A session holds every card of the set, taken in this order: due, new, learning, known.
+  There is no per-session cap.
 - End screen: counts per grade, when the next review is, «Готово».
 
 ### 3.7 «Практика» → «Формы»
@@ -128,6 +134,8 @@ The same view in both places.
 - Header: base form with marks, IPA, listen button, translation.
 - Facts: part of speech, then by kind: verb group, past participle and auxiliary; gender for a
   noun; position for an adjective. Also silent letters, nasal vowels, lesson, card status.
+- «Оттенки значения»: for a word with several close Russian equivalents (`aller`, `revenir`),
+  the distinction between them, with short examples.
 - Forms:
   - verb: tense switch (`Présent · Imparfait · Futur` in the sample data) and six rows
     (person in Russian, form with marks, IPA);

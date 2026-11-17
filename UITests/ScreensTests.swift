@@ -69,7 +69,8 @@ final class ScreensTests: XCTestCase {
         XCTAssertTrue(good.waitForExistence(timeout: 5))
         shot("13-card-back")
         good.tap()
-        XCTAssertTrue(app.staticTexts["1 / 10"].waitForExistence(timeout: 5), "one of ten cards is done")
+        let counter = app.staticTexts.matching(NSPredicate(format: "label MATCHES %@", "1 / [0-9]+")).firstMatch
+        XCTAssertTrue(counter.waitForExistence(timeout: 5), "one card is done")
         app.buttons["Закрыть"].tap()
 
         XCTAssertTrue(app.staticTexts["Уроки 5–6"].waitForExistence(timeout: 5), "the range is saved as a set")
