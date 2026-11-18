@@ -53,7 +53,7 @@ the `screenshots` artifact of each run.
 | `Core/` | `FrenchCore` Swift package: content model, pronunciation markup, scheduler, dictionary lookup, reader, paradigms, drills. Foundation only |
 | `UITests/` | Walk through every screen with screenshots |
 | `tools/` | Node scripts that build the bundled content from the lesson vault |
-| `prototype/` | The clickable HTML design the app follows |
+| `design/` | The HTML design the app follows |
 | `docs/SPEC.md` | What the app does and why |
 
 Content is generated, then committed, because CI has no access to the lesson vault:
@@ -64,6 +64,8 @@ node tools/build-lexicon.mjs                         # → App/Resources/lexicon
 node tools/build-examples.mjs                        # → App/Resources/examples.tsv (downloads Tatoeba)
 node tools/build-dictionary.mjs                      # → App/Resources/dictionary.tsv (WikDict, FLELex)
 node tools/build-reference.mjs                       # → App/Resources/reference.json
+node tools/build-nuances.mjs                         # → App/Resources/nuances.json
+node tools/build-themes.mjs                          # → App/Resources/themes.json
 node --test tools/*.test.mjs
 ```
 

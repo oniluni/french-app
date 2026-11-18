@@ -14,6 +14,7 @@ final class Library {
     let glossary: Glossary
     let reference: ReferenceBook
     let nuances: Nuances
+    let wordThemes: WordThemes
 
     /// A bundled file that is missing or does not match the model: a build mistake, shown by the
     /// launch error screen instead of crashing, so that the learner can still save their progress.
@@ -52,11 +53,16 @@ final class Library {
         } catch {
             throw Failure(file: "reference.json", reason: "does not match the app's model: \(error)")
         }
-        // The notes are an optional layer: an older build without the file still starts.
+        // The notes and themes are optional layers: an older build without the files still starts.
         if let data = try? resource("nuances", "json"), let loaded = try? Nuances(data: data) {
             nuances = loaded
         } else {
             nuances = Nuances()
+        }
+        if let data = try? resource("themes", "json"), let loaded = try? WordThemes.decode(data) {
+            wordThemes = loaded
+        } else {
+            wordThemes = WordThemes()
         }
     }
 

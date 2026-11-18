@@ -92,6 +92,11 @@ A bottom sheet per lesson text and per rule.
 - «Новый набор»: a grid of lesson numbers. The first tap sets the start, the second the end;
   a third tap starts over. The summary shows the range and its word count. «Начать» saves the
   range as a set and starts a session. One tap then «Начать» is a single-lesson set.
+- «Темы»: short card sets by topic («Семья», «Движение», «Поход», «Город», «Дом», «Еда»,
+  «Путешествия», «Учёба и работа», «Здоровье и тело», «Время и погода», «Чувства и общение»,
+  «Покупки и деньги»). Each tile shows the number of words and how many are due; tapping it
+  starts a session at once. The words are hand-written in `tools/themes.mjs`; a word that the
+  lessons teach keeps its lesson card, a new one becomes a card of its own.
 - «Мои наборы»: saved ranges with a progress ring, learned count and due count. Tapping one
   starts a session. Saved sets are how the learner returns to a range.
 

@@ -78,6 +78,16 @@ private struct WordsPractice: View {
         }
         Footer(text: "Карточка показывает слово: вспомните перевод и произношение, откройте ответ и оцените себя. Набор сохранится в «Моих наборах».")
 
+        if !library.wordThemes.themes.isEmpty {
+            SectionHeader(title: "Темы", trailing: "\(library.wordThemes.themes.count)")
+            LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
+                ForEach(library.wordThemes.themes) { theme in
+                    themeTile(theme)
+                }
+            }
+            Footer(text: "Короткие наборы слов по темам: учите новые слова и повторяйте их вместе.")
+        }
+
         if !store.data.sets.isEmpty || !favorites.isEmpty {
             SectionHeader(title: "Мои наборы", trailing: "\(store.data.sets.count + (favorites.isEmpty ? 0 : 1))")
             Card {
@@ -95,6 +105,50 @@ private struct WordsPractice: View {
             }
             Footer(text: "Чтобы удалить набор, нажмите на него и подержите.")
         }
+    }
+
+    /// A theme is a small deck of words on one topic. Tapping it starts a card session at once;
+    /// the words it already knows keep their lesson cards and their progress.
+    private func themeTile(_ theme: WordTheme) -> some View {
+        let entries = library.content.entries(forWords: theme.words)
+        let cards = store.data.cards
+        let started = entries.filter { cards[$0.id] != nil }.count
+        let due = Session.due(in: entries, cards: cards, now: .now).count
+        let state = due > 0 ? "\(due) повторить" : started > 0 ? "\(started) из \(entries.count)" : "новые слова"
+        return Button {
+            session = SessionRequest(title: theme.title, entries: entries)
+        } label: {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack {
+                    Image(systemName: theme.icon)
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundStyle(Theme.acc)
+                        .frame(width: 38, height: 38)
+                        .background(Theme.accSoft, in: Circle())
+                    Spacer()
+                    Text("\(entries.count)")
+                        .font(Theme.mono(12, .medium, relativeTo: .caption1))
+                        .foregroundStyle(Theme.t3)
+                }
+                Text(theme.title)
+                    .font(Theme.bodyMedium)
+                    .foregroundStyle(Theme.t1)
+                    .lineLimit(2)
+                Text(state)
+                    .font(Theme.mono(12, .medium, relativeTo: .caption1))
+                    .foregroundStyle(Theme.t2)
+                    .lineLimit(1)
+            }
+            .padding(14)
+            .frame(maxWidth: .infinity, minHeight: 118, alignment: .topLeading)
+            .background(Theme.s1, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: 20, style: .continuous).strokeBorder(Theme.line)
+            }
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier("theme-\(theme.id)")
+        .accessibilityLabel("\(theme.title), \(plural(entries.count, "слово", "слова", "слов"))")
     }
 
     private func title(of set: StudySet) -> String {
