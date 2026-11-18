@@ -49,9 +49,13 @@ private struct WordsPractice: View {
     var body: some View {
         let cards = store.data.cards
         let favorites = library.content.entries(forWords: store.data.favorites)
-        // Starred lesson words already are lesson cards; only the others are added.
-        let everything = library.content.entries + favorites.filter { $0.lesson == 0 }
-        let due = Session.due(in: everything, cards: cards, now: .now)
+        let themeEntries = library.wordThemes.themes.flatMap { library.content.entries(forWords: $0.words) }
+        // A word reached from a theme, a favourite or a lesson is one card with one schedule.
+        let everything = Dictionary(
+            (library.content.entries + favorites + themeEntries).map { ($0.id, $0) },
+            uniquingKeysWith: { first, _ in first }
+        ).values
+        let due = Session.due(in: Array(everything), cards: cards, now: .now)
 
         // The main button moves to «Начать» once a range is chosen.
         DueTile(count: due.count, button: range == nil ? .primary : .quiet) {
