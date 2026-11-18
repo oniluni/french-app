@@ -28,6 +28,16 @@ jobs:
       - name: Generate Xcode project
         run: brew install xcodegen && xcodegen generate
 
+      # The simulator shows a one-time "Speed up your typing" tip that can make
+      # accessibility snapshots hang. Mark it as seen before the app is first run.
+      - name: Prepare simulator
+        run: |
+          xcrun simctl boot "iPhone 17" || true
+          xcrun simctl bootstatus "iPhone 17" -b
+          xcrun simctl spawn booted defaults write com.apple.keyboard.preferences DidShowContinuousPathIntroduction -bool true
+          xcrun simctl spawn booted defaults write com.apple.keyboard.preferences DidShowGestureKeyboardIntroduction -bool true
+          xcrun simctl spawn booted defaults write com.apple.Preferences DidShowContinuousPathIntroduction -bool true
+
       - name: UI tests
         run: |
           set -o pipefail
