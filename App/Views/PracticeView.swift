@@ -48,8 +48,8 @@ private struct WordsPractice: View {
 
     var body: some View {
         let cards = store.data.cards
-        let favorites = library.content.entries(forWords: store.data.favorites)
-        let themeEntries = library.wordThemes.themes.flatMap { library.content.entries(forWords: $0.words) }
+        let favorites = library.entries(forWords: store.data.favorites)
+        let themeEntries = library.wordThemes.themes.flatMap { library.themeEntriesByID[$0.id] ?? [] }
         // A word reached from a theme, a favourite or a lesson is one card with one schedule.
         let everything = Dictionary(
             (library.content.entries + favorites + themeEntries).map { ($0.id, $0) },
@@ -75,7 +75,7 @@ private struct WordsPractice: View {
 
         SectionHeader(title: "Новый набор")
         LessonRangeCard(range: $range) { range in
-            let words = library.content.entries(in: range).count
+            let words = library.content.entries(in: range).cardEntries.count
             return "\(plural(words, "слово", "слова", "слов")) · все в сессии"
         } start: { range in
             start(store.saveSet(first: range.lowerBound, last: range.upperBound))
@@ -86,7 +86,7 @@ private struct WordsPractice: View {
             SectionHeader(title: "Темы", trailing: "\(library.wordThemes.themes.count)")
             LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
                 ForEach(library.wordThemes.themes) { theme in
-                    themeTile(theme)
+                    themeTile(theme, entries: library.themeEntriesByID[theme.id] ?? [], cards: cards)
                 }
             }
             Footer(text: "Короткие наборы слов по темам: учите новые слова и повторяйте их вместе.")
@@ -113,9 +113,7 @@ private struct WordsPractice: View {
 
     /// A theme is a small deck of words on one topic. Tapping it starts a card session at once;
     /// the words it already knows keep their lesson cards and their progress.
-    private func themeTile(_ theme: WordTheme) -> some View {
-        let entries = library.content.entries(forWords: theme.words)
-        let cards = store.data.cards
+    private func themeTile(_ theme: WordTheme, entries: [Entry], cards: [String: CardState]) -> some View {
         let started = entries.filter { cards[$0.id] != nil }.count
         let due = Session.due(in: entries, cards: cards, now: .now).count
         let state = due > 0 ? "\(due) повторить" : started > 0 ? "\(started) из \(entries.count)" : "новые слова"
@@ -166,7 +164,8 @@ private struct WordsPractice: View {
     /// A set: its progress, how much of it is started, what is due.
     private func setRow(title: String, entries: [Entry], icon: Bool = false, action: @escaping () -> Void) -> some View {
         let cards = store.data.cards
-        let started = entries.filter { cards[$0.id] != nil }.count
+        let cardsOnly = entries.cardEntries
+        let started = cardsOnly.filter { cards[$0.id] != nil }.count
         let due = Session.due(in: entries, cards: cards, now: .now).count
         let progress = Session.progress(of: entries, cards: cards)
         let state = due > 0 ? "\(due) пора повторить" : started > 0 ? "всё повторено" : "не начат"
@@ -181,7 +180,7 @@ private struct WordsPractice: View {
                 }
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title).font(Theme.bodyMedium)
-                    Text(icon ? "\(plural(entries.count, "слово", "слова", "слов")) · \(state)" : "\(started) из \(entries.count) · \(state)")
+                    Text(icon ? "\(plural(cardsOnly.count, "слово", "слова", "слов")) · \(state)" : "\(started) из \(cardsOnly.count) · \(state)")
                         .font(Theme.mono(14, relativeTo: .subheadline))
                         .foregroundStyle(Theme.t2)
                 }

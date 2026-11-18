@@ -56,6 +56,19 @@ final class SchedulerTests: XCTestCase {
     func testSameSpellingInTwoLessonsIsTwoCards() {
         XCTAssertNotEqual(entry("ce", lesson: 2).id, entry("ce", lesson: 5).id)
     }
+
+    func testCardsSkipProperNamesAndLooseArticles() {
+        let words = [
+            Word(fr: "Paris", ipa: "", ru: "Париж", pos: "имя собственное, город"),
+            Word(fr: "le", ipa: "", ru: "артикль", pos: "определённый артикль"),
+            Word(fr: "la", ipa: "", ru: "артикль", pos: "определённый артикль"),
+            Word(fr: "parler", ipa: "", ru: "говорить", pos: "глагол I группы"),
+        ]
+        let entries = words.map { Entry(lesson: 1, word: $0) }
+        XCTAssertEqual(Session.queue(from: entries, cards: [:], now: now).map(\.word.fr), ["parler"])
+        XCTAssertEqual(Session.due(in: entries, cards: [:], now: now).count, 0)
+        XCTAssertEqual(Session.progress(of: entries, cards: ["1:parler": CardState(interval: 1, ease: 2.5, due: now)]), 1)
+    }
 }
 
 final class UserDataTests: XCTestCase {

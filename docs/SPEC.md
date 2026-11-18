@@ -96,7 +96,8 @@ A bottom sheet per lesson text and per rule.
   «Путешествия», «Учёба и работа», «Здоровье и тело», «Время и погода», «Чувства и общение»,
   «Покупки и деньги»). Each tile shows the number of words and how many are due; tapping it
   starts a session at once. The words are hand-written in `tools/themes.mjs`; a word that the
-  lessons teach keeps its lesson card, a new one becomes a card of its own.
+  lessons teach keeps its lesson card, a new one becomes a card of its own. The build rejects
+  standalone articles and proper names (people, cities, countries) so cards stay common words.
 - «Мои наборы»: saved ranges with a progress ring, learned count and due count. Tapping one
   starts a session. Saved sets are how the learner returns to a range.
 
@@ -107,7 +108,7 @@ A bottom sheet per lesson text and per rule.
 - Four grades with the next interval under each: «Снова», «Трудно», «Хорошо», «Легко».
   «Снова» puts the card back at the end of the queue.
 - A session holds every card of the set, shuffled once when it starts. There is no per-session
-  cap.
+  cap. Proper names (people, cities, countries) and articles on their own are not cards.
 - End screen: counts per grade, when the next review is, «Готово».
 
 ### 3.7 «Практика» → «Формы»

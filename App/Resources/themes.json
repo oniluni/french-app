@@ -119,6 +119,72 @@
           "ipa": "njɛs",
           "ru": "племянница",
           "pos": ""
+        },
+        {
+          "fr": "le bébé",
+          "ipa": "bebe",
+          "ru": "младенец",
+          "pos": ""
+        },
+        {
+          "fr": "le couple",
+          "ipa": "kupl",
+          "ru": "пара, супруги",
+          "pos": ""
+        },
+        {
+          "fr": "l'enfance",
+          "ipa": "ɑ̃fɑ̃s",
+          "ru": "детство",
+          "pos": ""
+        },
+        {
+          "fr": "l'adulte",
+          "ipa": "adylt",
+          "ru": "взрослый",
+          "pos": ""
+        },
+        {
+          "fr": "la personne",
+          "ipa": "pɛʁsɔn",
+          "ru": "человек",
+          "pos": ""
+        },
+        {
+          "fr": "le fiancé",
+          "ipa": "fjɑ̃se",
+          "ru": "жених",
+          "pos": ""
+        },
+        {
+          "fr": "la fiancée",
+          "ipa": "fjɑ̃se",
+          "ru": "невеста",
+          "pos": ""
+        },
+        {
+          "fr": "le parrain",
+          "ipa": "paʁɛ̃",
+          "ru": "крёстный отец",
+          "pos": ""
+        },
+        {
+          "fr": "la marraine",
+          "ipa": "maʁɛn",
+          "ru": "крёстная мать",
+          "pos": ""
+        },
+        {
+          "fr": "le filleul",
+          "ipa": "fijœl",
+          "ru": "крёстный сын",
+          "pos": ""
+        },
+        {
+          "fr": "la filleule",
+          "ipa": "fijœl",
+          "ru": "крёстная дочь",
+          "pos": ""
         }
       ]
     },
@@ -245,6 +311,82 @@
           "ipa": "sə ləve",
           "ru": "вставать",
           "pos": ""
+        },
+        {
+          "fr": "sauter",
+          "ipa": "sote",
+          "ru": "прыгать",
+          "pos": "",
+          "m": "saute(r)"
+        },
+        {
+          "fr": "tomber",
+          "ipa": "tɔ̃be",
+          "ru": "падать",
+          "pos": "",
+          "m": "t[om]be(r)"
+        },
+        {
+          "fr": "glisser",
+          "ipa": "ɡlise",
+          "ru": "скользить, поскользнуться",
+          "pos": "",
+          "m": "glisse(r)"
+        },
+        {
+          "fr": "nager",
+          "ipa": "naʒe",
+          "ru": "плавать",
+          "pos": "",
+          "m": "nage(r)"
+        },
+        {
+          "fr": "voler",
+          "ipa": "vole",
+          "ru": "летать; воровать",
+          "pos": "",
+          "m": "vole(r)"
+        },
+        {
+          "fr": "rouler",
+          "ipa": "ʁule",
+          "ru": "ехать; катить",
+          "pos": "",
+          "m": "roule(r)"
+        },
+        {
+          "fr": "conduire",
+          "ipa": "kɔ̃dɥiʁ",
+          "ru": "вести машину",
+          "pos": "",
+          "m": "c[on]duir(e)"
+        },
+        {
+          "fr": "porter",
+          "ipa": "poʁte",
+          "ru": "нести",
+          "pos": "",
+          "m": "porte(r)"
+        },
+        {
+          "fr": "revenir",
+          "ipa": "ʁəv(ə)niʁ",
+          "ru": "возвращаться",
+          "pos": ""
+        },
+        {
+          "fr": "rentrer",
+          "ipa": "ʁɑ̃tʁe",
+          "ru": "возвращаться домой",
+          "pos": "",
+          "m": "r[en]tre(r)"
+        },
+        {
+          "fr": "retourner",
+          "ipa": "ʁətuʁne",
+          "ru": "возвращаться; поворачивать",
+          "pos": "",
+          "m": "retourne(r)"
         }
       ]
     },
@@ -372,6 +514,78 @@
           "ipa": "solɛj",
           "ru": "солнце",
           "pos": ""
+        },
+        {
+          "fr": "le chemin",
+          "ipa": "ʃəmɛ̃",
+          "ru": "дорога, путь",
+          "pos": ""
+        },
+        {
+          "fr": "le rocher",
+          "ipa": "ʁoʃe",
+          "ru": "скала, камень",
+          "pos": ""
+        },
+        {
+          "fr": "la pierre",
+          "ipa": "pjɛʁ",
+          "ru": "камень",
+          "pos": ""
+        },
+        {
+          "fr": "l'arbre",
+          "ipa": "aʁbʁ",
+          "ru": "дерево",
+          "pos": ""
+        },
+        {
+          "fr": "la fleur",
+          "ipa": "flœʁ",
+          "ru": "цветок",
+          "pos": ""
+        },
+        {
+          "fr": "le ruisseau",
+          "ipa": "ʁɥiso",
+          "ru": "ручей",
+          "pos": ""
+        },
+        {
+          "fr": "le village",
+          "ipa": "vilaʒ",
+          "ru": "деревня",
+          "pos": ""
+        },
+        {
+          "fr": "le refuge",
+          "ipa": "ʁəfyʒ",
+          "ru": "убежище, приют",
+          "pos": ""
+        },
+        {
+          "fr": "la grotte",
+          "ipa": "ɡʁɔt",
+          "ru": "пещера",
+          "pos": ""
+        },
+        {
+          "fr": "le paysage",
+          "ipa": "peizaʒ",
+          "ru": "пейзаж",
+          "pos": ""
+        },
+        {
+          "fr": "la gourde",
+          "ipa": "ɡuʁd",
+          "ru": "фляга",
+          "pos": ""
+        },
+        {
+          "fr": "le pique-nique",
+          "ipa": "piknik",
+          "ru": "пикник",
+          "pos": ""
         }
       ]
     },
@@ -492,6 +706,96 @@
           "fr": "la bibliothèque",
           "ipa": "biblijɔtɛk",
           "ru": "библиотека",
+          "pos": ""
+        },
+        {
+          "fr": "l'avenue",
+          "ipa": "av(ə)ny",
+          "ru": "проспект",
+          "pos": ""
+        },
+        {
+          "fr": "le boulevard",
+          "ipa": "buləvaʁ",
+          "ru": "бульвар",
+          "pos": ""
+        },
+        {
+          "fr": "le carrefour",
+          "ipa": "kaʁəfuʁ",
+          "ru": "перекрёсток",
+          "pos": ""
+        },
+        {
+          "fr": "le trottoir",
+          "ipa": "tʁotwaʁ",
+          "ru": "тротуар",
+          "pos": ""
+        },
+        {
+          "fr": "la station",
+          "ipa": "stasjɔ̃",
+          "ru": "станция",
+          "pos": ""
+        },
+        {
+          "fr": "l'arrêt",
+          "ipa": "aʁɛ",
+          "ru": "остановка",
+          "pos": ""
+        },
+        {
+          "fr": "le ticket",
+          "ipa": "tikɛ",
+          "ru": "билет, талон",
+          "pos": ""
+        },
+        {
+          "fr": "le cinéma",
+          "ipa": "sinema",
+          "ru": "кинотеатр",
+          "pos": ""
+        },
+        {
+          "fr": "le théâtre",
+          "ipa": "teɑtʁ",
+          "ru": "театр",
+          "pos": ""
+        },
+        {
+          "fr": "la cathédrale",
+          "ipa": "katedʁal",
+          "ru": "собор",
+          "pos": ""
+        },
+        {
+          "fr": "le château",
+          "ipa": "ʃato",
+          "ru": "замок, дворец",
+          "pos": ""
+        },
+        {
+          "fr": "le stade",
+          "ipa": "stad",
+          "ru": "стадион",
+          "pos": ""
+        },
+        {
+          "fr": "la piscine",
+          "ipa": "pisin",
+          "ru": "бассейн",
+          "pos": ""
+        },
+        {
+          "fr": "le supermarché",
+          "ipa": "sypɛʁmaʁʃe",
+          "ru": "супермаркет",
+          "pos": ""
+        },
+        {
+          "fr": "la boulangerie",
+          "ipa": "bulɑ̃ʒəʁi",
+          "ru": "булочная",
           "pos": ""
         }
       ]
@@ -620,6 +924,102 @@
           "ipa": "miʁwaʁ",
           "ru": "зеркало",
           "pos": ""
+        },
+        {
+          "fr": "le couloir",
+          "ipa": "kulwaʁ",
+          "ru": "коридор",
+          "pos": ""
+        },
+        {
+          "fr": "la serrure",
+          "ipa": "seʁyʁ",
+          "ru": "замок",
+          "pos": ""
+        },
+        {
+          "fr": "le rideau",
+          "ipa": "ʁido",
+          "ru": "занавеска",
+          "pos": ""
+        },
+        {
+          "fr": "l'oreiller",
+          "ipa": "oʁeje",
+          "ru": "подушка",
+          "pos": ""
+        },
+        {
+          "fr": "le drap",
+          "ipa": "dʁa",
+          "ru": "простыня",
+          "pos": ""
+        },
+        {
+          "fr": "la couverture",
+          "ipa": "kuvɛʁtyʁ",
+          "ru": "одеяло",
+          "pos": ""
+        },
+        {
+          "fr": "la serviette",
+          "ipa": "sɛʁvjɛt",
+          "ru": "полотенце",
+          "pos": ""
+        },
+        {
+          "fr": "le savon",
+          "ipa": "savɔ̃",
+          "ru": "мыло",
+          "pos": ""
+        },
+        {
+          "fr": "la douche",
+          "ipa": "duʃ",
+          "ru": "душ",
+          "pos": ""
+        },
+        {
+          "fr": "le four",
+          "ipa": "fuʁ",
+          "ru": "духовка",
+          "pos": ""
+        },
+        {
+          "fr": "l'assiette",
+          "ipa": "asjɛt",
+          "ru": "тарелка",
+          "pos": ""
+        },
+        {
+          "fr": "le verre",
+          "ipa": "vɛʁ",
+          "ru": "стакан; стекло",
+          "pos": ""
+        },
+        {
+          "fr": "la tasse",
+          "ipa": "tas",
+          "ru": "чашка",
+          "pos": ""
+        },
+        {
+          "fr": "la fourchette",
+          "ipa": "fuʁʃɛt",
+          "ru": "вилка",
+          "pos": ""
+        },
+        {
+          "fr": "la cuillère",
+          "ipa": "kɥijɛʁ",
+          "ru": "ложка",
+          "pos": ""
+        },
+        {
+          "fr": "le couteau",
+          "ipa": "kuto",
+          "ru": "нож",
+          "pos": ""
         }
       ]
     },
@@ -746,6 +1146,96 @@
           "fr": "le restaurant",
           "ipa": "ʁɛstoʁɑ̃",
           "ru": "ресторан",
+          "pos": ""
+        },
+        {
+          "fr": "la baguette",
+          "ipa": "baɡɛt",
+          "ru": "багет",
+          "pos": ""
+        },
+        {
+          "fr": "le beurre",
+          "ipa": "bœʁ",
+          "ru": "масло",
+          "pos": ""
+        },
+        {
+          "fr": "l'œuf",
+          "ipa": "œf",
+          "ru": "яйцо",
+          "pos": ""
+        },
+        {
+          "fr": "le poulet",
+          "ipa": "pulɛ",
+          "ru": "курица",
+          "pos": ""
+        },
+        {
+          "fr": "le porc",
+          "ipa": "pɔʁ",
+          "ru": "свинина",
+          "pos": ""
+        },
+        {
+          "fr": "le bœuf",
+          "ipa": "bœf",
+          "ru": "говядина",
+          "pos": ""
+        },
+        {
+          "fr": "la carotte",
+          "ipa": "kaʁɔt",
+          "ru": "морковь",
+          "pos": ""
+        },
+        {
+          "fr": "la tomate",
+          "ipa": "tomat",
+          "ru": "помидор",
+          "pos": ""
+        },
+        {
+          "fr": "l'orange",
+          "ipa": "oʁɑ̃ʒ",
+          "ru": "апельсин",
+          "pos": ""
+        },
+        {
+          "fr": "la banane",
+          "ipa": "banan",
+          "ru": "банан",
+          "pos": ""
+        },
+        {
+          "fr": "le gâteau",
+          "ipa": "ɡato",
+          "ru": "пирожное, торт",
+          "pos": ""
+        },
+        {
+          "fr": "le chocolat",
+          "ipa": "ʃokola",
+          "ru": "шоколад",
+          "pos": ""
+        },
+        {
+          "fr": "le jus",
+          "ipa": "ʒy",
+          "ru": "сок",
+          "pos": ""
+        },
+        {
+          "fr": "la bière",
+          "ipa": "bjɛʁ",
+          "ru": "пиво",
+          "pos": ""
+        },
+        {
+          "fr": "l'addition",
+          "ipa": "adisjɔ̃",
+          "ru": "счёт",
           "pos": ""
         }
       ]
@@ -874,6 +1364,78 @@
           "ipa": "fʁɔ̃tjɛʁ",
           "ru": "граница",
           "pos": ""
+        },
+        {
+          "fr": "le voyageur",
+          "ipa": "vwajaʒœʁ",
+          "ru": "путешественник",
+          "pos": ""
+        },
+        {
+          "fr": "le quai",
+          "ipa": "kɛ",
+          "ru": "перрон, набережная",
+          "pos": ""
+        },
+        {
+          "fr": "la correspondance",
+          "ipa": "koʁɛspɔ̃dɑ̃s",
+          "ru": "пересадка",
+          "pos": ""
+        },
+        {
+          "fr": "le siège",
+          "ipa": "sjɛʒ",
+          "ru": "сиденье",
+          "pos": ""
+        },
+        {
+          "fr": "la ceinture",
+          "ipa": "sɛ̃tyʁ",
+          "ru": "ремень",
+          "pos": ""
+        },
+        {
+          "fr": "le décollage",
+          "ipa": "dekolaʒ",
+          "ru": "взлёт",
+          "pos": ""
+        },
+        {
+          "fr": "l'atterrissage",
+          "ipa": "ateʁisaʒ",
+          "ru": "посадка",
+          "pos": ""
+        },
+        {
+          "fr": "la douane",
+          "ipa": "dwan",
+          "ru": "таможня",
+          "pos": ""
+        },
+        {
+          "fr": "le visa",
+          "ipa": "viza",
+          "ru": "виза",
+          "pos": ""
+        },
+        {
+          "fr": "la réservation",
+          "ipa": "ʁezɛʁvasjɔ̃",
+          "ru": "бронирование",
+          "pos": ""
+        },
+        {
+          "fr": "le bagage",
+          "ipa": "baɡaʒ",
+          "ru": "багаж",
+          "pos": ""
+        },
+        {
+          "fr": "la chambre",
+          "ipa": "ʃɑ̃bʁ",
+          "ru": "номер в гостинице",
+          "pos": ""
         }
       ]
     },
@@ -1000,6 +1562,120 @@
           "fr": "le salaire",
           "ipa": "salɛʁ",
           "ru": "зарплата",
+          "pos": ""
+        },
+        {
+          "fr": "la classe",
+          "ipa": "klɑs",
+          "ru": "класс",
+          "pos": ""
+        },
+        {
+          "fr": "le devoir",
+          "ipa": "d(ə)vwaʁ",
+          "ru": "домашнее задание",
+          "pos": ""
+        },
+        {
+          "fr": "la note",
+          "ipa": "nɔt",
+          "ru": "оценка; заметка",
+          "pos": ""
+        },
+        {
+          "fr": "la question",
+          "ipa": "kɛstjɔ̃",
+          "ru": "вопрос",
+          "pos": ""
+        },
+        {
+          "fr": "la réponse",
+          "ipa": "ʁepɔ̃s",
+          "ru": "ответ",
+          "pos": ""
+        },
+        {
+          "fr": "le mot",
+          "ipa": "mo",
+          "ru": "слово",
+          "pos": ""
+        },
+        {
+          "fr": "la phrase",
+          "ipa": "fʁɑz",
+          "ru": "фраза",
+          "pos": ""
+        },
+        {
+          "fr": "la grammaire",
+          "ipa": "ɡʁamɛʁ",
+          "ru": "грамматика",
+          "pos": ""
+        },
+        {
+          "fr": "le vocabulaire",
+          "ipa": "vokabylɛʁ",
+          "ru": "словарный запас",
+          "pos": ""
+        },
+        {
+          "fr": "la lecture",
+          "ipa": "lɛktyʁ",
+          "ru": "чтение",
+          "pos": ""
+        },
+        {
+          "fr": "l'écriture",
+          "ipa": "ekʁityʁ",
+          "ru": "письмо",
+          "pos": ""
+        },
+        {
+          "fr": "le stylo",
+          "ipa": "stilo",
+          "ru": "ручка",
+          "pos": ""
+        },
+        {
+          "fr": "le crayon",
+          "ipa": "kʁɛjɔ̃",
+          "ru": "карандаш",
+          "pos": ""
+        },
+        {
+          "fr": "la gomme",
+          "ipa": "ɡɔm",
+          "ru": "ластик",
+          "pos": ""
+        },
+        {
+          "fr": "la règle",
+          "ipa": "ʁɛɡl",
+          "ru": "линейка; правило",
+          "pos": ""
+        },
+        {
+          "fr": "le tableau",
+          "ipa": "tablo",
+          "ru": "доска",
+          "pos": ""
+        },
+        {
+          "fr": "l'emploi",
+          "ipa": "ɑ̃plwa",
+          "ru": "работа; применение",
+          "pos": ""
+        },
+        {
+          "fr": "la pause",
+          "ipa": "poz",
+          "ru": "перерыв",
+          "pos": ""
+        },
+        {
+          "fr": "le contrat",
+          "ipa": "kɔ̃tʁa",
+          "ru": "договор",
           "pos": ""
         }
       ]
@@ -1129,6 +1805,128 @@
           "ipa": "blesyʁ",
           "ru": "рана, травма",
           "pos": ""
+        },
+        {
+          "fr": "le bras",
+          "ipa": "bʁa",
+          "ru": "рука",
+          "pos": ""
+        },
+        {
+          "fr": "la jambe",
+          "ipa": "ʒɑ̃b",
+          "ru": "нога",
+          "pos": ""
+        },
+        {
+          "fr": "le doigt",
+          "ipa": "dwa",
+          "ru": "палец",
+          "pos": ""
+        },
+        {
+          "fr": "le genou",
+          "ipa": "ʒənu",
+          "ru": "колено",
+          "pos": ""
+        },
+        {
+          "fr": "l'oreille",
+          "ipa": "oʁɛj",
+          "ru": "ухо",
+          "pos": ""
+        },
+        {
+          "fr": "le nez",
+          "ipa": "ne",
+          "ru": "нос",
+          "pos": ""
+        },
+        {
+          "fr": "la dent",
+          "ipa": "dɑ̃",
+          "ru": "зуб",
+          "pos": ""
+        },
+        {
+          "fr": "la peau",
+          "ipa": "po",
+          "ru": "кожа",
+          "pos": ""
+        },
+        {
+          "fr": "le sang",
+          "ipa": "sɑ̃",
+          "ru": "кровь",
+          "pos": ""
+        },
+        {
+          "fr": "la gorge",
+          "ipa": "ɡɔʁʒ",
+          "ru": "горло",
+          "pos": ""
+        },
+        {
+          "fr": "l'estomac",
+          "ipa": "ɛstoma",
+          "ru": "желудок",
+          "pos": ""
+        },
+        {
+          "fr": "le dentiste",
+          "ipa": "dɑ̃tist",
+          "ru": "стоматолог",
+          "pos": ""
+        },
+        {
+          "fr": "l'infirmière",
+          "ipa": "ɛ̃fiʁmjɛʁ",
+          "ru": "медсестра",
+          "pos": ""
+        },
+        {
+          "fr": "le traitement",
+          "ipa": "tʁɛtəmɑ̃",
+          "ru": "лечение",
+          "pos": ""
+        },
+        {
+          "fr": "l'ordonnance",
+          "ipa": "ɔʁdonɑ̃s",
+          "ru": "рецепт",
+          "pos": ""
+        },
+        {
+          "fr": "la grippe",
+          "ipa": "ɡʁip",
+          "ru": "грипп",
+          "pos": ""
+        },
+        {
+          "fr": "le vaccin",
+          "ipa": "vaksɛ̃",
+          "ru": "вакцина",
+          "pos": ""
+        },
+        {
+          "fr": "guérir",
+          "ipa": "ɡeʁiʁ",
+          "ru": "выздоравливать",
+          "pos": ""
+        },
+        {
+          "fr": "tousser",
+          "ipa": "tuse",
+          "ru": "кашлять",
+          "pos": "",
+          "m": "tousse(r)"
+        },
+        {
+          "fr": "éternuer",
+          "ipa": "etɛʁnɥe",
+          "ru": "чихать",
+          "pos": "",
+          "m": "éternue(r)"
         }
       ]
     },
@@ -1283,6 +2081,94 @@
           "ipa": "ʃo",
           "ru": "жара; тепло",
           "pos": ""
+        },
+        {
+          "fr": "lundi",
+          "ipa": "lœ̃di",
+          "ru": "понедельник",
+          "pos": "",
+          "m": "l[un]di"
+        },
+        {
+          "fr": "mardi",
+          "ipa": "maʁdi",
+          "ru": "вторник",
+          "pos": ""
+        },
+        {
+          "fr": "mercredi",
+          "ipa": "mɛʁkʁədi",
+          "ru": "среда",
+          "pos": ""
+        },
+        {
+          "fr": "jeudi",
+          "ipa": "ʒødi",
+          "ru": "четверг",
+          "pos": ""
+        },
+        {
+          "fr": "vendredi",
+          "ipa": "vɑ̃dʁədi",
+          "ru": "пятница",
+          "pos": "",
+          "m": "v[en]dredi"
+        },
+        {
+          "fr": "samedi",
+          "ipa": "samdi",
+          "ru": "суббота",
+          "pos": "",
+          "m": "sam(e)di"
+        },
+        {
+          "fr": "dimanche",
+          "ipa": "dimɑ̃ʃ",
+          "ru": "воскресенье",
+          "pos": "",
+          "m": "dim[an]ch(e)"
+        },
+        {
+          "fr": "le siècle",
+          "ipa": "sjɛkl",
+          "ru": "век",
+          "pos": ""
+        },
+        {
+          "fr": "la saison",
+          "ipa": "sɛzɔ̃",
+          "ru": "время года",
+          "pos": ""
+        },
+        {
+          "fr": "l'horloge",
+          "ipa": "ɔʁlɔʒ",
+          "ru": "часы",
+          "pos": ""
+        },
+        {
+          "fr": "la montre",
+          "ipa": "mɔ̃tʁ",
+          "ru": "наручные часы",
+          "pos": ""
+        },
+        {
+          "fr": "la température",
+          "ipa": "tɑ̃peʁatyʁ",
+          "ru": "температура",
+          "pos": ""
+        },
+        {
+          "fr": "l'orage",
+          "ipa": "oʁaʒ",
+          "ru": "гроза",
+          "pos": ""
+        },
+        {
+          "fr": "le brouillard",
+          "ipa": "bʁujaʁ",
+          "ru": "туман",
+          "pos": ""
         }
       ]
     },
@@ -1432,6 +2318,103 @@
           "ru": "отвечать",
           "pos": "",
           "m": "rép[on]dr(e)"
+        },
+        {
+          "fr": "la colère",
+          "ipa": "kolɛʁ",
+          "ru": "гнев",
+          "pos": ""
+        },
+        {
+          "fr": "la tristesse",
+          "ipa": "tʁistɛs",
+          "ru": "грусть",
+          "pos": ""
+        },
+        {
+          "fr": "la surprise",
+          "ipa": "syʁpʁiz",
+          "ru": "удивление",
+          "pos": ""
+        },
+        {
+          "fr": "l'inquiétude",
+          "ipa": "ɛ̃kjetyd",
+          "ru": "беспокойство",
+          "pos": ""
+        },
+        {
+          "fr": "la confiance",
+          "ipa": "kɔ̃fjɑ̃s",
+          "ru": "доверие",
+          "pos": ""
+        },
+        {
+          "fr": "le courage",
+          "ipa": "kuʁaʒ",
+          "ru": "смелость",
+          "pos": ""
+        },
+        {
+          "fr": "la patience",
+          "ipa": "pasjɑ̃s",
+          "ru": "терпение",
+          "pos": ""
+        },
+        {
+          "fr": "la gentillesse",
+          "ipa": "ʒɑ̃tijɛs",
+          "ru": "доброта",
+          "pos": ""
+        },
+        {
+          "fr": "penser",
+          "ipa": "pɑ̃se",
+          "ru": "думать",
+          "pos": "",
+          "m": "p[en]se(r)"
+        },
+        {
+          "fr": "croire",
+          "ipa": "kʁwaʁ",
+          "ru": "верить",
+          "pos": "",
+          "m": "croir(e)"
+        },
+        {
+          "fr": "espérer",
+          "ipa": "ɛspeʁe",
+          "ru": "надеяться",
+          "pos": "",
+          "m": "espére(r)"
+        },
+        {
+          "fr": "remercier",
+          "ipa": "ʁəmɛʁsje",
+          "ru": "благодарить",
+          "pos": "",
+          "m": "remercie(r)"
+        },
+        {
+          "fr": "saluer",
+          "ipa": "salɥe",
+          "ru": "приветствовать",
+          "pos": "",
+          "m": "salue(r)"
+        },
+        {
+          "fr": "expliquer",
+          "ipa": "ɛksplike",
+          "ru": "объяснять",
+          "pos": "",
+          "m": "explique(r)"
+        },
+        {
+          "fr": "comprendre",
+          "ipa": "kɔ̃pʁɑ̃dʁ",
+          "ru": "понимать",
+          "pos": "",
+          "m": "c[om]pr[en]dr(e)"
         }
       ]
     },
@@ -1564,6 +2547,137 @@
           "ipa": "vɛtəmɑ̃",
           "ru": "одежда",
           "pos": ""
+        },
+        {
+          "fr": "le portefeuille",
+          "ipa": "pɔʁtəfœj",
+          "ru": "кошелёк",
+          "pos": ""
+        },
+        {
+          "fr": "la pièce",
+          "ipa": "pjɛs",
+          "ru": "монета; комната",
+          "pos": ""
+        },
+        {
+          "fr": "le compte",
+          "ipa": "kɔ̃t",
+          "ru": "счёт в банке",
+          "pos": ""
+        },
+        {
+          "fr": "la facture",
+          "ipa": "faktyʁ",
+          "ru": "счёт, фактура",
+          "pos": ""
+        },
+        {
+          "fr": "le reçu",
+          "ipa": "ʁəsy",
+          "ru": "квитанция",
+          "pos": ""
+        },
+        {
+          "fr": "le paiement",
+          "ipa": "pɛmɑ̃",
+          "ru": "оплата",
+          "pos": ""
+        },
+        {
+          "fr": "la réduction",
+          "ipa": "ʁedyksjɔ̃",
+          "ru": "скидка",
+          "pos": ""
+        },
+        {
+          "fr": "la promotion",
+          "ipa": "pʁomosjɔ̃",
+          "ru": "акция, распродажа",
+          "pos": ""
+        },
+        {
+          "fr": "le rayon",
+          "ipa": "ʁɛjɔ̃",
+          "ru": "отдел в магазине",
+          "pos": ""
+        },
+        {
+          "fr": "le panier",
+          "ipa": "panje",
+          "ru": "корзина",
+          "pos": ""
+        },
+        {
+          "fr": "le sac",
+          "ipa": "sak",
+          "ru": "сумка",
+          "pos": ""
+        },
+        {
+          "fr": "la liste",
+          "ipa": "list",
+          "ru": "список",
+          "pos": ""
+        },
+        {
+          "fr": "le produit",
+          "ipa": "pʁodɥi",
+          "ru": "товар",
+          "pos": ""
+        },
+        {
+          "fr": "la marque",
+          "ipa": "maʁk",
+          "ru": "марка, бренд",
+          "pos": ""
+        },
+        {
+          "fr": "la pointure",
+          "ipa": "pwɛ̃tyʁ",
+          "ru": "размер обуви",
+          "pos": ""
+        },
+        {
+          "fr": "la mode",
+          "ipa": "mɔd",
+          "ru": "мода",
+          "pos": ""
+        },
+        {
+          "fr": "essayer",
+          "ipa": "eseje",
+          "ru": "примерять; пытаться",
+          "pos": "",
+          "m": "essaye(r)"
+        },
+        {
+          "fr": "dépenser",
+          "ipa": "depɑ̃se",
+          "ru": "тратить",
+          "pos": "",
+          "m": "dép[en]se(r)"
+        },
+        {
+          "fr": "économiser",
+          "ipa": "ekonomize",
+          "ru": "экономить",
+          "pos": "",
+          "m": "économise(r)"
+        },
+        {
+          "fr": "emprunter",
+          "ipa": "ɑ̃pʁœ̃te",
+          "ru": "одалживать, брать взаймы",
+          "pos": "",
+          "m": "[em]pr[un]te(r)"
+        },
+        {
+          "fr": "rendre",
+          "ipa": "ʁɑ̃dʁ",
+          "ru": "возвращать",
+          "pos": "",
+          "m": "r[en]dr(e)"
         }
       ]
     }

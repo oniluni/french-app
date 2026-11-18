@@ -16,7 +16,7 @@ struct LessonsView: View {
 
     var body: some View {
         let cards = store.data.cards
-        let starred = library.content.entries(forWords: store.data.favorites).filter { $0.lesson == 0 }
+        let starred = library.entries(forWords: store.data.favorites).filter { $0.lesson == 0 }
         let due = Session.due(in: library.content.entries + starred, cards: cards, now: .now).count
         Screen {
             if let current = library.lesson(store.data.lastLesson ?? 1) ?? library.content.lessons.first {
@@ -33,7 +33,7 @@ struct LessonsView: View {
                     NavRow(route: .lesson(lesson.id)) {
                         LessonRing(progress: Session.progress(of: lesson.entries, cards: cards), number: lesson.id)
                         RowTitles(title: "Урок \(lesson.id)", subtitle: lesson.topic,
-                                  detail: "\(plural(lesson.words.count, "слово", "слова", "слов")) · \(plural(lesson.rules.count, "правило", "правила", "правил"))")
+                                  detail: "\(plural(lesson.entries.cardEntries.count, "слово", "слова", "слов")) · \(plural(lesson.rules.count, "правило", "правила", "правил"))")
                     }
                     .accessibilityIdentifier("lesson-\(lesson.id)")
                 }
@@ -54,8 +54,9 @@ struct LessonsView: View {
     }
 
     private func continueCard(_ lesson: Lesson, cards: [String: CardState]) -> some View {
-        let progress = Session.progress(of: lesson.entries, cards: cards)
-        let started = lesson.entries.filter { cards[$0.id] != nil }.count
+        let cardsOnly = lesson.entries.cardEntries
+        let progress = Session.progress(of: cardsOnly, cards: cards)
+        let started = cardsOnly.filter { cards[$0.id] != nil }.count
         return NavigationLink(value: Route.lesson(lesson.id)) {
             VStack(alignment: .leading, spacing: 10) {
                 HStack(spacing: 12) {
@@ -72,7 +73,7 @@ struct LessonsView: View {
                 Text(lesson.topic).font(Theme.subhead).foregroundStyle(Theme.t2).lineLimit(2).multilineTextAlignment(.leading)
                 HStack(spacing: 8) {
                     Chip(text: plural(lesson.rules.count, "правило", "правила", "правил"))
-                    Chip(text: "\(started) из \(plural(lesson.words.count, "слова", "слов", "слов"))")
+                    Chip(text: "\(started) из \(plural(cardsOnly.count, "слова", "слов", "слов"))")
                 }
             }
             .panel()

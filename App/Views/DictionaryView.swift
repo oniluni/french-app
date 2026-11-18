@@ -142,7 +142,7 @@ struct DictionaryView: View {
                     }
                     Spacer(minLength: 8)
                     Button("Начать") {
-                        let entries = library.content.entries(forWords: words)
+                        let entries = library.entries(forWords: words)
                         session = SessionRequest(title: "Избранное", entries: entries)
                     }
                     .buttonStyle(.pill(.primary, small: true))

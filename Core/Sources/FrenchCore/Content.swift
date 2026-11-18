@@ -103,6 +103,18 @@ public struct Word: Codable, Hashable, Sendable {
     /// The groups a lesson lists its words under, in this order.
     public static let groups = ["Существительные", "Глаголы", "Прилагательные", "Наречия", "Выражения", "Другие слова", "Имена собственные"]
 
+    /// Articles that are listed as vocabulary in the lessons but are not words to learn.
+    private static let standaloneArticles: Set<String> = [
+        "le", "la", "les", "un", "une", "des", "du", "au", "aux", "l'",
+    ]
+
+    /// Whether the word deserves a vocabulary card. Proper names (people, cities, countries) and
+    /// articles on their own stay in the lesson text and lists but are not cards.
+    public var isCardWord: Bool {
+        if group == "Имена собственные" { return false }
+        return !Self.standaloneArticles.contains(fr.trimmingCharacters(in: .whitespacesAndNewlines).lowercased())
+    }
+
     /// Which of `groups` the word goes under, read from the vault's free-form part of speech
     /// («существительное, ж. р.», «местоимённый глагол I группы», «безличный оборот»).
     public var group: String {

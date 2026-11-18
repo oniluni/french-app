@@ -60,14 +60,15 @@ struct LessonView: View {
 
     @ViewBuilder private var words: some View {
         let entries = lesson.entries
-        let statuses = entries.map { store.status(of: $0) }
+        let cardsOnly = entries.cardEntries
+        let statuses = cardsOnly.map { store.status(of: $0) }
         Button {
-            session = SessionRequest(title: "Урок \(lesson.id)", entries: entries)
+            session = SessionRequest(title: "Урок \(lesson.id)", entries: cardsOnly)
         } label: {
             Label("Учить слова урока", systemImage: "rectangle.stack")
         }
         .buttonStyle(.pill(.primary, wide: true))
-        Text(([plural(entries.count, "слово", "слова", "слов")]
+        Text(([plural(cardsOnly.count, "слово", "слова", "слов")]
               + countLabel(statuses.filter { $0 == .new }.count, "новое", "новых", "новых")
               + countLabel(statuses.filter { $0 == .due }.count, "пора повторить", "пора повторить", "пора повторить"))
             .joined(separator: " · "))

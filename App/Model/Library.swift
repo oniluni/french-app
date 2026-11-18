@@ -124,8 +124,33 @@ final class Library {
 
     /// The vocabulary entry for a word of a text, ignoring case, punctuation and its article.
     func entry(for text: String) -> Entry? {
-        content.entry(for: text)
+        entriesByBare[Content.bare(text)]
     }
+
+    /// The cards for words from outside the lessons. A lesson word keeps its lesson card and
+    /// progress; any other word becomes a card of its own.
+    func entries(forWords words: [Word]) -> [Entry] {
+        words.map { entry(for: $0.fr) ?? Entry(lesson: 0, word: $0) }
+    }
+
+    /// The lesson entries by bare form. Looking a word up is common while the practice grid
+    /// renders, and scanning every lesson for each theme word makes that grid stutter.
+    @ObservationIgnored private(set) lazy var entriesByBare: [String: Entry] = {
+        Dictionary<String, Entry>(
+            content.entries.map { (Content.bare($0.word.fr), $0) },
+            uniquingKeysWith: { first, _ in first }
+        )
+    }()
+
+    /// The cards of every theme, built once. The theme grid only reads this instead of looking
+    /// up all its words on each scroll.
+    @ObservationIgnored private(set) lazy var themeEntriesByID: [String: [Entry]] = {
+        Dictionary<String, [Entry]>(
+            uniqueKeysWithValues: wordThemes.themes.map { theme in
+                (theme.id, entries(forWords: theme.words))
+            }
+        )
+    }()
 
     /// Words of the lessons that have forms to drill, one per lemma and word class.
     @ObservationIgnored private(set) lazy var formWords: [FormWord] = {

@@ -120,7 +120,7 @@ struct CategoryView: View {
     private func teach() {
         let words = category.words.map { $0.word(reader: library.reader) }
         session = SessionRequest(title: category.title,
-                                 entries: library.content.entries(forWords: words))
+                                 entries: library.entries(forWords: words))
     }
 
     private func fillGap() {

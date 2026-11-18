@@ -84,23 +84,30 @@ public enum Scheduler {
     }
 }
 
+public extension Array where Element == Entry {
+    /// Entries that deserve a card: no proper names and no articles on their own.
+    var cardEntries: [Entry] { filter { $0.word.isCardWord } }
+}
+
 /// Which cards a session shows.
 public enum Session {
     /// Every card of the set: due first, then new, then the ones being learned, then the known.
     /// Pass `limit` to cut the queue short; a session otherwise teaches the whole set.
     public static func queue(from entries: [Entry], cards: [String: CardState], now: Date, limit: Int? = nil) -> [Entry] {
+        let cardsOnly = entries.cardEntries
         let order: [CardStatus] = [.due, .new, .learning, .known]
-        let ranked = order.flatMap { status in entries.filter { Scheduler.status(cards[$0.id], now: now) == status } }
+        let ranked = order.flatMap { status in cardsOnly.filter { Scheduler.status(cards[$0.id], now: now) == status } }
         guard let limit else { return ranked }
         return Array(ranked.prefix(limit))
     }
 
     public static func due(in entries: [Entry], cards: [String: CardState], now: Date) -> [Entry] {
-        entries.filter { Scheduler.status(cards[$0.id], now: now) == .due }
+        entries.cardEntries.filter { Scheduler.status(cards[$0.id], now: now) == .due }
     }
 
     /// Share of the entries the learner has started, 0...1.
     public static func progress(of entries: [Entry], cards: [String: CardState]) -> Double {
-        entries.isEmpty ? 0 : Double(entries.filter { cards[$0.id] != nil }.count) / Double(entries.count)
+        let cardsOnly = entries.cardEntries
+        return cardsOnly.isEmpty ? 0 : Double(cardsOnly.filter { cards[$0.id] != nil }.count) / Double(cardsOnly.count)
     }
 }

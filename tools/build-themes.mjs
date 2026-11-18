@@ -21,6 +21,18 @@ export function bare(fr) {
 
 const hasArticle = (fr) => bare(fr) !== fr.trim().toLowerCase();
 
+const ARTICLES_ONLY = new Set(['le', 'la', 'les', 'un', 'une', 'des', 'du', 'au', 'aux', "l'", 'l’']);
+
+/** A card must be a word, not the article on its own. */
+export function isStandaloneArticle(fr) {
+  return ARTICLES_ONLY.has(fr.trim().toLowerCase().replace(/[.!?]+$/, ''));
+}
+
+/** A proper name (a person, a city, a country) always starts with a capital letter in French. */
+export function isProperName(fr) {
+  return /\p{Lu}/u.test(fr.trim());
+}
+
 /**
  * The first reading of every spelling in lexicon.tsv:
  *   key <TAB> marked=ipa|marked=ipa <TAB> analyses
@@ -77,6 +89,8 @@ export function serialize(themes, readings) {
     const words = new Set();
     for (const word of theme.words) {
       if (!word.fr?.trim() || !word.ru?.trim()) throw new Error(`theme ${theme.id}: a word needs a French form and a translation`);
+      if (isStandaloneArticle(word.fr)) throw new Error(`theme ${theme.id}: ${word.fr} is an article, not a word`);
+      if (isProperName(word.fr)) throw new Error(`theme ${theme.id}: ${word.fr} is a proper name`);
       const key = keyOf(word.key ?? bare(word.fr));
       if (words.has(key)) throw new Error(`theme ${theme.id}: ${word.fr} is listed twice`);
       words.add(key);
