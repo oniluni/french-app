@@ -131,7 +131,7 @@ private struct WordsPractice: View {
                         .background(Theme.accSoft, in: Circle())
                     Spacer()
                     Text("\(entries.count)")
-                        .font(Theme.mono(12, .medium, relativeTo: .caption1))
+                        .font(Theme.mono(12, .medium, relativeTo: .caption))
                         .foregroundStyle(Theme.t3)
                 }
                 Text(theme.title)
@@ -139,7 +139,7 @@ private struct WordsPractice: View {
                     .foregroundStyle(Theme.t1)
                     .lineLimit(2)
                 Text(state)
-                    .font(Theme.mono(12, .medium, relativeTo: .caption1))
+                    .font(Theme.mono(12, .medium, relativeTo: .caption))
                     .foregroundStyle(Theme.t2)
                     .lineLimit(1)
             }
