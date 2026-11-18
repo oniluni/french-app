@@ -22,14 +22,15 @@ extension Rule {
 
 extension Content {
     /// Up to `count` questions on `rules`, on example sentences of the words of the lessons those
-    /// rules come from: the lessons have no texts of their own.
+    /// rules come from: the lessons have no texts of their own. `count` nil asks every sentence that
+    /// has an answer and three distractors.
     ///
     /// Only rules that are asked (`Rule.isAsked`) take part. The answer is the rule of `rules` asked
     /// least so far, so a rule found in almost every sentence («Звук [e]») does not crowd out the
     /// rest. Distractors come from `rules` first, then from the other lessons.
     /// Throws when the bundled examples are broken.
     public func ruleQuestions<Generator: RandomNumberGenerator>(
-        on rules: [Rule], reader: Reader, examples: Examples, count: Int, using generator: inout Generator
+        on rules: [Rule], reader: Reader, examples: Examples, count: Int? = nil, using generator: inout Generator
     ) throws -> [RuleQuestion] {
         let pool = rules.filter(\.isAsked)
         let poolIDs = Set(pool.map(\.id))
@@ -46,7 +47,8 @@ extension Content {
 
         var asked: [String: Int] = [:]
         var questions: [RuleQuestion] = []
-        for sentence in sentences.shuffled(using: &generator) where questions.count < count {
+        for sentence in sentences.shuffled(using: &generator) {
+            if let count, questions.count >= count { break }
             let words = reader.read(sentence.fr)
             let found = rulesTriggered(by: words, lexicon: reader.lexicon)
             let candidates = found.filter { poolIDs.contains($0.rule.id) }.shuffled(using: &generator)

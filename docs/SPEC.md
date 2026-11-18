@@ -87,8 +87,8 @@ A bottom sheet per lesson text and per rule.
 
 ### 3.6 «Практика» → «Слова»
 - «Сегодня»: number of cards due and «Повторить» (disabled at zero).
-- Direction: `FR → RU` shows the French word first; `RU → FR` shows the translation first.
-  The choice applies to every card session.
+- Direction: `FR → RU` shows the French word first; `RU → FR` shows the translation first;
+  `Оба` draws the side for each card in the session. The choice applies to every card session.
 - «Новый набор»: a grid of lesson numbers. The first tap sets the start, the second the end;
   a third tap starts over. The summary shows the range and its word count. «Начать» saves the
   range as a set and starts a session. One tap then «Начать» is a single-lesson set.
@@ -101,12 +101,12 @@ A bottom sheet per lesson text and per rule.
 - Tap the card or «Показать ответ» to flip. Back: the word with marks, IPA, translation.
 - Four grades with the next interval under each: «Снова», «Трудно», «Хорошо», «Легко».
   «Снова» puts the card back at the end of the queue.
-- A session holds every card of the set, taken in this order: due, new, learning, known.
-  There is no per-session cap.
+- A session holds every card of the set, shuffled once when it starts. There is no per-session
+  cap.
 - End screen: counts per grade, when the next review is, «Готово».
 
 ### 3.7 «Практика» → «Формы»
-- «Смешанная тренировка»: 8 questions across all paradigms.
+- «Смешанная тренировка»: every form and every gender question of the lesson words; no cap.
 - «Спряжения»: tense filter chips and a list of verbs. A verb starts a drill on that verb,
   limited to the chosen tense if one is selected.
 - «Род и число»: adjectives and nouns; each starts a drill on that word.
@@ -131,6 +131,9 @@ A bottom sheet per lesson text and per rule.
 ### 3.9 «Разбор» → «Слово», and the pushed «Разбор слова» screen
 The same view in both places.
 - Input accepts any form of a word (`buvons`, `petites`, `l'enfant`, `nous buvons`).
+- Senses: a word the lessons teach keeps the parts of speech its Russian label names. A verb's
+  noun or adjective reading under 3% of its frequency is left out, so «parler» is only a verb, not
+  a rare noun or adjective.
 - Header: base form with marks, IPA, listen button, translation.
 - Facts: part of speech, then by kind: verb group, past participle and auxiliary; gender for a
   noun; position for an adjective. Also silent letters, nasal vowels, lesson, card status.
@@ -263,8 +266,9 @@ Taken by the owner on 2026-11-12.
    then picks them up.
 3. **Engine: Lexique 3.83** (CC BY-SA 4.0), bundled. Gives IPA, lemma, part of speech, gender,
    number, tense and person for about 125 000 spellings. The pronunciation marks are derived by
-   aligning spelling with IPA (`tools/align.mjs`, 99 % of Lexique forms align). Lexique has no
-   translations: the reader translates only words that the lessons teach.
+   aligning spelling with IPA (`tools/align.mjs`, 99 % of Lexique forms align). A verb's noun or
+   adjective reading under 3% of its frequency is not bundled as a separate part of speech.
+   Lexique has no translations: the reader translates only words that the lessons teach.
 
 ## 8a. Where the app departs from the mockups
 

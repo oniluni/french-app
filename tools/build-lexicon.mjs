@@ -20,6 +20,13 @@ const RESOURCES = new URL('../App/Resources/', import.meta.url).pathname;
 const CLASS = { VER: 'V', AUX: 'V', NOM: 'N', ADJ: 'A' };
 
 /**
+ * Lexique lists a rare noun or adjective reading of a verb: «parler» is mostly a verb, but it also
+ * has noun and adjective readings with under 2% of its frequency. Keeping those makes the word
+ * card offer parts of speech that lead to the same page. A reading that rare is noise here.
+ */
+const RARE_DERIVED_POS = 0.03;
+
+/**
  * Lexique writes the schwa of "ce" and "premier" as [ø]. Where the letters read the same way
  * with a schwa, it is one.
  * shortcut: a word with both a real [ø] and a schwa keeps [ø] for both, fix when one is reported.
@@ -76,8 +83,21 @@ export function buildLexicon(rows, lessonWords = new Map()) {
     const sounds = [...weight.keys()].sort((a, b) => weight.get(b) - weight.get(a));
     const readings = sounds.map((ipa) => readingOf(group.find((row) => row.ipa === ipa).ortho, ipa, endsWith));
     const analyses = [];
+    // A lemma's parts of speech in this spelling, and the weight of each.
+    const lemmaWeights = new Map();
     for (const row of group) {
       const pos = row.pos === 'AUX' ? 'VER' : row.pos;
+      if (!lemmaWeights.has(row.lemma)) lemmaWeights.set(row.lemma, new Map());
+      const byPos = lemmaWeights.get(row.lemma);
+      byPos.set(pos, (byPos.get(pos) ?? 0) + row.frequency);
+    }
+    for (const row of group) {
+      const pos = row.pos === 'AUX' ? 'VER' : row.pos;
+      const byPos = lemmaWeights.get(row.lemma);
+      if (byPos.has('VER') && (pos === 'NOM' || pos === 'ADJ')) {
+        const total = [...byPos.values()].reduce((sum, weight) => sum + weight, 0);
+        if (total > 0 && byPos.get(pos) / total < RARE_DERIVED_POS) continue;
+      }
       const entry = [row.lemma, pos, row.gender, row.number, row.tags.join(','), sounds.indexOf(row.ipa)].join(';');
       if (!analyses.includes(entry)) analyses.push(entry);
     }

@@ -60,15 +60,14 @@ private struct WordsPractice: View {
         .fullScreenCover(item: $session) { CardSessionView(request: $0) }
 
         SectionHeader(title: "Направление")
-        HStack(spacing: 8) {
-            FilterChip(title: CardDirection.frToRu.rawValue, isOn: direction == .frToRu) {
-                directionRaw = CardDirection.frToRu.rawValue
-            }
-            FilterChip(title: CardDirection.ruToFr.rawValue, isOn: direction == .ruToFr) {
-                directionRaw = CardDirection.ruToFr.rawValue
+        HStack(spacing: 6) {
+            ForEach(CardDirection.allCases) { option in
+                FilterChip(title: option.rawValue, isOn: direction == option) {
+                    directionRaw = option.rawValue
+                }
             }
         }
-        Footer(text: "FR → RU: на карточке французское слово, вспомните перевод. RU → FR: на карточке перевод, вспомните французское слово.")
+        Footer(text: "FR → RU: на карточке французское слово, вспомните перевод. RU → FR: на карточке перевод, вспомните французское слово. Оба: карточки идут в обе стороны.")
 
         SectionHeader(title: "Новый набор")
         LessonRangeCard(range: $range) { range in
@@ -251,7 +250,7 @@ private struct FormsPractice: View {
             EmptyIcon(systemImage: "shuffle", color: Theme.acc, fill: Theme.accSoft, size: 44)
             VStack(alignment: .leading, spacing: 0) {
                 Text("Смешанная тренировка").font(Theme.bodyMedium)
-                Text(plural(FormsPractice.count, "вопрос", "вопроса", "вопросов")).font(Theme.subhead).foregroundStyle(Theme.t2)
+                Text("все формы и род").font(Theme.subhead).foregroundStyle(Theme.t2)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             Button("Начать") {
@@ -264,7 +263,7 @@ private struct FormsPractice: View {
             .accessibilityLabel("Смешанная тренировка")
         }
         .panel()
-        Footer(text: "Восемь вопросов по словам всех уроков: спряжения, род, артикли и число.")
+        Footer(text: "Все формы слов всех уроков: спряжения, род, артикли и число, без ограничения по количеству.")
 
         SectionHeader(title: "Спряжения")
         VStack(alignment: .leading, spacing: 12) {
@@ -314,18 +313,13 @@ private struct FormsPractice: View {
             .fullScreenCover(item: $drill) { DrillSessionView(request: $0) }
     }
 
-    private static let count = 8
-
-    /// Eight questions: forms of `forms` (in `tense` only, if given), and a couple on the gender of
-    /// `genders` (all eight when there are no forms to ask).
+    /// Every question the chosen words can make: all genders and all forms, no cap.
     private func start(_ title: String, forms: [FormWord], genders: [FormWord] = [], tense: String? = nil) {
-        let count = FormsPractice.count
         var generator = SystemRandomNumberGenerator()
         let grammar = library.grammar
-        let genderQuestions = grammar.genderQuestions(nouns: genders.map(\.lemma), count: forms.isEmpty ? count : 2, using: &generator)
-        // A dozen words give enough forms; building every paradigm would only slow the start.
-        let paradigms = forms.shuffled(using: &generator).prefix(12).compactMap { grammar.paradigm(lemma: $0.lemma, as: $0.wordClass) }
-        let formQuestions = Drill.questions(from: paradigms, tense: tense, count: count - genderQuestions.count, using: &generator)
+        let genderQuestions = grammar.genderQuestions(nouns: genders.map(\.lemma), using: &generator)
+        let paradigms = forms.shuffled(using: &generator).compactMap { grammar.paradigm(lemma: $0.lemma, as: $0.wordClass) }
+        let formQuestions = Drill.questions(from: paradigms, tense: tense, using: &generator)
         drill = DrillRequest(title: title, questions: (genderQuestions + formQuestions).shuffled(using: &generator))
     }
 }
@@ -336,7 +330,6 @@ private struct RulesPractice: View {
     @State private var range: ClosedRange<Int>?
 
     private static let kinds = ["Грамматика", "Произношение", "Чтение"]
-    private static let count = 8
 
     var body: some View {
         let rules = library.content.lessons.flatMap(\.rules).filter(\.isAsked)
@@ -344,11 +337,11 @@ private struct RulesPractice: View {
             .fullScreenCover(item: $quiz) { RuleSessionView(request: $0) }
         LessonRangeCard(range: $range) { range in
             let count = rules.filter { range.contains($0.lesson) }.count
-            return "\(plural(count, "правило", "правила", "правил")) · \(plural(RulesPractice.count, "вопрос", "вопроса", "вопросов"))"
+            return "\(plural(count, "правило", "правила", "правил")) · все вопросы"
         } start: { range in
             start("Правила · \(lessonsTitle(range).lowercased())", rules.filter { range.contains($0.lesson) })
         }
-        Footer(text: "Вы увидите фразу со словами выбранных уроков и четыре правила. Выберите правило, которое в этой фразе работает; после ответа слова, к которым оно относится, выделятся.")
+        Footer(text: "Фразы со словами выбранных уроков и четыре правила. Вопросов столько, сколько нашлось фраз, без ограничения.")
 
         SectionHeader(title: "По видам")
         Card {
@@ -371,7 +364,7 @@ private struct RulesPractice: View {
         let questions: [RuleQuestion]
         do {
             questions = try library.content.ruleQuestions(on: rules, reader: library.reader, examples: library.examples,
-                                                          count: RulesPractice.count, using: &generator)
+                                                          using: &generator)
         } catch {
             // A broken examples file is a build mistake; the session then says it has no questions.
             RulesPractice.log.error("Rule questions for \(title, privacy: .public): broken examples: \(String(describing: error), privacy: .public)")

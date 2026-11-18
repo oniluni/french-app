@@ -200,9 +200,11 @@ public struct DrillQuestion: Equatable, Sendable {
 }
 
 public enum Drill {
-    /// - Parameter tense: limits verb questions to one tense, e.g. "Imparfait".
+    /// - Parameters:
+    ///   - tense: limits verb questions to one tense, e.g. "Imparfait".
+    ///   - count: cuts the list short; nil asks every form the paradigms have.
     public static func questions<Generator: RandomNumberGenerator>(
-        from paradigms: [Paradigm], tense: String? = nil, count: Int, using generator: inout Generator
+        from paradigms: [Paradigm], tense: String? = nil, count: Int? = nil, using generator: inout Generator
     ) -> [DrillQuestion] {
         var candidates: [DrillQuestion] = []
         for paradigm in paradigms {
@@ -232,7 +234,8 @@ public enum Drill {
             }
         }
         candidates.shuffle(using: &generator)
-        return Array(candidates.prefix(count))
+        if let count { return Array(candidates.prefix(count)) }
+        return candidates
     }
 
     static func instruction(for wordClass: WordClass) -> String {
@@ -250,12 +253,13 @@ public enum Drill {
 }
 
 extension Grammar {
-    /// «un или une?»: up to `count` nouns of `nouns` asked for their gender.
+    /// «un или une?»: nouns asked for their gender; nil `count` asks every noun.
     public func genderQuestions<Generator: RandomNumberGenerator>(
-        nouns: [String], count: Int, using generator: inout Generator
+        nouns: [String], count: Int? = nil, using generator: inout Generator
     ) -> [DrillQuestion] {
         var questions: [DrillQuestion] = []
-        for lemma in nouns.shuffled(using: &generator) where questions.count < count {
+        for lemma in nouns.shuffled(using: &generator) {
+            if let count, questions.count >= count { break }
             if let question = genderQuestion(lemma) { questions.append(question) }
         }
         return questions

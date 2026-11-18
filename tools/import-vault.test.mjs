@@ -192,6 +192,18 @@ test('lexicon: the frequent reading first, schwa restored, lesson sound preferre
   assert.ok(lexicon.includes('lit\tli(t)=li\tlit;NOM;m;s;;0|lire;VER;;;ind:pre:3s;0\n'));
 });
 
+test('lexicon: a verb keeps no rare noun or adjective reading, a common one stays', () => {
+  const built = buildLexicon([
+    row('parler', 'paʁle', 'parler', 'VER', { frequency: 100 }),
+    row('parler', 'paʁle', 'parler', 'NOM', { frequency: 1, gender: 'm', number: 's' }),
+    row('parler', 'paʁle', 'parler', 'ADJ', { frequency: 0.1, gender: 'm', number: 's' }),
+    row('ami', 'ami', 'ami', 'NOM', { frequency: 100, gender: 'm', number: 's' }),
+    row('ami', 'ami', 'ami', 'ADJ', { frequency: 5, gender: 'm', number: 's' }),
+  ]);
+  assert.deepEqual(built.lexicon.get('parler').analyses, ['parler;VER;;;;0']);
+  assert.deepEqual(built.lexicon.get('ami').analyses, ['ami;NOM;m;s;;0', 'ami;ADJ;m;s;;0']);
+});
+
 test('every rule needs a trigger with the right title, so a changed vault fails the import', () => {
   const lessons = () => [{ rules: [
     { id: '3-1', kind: 'Произношение', title: 'Гласный [e]' },

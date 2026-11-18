@@ -54,7 +54,7 @@ struct WordAnalysisBody: View {
     ]
 
     var body: some View {
-        let found = library.grammar.analyses(of: query)
+        let found = foundAnalyses(for: query)
         if found.isEmpty {
             if let entry = library.entry(for: query) {
                 VStack(spacing: 0) {
@@ -97,6 +97,25 @@ struct WordAnalysisBody: View {
     }
 
     // MARK: Senses
+
+    /// Lexique lists some spellings as several parts of speech that the course does not teach:
+    /// «parler» is a verb in the lessons, but also a rare noun and adjective in the dictionary.
+    /// When a lesson entry knows the word, keep the parts of speech its Russian label names.
+    private func foundAnalyses(for query: String) -> [(form: String, analysis: Analysis)] {
+        let found = library.grammar.analyses(of: query)
+        guard let entry = library.entry(for: query) else { return found }
+        let label = entry.word.pos.lowercased()
+        var allowed = Set<WordClass>()
+        if label.contains("глагол") { allowed.insert(.verb) }
+        if label.contains("существительн") { allowed.insert(.noun) }
+        if label.contains("прилагательн") { allowed.insert(.adjective) }
+        guard !allowed.isEmpty else { return found }
+        let filtered = found.filter { item in
+            guard let wordClass = item.analysis.wordClass else { return true }
+            return allowed.contains(wordClass)
+        }
+        return filtered.isEmpty ? found : filtered
+    }
 
     private func senses(_ found: [(form: String, analysis: Analysis)]) -> some View {
         VStack(spacing: 0) {
@@ -361,7 +380,7 @@ struct WordAnalysisBody: View {
                 }
                 Button {
                     var generator = SystemRandomNumberGenerator()
-                    let questions = Drill.questions(from: [paradigm], count: 8, using: &generator)
+                    let questions = Drill.questions(from: [paradigm], using: &generator)
                     drill = DrillRequest(title: "Формы", questions: questions)
                 } label: {
                     Label("Тренировать формы", systemImage: "square.grid.2x2")

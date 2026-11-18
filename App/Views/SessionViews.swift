@@ -108,6 +108,7 @@ func blank(width: Int = 8) -> AttributedString {
 enum CardDirection: String, CaseIterable, Identifiable {
     case frToRu = "FR → RU"
     case ruToFr = "RU → FR"
+    case both = "Оба"
 
     var id: String { rawValue }
 
@@ -142,6 +143,8 @@ struct CardSessionView: View {
     @State private var total = 0
     @State private var isFlipped = false
     @State private var counts: [Grade: Int] = [:]
+    /// Which way round each card is when the session mixes both directions.
+    @State private var mixedDirections: [String: CardDirection] = [:]
     /// Cards graded in this session, for the summary.
     @State private var graded: [Entry] = []
 
@@ -171,8 +174,13 @@ struct CardSessionView: View {
         }
         .onAppear {
             guard total == 0 else { return }
-            queue = Session.queue(from: request.entries, cards: store.data.cards, now: .now)
+            queue = Session.queue(from: request.entries, cards: store.data.cards, now: .now).shuffled()
             total = queue.count
+            if request.direction == .both {
+                mixedDirections = Dictionary(queue.map {
+                    ($0.id, Bool.random() ? .frToRu : .ruToFr)
+                }, uniquingKeysWith: { first, _ in first })
+            }
         }
         // A light tap per grade, and success when the last card is done.
         .sensoryFeedback(.impact(weight: .light), trigger: counts)
@@ -185,9 +193,10 @@ struct CardSessionView: View {
 
     private func card(_ entry: Entry) -> some View {
         let status = store.status(of: entry)
+        let direction = direction(for: entry)
         return ZStack {
             QuestionCard {
-                if request.direction == .ruToFr {
+                if direction == .ruToFr {
                     Text(entry.word.ru.isEmpty ? entry.word.fr : entry.word.ru)
                         .font(Theme.sans(40, .semibold, relativeTo: .largeTitle))
                         .multilineTextAlignment(.center)
@@ -213,10 +222,16 @@ struct CardSessionView: View {
         .accessibilityIdentifier("card")
         .overlay(alignment: .topTrailing) {
             // In reverse mode the pronunciation would give the answer away before the flip.
-            if request.direction == .frToRu || isFlipped {
+            if direction == .frToRu || isFlipped {
                 SpeakButton(text: entry.word.m ?? entry.word.fr, kind: .glass).padding(16)
             }
         }
+    }
+
+    /// The direction of one card: fixed by the session, or drawn once for a mixed session.
+    private func direction(for entry: Entry) -> CardDirection {
+        guard request.direction == .both else { return request.direction }
+        return mixedDirections[entry.id] ?? .frToRu
     }
 
     @ViewBuilder private func back(_ entry: Entry) -> some View {
