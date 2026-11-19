@@ -75,7 +75,7 @@ private struct TableView: View {
                 GridRow(alignment: .top) {
                     ForEach(Array(cells.enumerated()), id: \.offset) { column, cell in
                         cellView(InlineText(md: cell)
-                            .font(Theme.callout)
+                            .font(bodyFont)
                             .frame(maxWidth: .infinity, alignment: .leading), column: column)
                     }
                 }
@@ -85,9 +85,15 @@ private struct TableView: View {
         .surface(radius: 16)
     }
 
+    /// Three or four columns leave each cell narrow on a phone; a point smaller keeps long
+    /// Russian words whole instead of breaking them in the middle.
+    private var bodyFont: Font {
+        head.count > 2 ? Theme.sans(14, .regular, relativeTo: .callout) : Theme.callout
+    }
+
     private func cellView(_ content: some View, column: Int) -> some View {
         content
-            .padding(.horizontal, 14)
+            .padding(.horizontal, 10)
             .padding(.vertical, 10)
             .frame(maxHeight: .infinity, alignment: .topLeading)
             .overlay(alignment: .leading) { if column > 0 { Theme.line.frame(width: 1) } }
