@@ -15,6 +15,7 @@ final class Library {
     let reference: ReferenceBook
     let nuances: Nuances
     let wordThemes: WordThemes
+    let grammarWorkshops: GrammarWorkshops
 
     /// A bundled file that is missing or does not match the model: a build mistake, shown by the
     /// launch error screen instead of crashing, so that the learner can still save their progress.
@@ -64,6 +65,15 @@ final class Library {
         } else {
             wordThemes = WordThemes()
         }
+        if let data = try? resource("grammar", "json"), let loaded = try? GrammarWorkshops.decode(data) {
+            grammarWorkshops = loaded
+        } else {
+            grammarWorkshops = GrammarWorkshops()
+        }
+    }
+
+    func grammarWorkshop(_ id: String) -> GrammarWorkshop? {
+        grammarWorkshops.workshop(id)
     }
 
     /// The dictionary form of a word as typed or tapped: "amies" → "ami".

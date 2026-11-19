@@ -18,6 +18,9 @@ enum Route: Hashable {
     case category(String)
     /// Every rule of the lessons of one kind: «Грамматика».
     case rules(String)
+    /// The grammar track: theory lessons with a test.
+    case grammarTopics
+    case grammar(String)
 }
 
 /// Which tab is shown and what is pushed in each. Every tab keeps its own stack.
@@ -108,6 +111,14 @@ struct RootView: View {
                     }
                 case .rules(let kind):
                     AllRulesView(kind: kind)
+                case .grammarTopics:
+                    GrammarTopicsView()
+                case .grammar(let id):
+                    if let workshop = library.grammarWorkshop(id) {
+                        GrammarLessonView(workshop: workshop)
+                    } else {
+                        NotFoundView(title: "Урок не найден", text: "Его нет в этой версии приложения.")
+                    }
                 }
             }
         }

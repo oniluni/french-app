@@ -53,6 +53,14 @@ final class SchedulerTests: XCTestCase {
         XCTAssertEqual(Session.progress(of: [], cards: cards), 0)
     }
 
+    func testGrammarScoreMapsToSchedulerGrades() {
+        XCTAssertEqual(GrammarReview.grade(correct: 6, total: 6), .easy)
+        XCTAssertEqual(GrammarReview.grade(correct: 5, total: 6), .good)
+        XCTAssertEqual(GrammarReview.grade(correct: 4, total: 6), .hard)
+        XCTAssertEqual(GrammarReview.grade(correct: 3, total: 6), .again)
+        XCTAssertEqual(GrammarReview.grade(correct: 0, total: 0), .again)
+    }
+
     func testSameSpellingInTwoLessonsIsTwoCards() {
         XCTAssertNotEqual(entry("ce", lesson: 2).id, entry("ce", lesson: 5).id)
     }
@@ -80,6 +88,9 @@ final class UserDataTests: XCTestCase {
         data.notes = [Note(target: "text-5", text: "проверить", fragment: .init(quote: "ils prennent", section: 1, item: 2, first: 3, last: 4), created: created)]
         data.favorites = [Word(fr: "matin", m: "mat[in]", ipa: "matɛ̃", ru: "")]
         data.lastLesson = 5
+        data.grammar["questions"] = GrammarReview(
+            state: CardState(interval: 6, ease: 2.5, due: created),
+            correct: 5, total: 6, attempts: 2, lastStudied: created, lastMistakes: ["Какой вариант — вопрос с инверсией?"])
 
         XCTAssertEqual(try UserData.decode(data.encoded()), data)
         XCTAssertEqual(data.sets[0].lessons, 5...10)

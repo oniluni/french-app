@@ -29,7 +29,23 @@ final class BundledDataTests: XCTestCase {
         }
     }
 
-    /// The three phrases the prototype's reader knew, with the marks typed there by hand.
+    /// The grammar track: every workshop has theory and answerable questions.
+    func testGrammarWorkshopsDecodeAndAreComplete() throws {
+        let grammar = try GrammarWorkshops.decode(load("grammar.json"))
+        XCTAssertEqual(grammar.workshops.count, 8)
+        XCTAssertEqual(Set(grammar.workshops.map(\.id)).count, grammar.workshops.count)
+        for workshop in grammar.workshops {
+            XCTAssertFalse(workshop.title.isEmpty, workshop.id)
+            XCTAssertFalse(workshop.blocks.isEmpty, "\(workshop.id): no theory")
+            XCTAssertGreaterThanOrEqual(workshop.questions.count, 4, "\(workshop.id): too few questions")
+            for question in workshop.questions {
+                XCTAssertGreaterThanOrEqual(question.options.count, 3, question.prompt)
+                XCTAssertTrue(question.options.indices.contains(question.answer), question.prompt)
+                XCTAssertFalse(question.explanation.isEmpty, question.prompt)
+            }
+        }
+    }
+
     func testReaderReproducesThePrototypeSamples() throws {
         let reader = Reader(lexicon: Lexicon(forms: try load("lexicon.tsv"), lemmas: try load("lemmas.tsv")))
         let samples = [

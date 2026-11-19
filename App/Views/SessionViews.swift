@@ -391,9 +391,12 @@ struct ChoiceGrid: View {
     @Binding var chosen: Int?
     /// Rules are Russian titles, a line each; forms and words are French, two to a row.
     var isFrench = true
+    /// Overrides the default column count, for long sentences that need the whole width.
+    var columns: Int? = nil
 
     var body: some View {
-        let columns = Array(repeating: GridItem(.flexible(), spacing: 10), count: isFrench ? 2 : 1)
+        let count = columns ?? (isFrench ? 2 : 1)
+        let columns = Array(repeating: GridItem(.flexible(), spacing: 10), count: count)
         LazyVGrid(columns: columns, spacing: 10) {
             ForEach(Array(options.enumerated()), id: \.offset) { option, text in
                 Button {

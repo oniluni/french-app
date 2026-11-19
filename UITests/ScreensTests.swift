@@ -104,6 +104,35 @@ final class ScreensTests: XCTestCase {
     }
 
     @MainActor
+    func testGrammarLessons() {
+        app.launch()
+        XCTAssertTrue(app.navigationBars["Уроки"].waitForExistence(timeout: 15))
+
+        let grammar = app.buttons["grammar-topics"]
+        XCTAssertTrue(scroll(to: grammar), "grammar is above the lesson list")
+        grammar.tap()
+        XCTAssertTrue(app.navigationBars["Грамматика"].waitForExistence(timeout: 5))
+        shot("50-grammar-topics")
+
+        let topic = app.buttons["grammar-questions"]
+        XCTAssertTrue(topic.waitForExistence(timeout: 5), "the topic list has the question lesson")
+        topic.tap()
+        XCTAssertTrue(app.staticTexts["Теория"].waitForExistence(timeout: 5), "a grammar lesson opens on its theory")
+        shot("51-grammar-theory")
+
+        let test = app.buttons["grammar-test"]
+        XCTAssertTrue(scroll(to: test), "the test starts after the theory")
+        test.tap()
+        XCTAssertTrue(app.buttons["option-0"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["instruction"].exists, "the grammar test says what to do")
+        shot("52-grammar-question")
+        app.buttons["option-0"].tap()
+        XCTAssertTrue(app.staticTexts["Верно"].exists || app.staticTexts["Правильный ответ"].exists,
+                      "the grammar answer is explained")
+        shot("53-grammar-answered")
+    }
+
+    @MainActor
     func testReaderWordAnalysisAndDictionary() {
         app.launch()
         app.tabBars.buttons["Разбор"].tap()

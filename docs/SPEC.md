@@ -24,7 +24,7 @@ A floating tab bar with three tabs and a separate round search button, as in iOS
 
 | Tab | Root screen | Pushed screens |
 |---|---|---|
-| «Уроки» | Lesson list | Lesson (`Текст · Правила · Слова`), rule, word analysis |
+| «Уроки» | Lesson list | Grammar topics and lesson, lesson (`Правила · Слова`), rule, word analysis |
 | «Практика» | `Слова · Формы` | Card session, drill session (both full screen, tab bar hidden) |
 | «Разбор» | `Читалка · Слово` | Rule, word analysis |
 | Search («Словарь») | Word list | Word analysis |
@@ -39,6 +39,25 @@ A floating tab bar with three tabs and a separate round search button, as in iOS
 - «Продолжить» card: the lesson in progress, its topic and progress.
 - A row with the number of cards due today; opens «Практика».
 - All lessons: number inside a progress ring, French title, Russian topic, word count.
+
+### 3.1a Grammar track
+A separate track of short grammar lessons, opened from the «Грамматика» tile above «Все уроки»:
+«8 тем · теория и тесты» and, when something is due, a due chip.
+
+- The track has eight topics: question sentences, the imperative, object pronouns, `en` and `y`,
+  `il y a` and impersonal phrases, articles, `passé composé`, and `imparfait` versus `passé composé`.
+- A topic opens a page with a short theory (headings, lists, tables and callouts, rendered like
+  a rule), its level, the last test result and the next review date. «Пройти тест» opens a
+  full-screen multiple-choice test; after a test the button says «Пройти тест снова».
+- The test shows one question at a time with a Russian translation where useful. Picking an
+  answer marks it right or wrong and explains the rule. The summary shows the score and the
+  questions answered wrong; «Ещё раз» retakes the test, «Готово» closes it.
+- A finished test is scheduled with the same SM-2 states as cards: a perfect result is «легко»,
+  at least 80% — «хорошо», at least 60% — «трудно», below that — «снова». The result, the date
+  of the next review and the prompts of the mistakes are kept. Leaving before the last question
+  does not change the schedule.
+- The topic list shows «Новое», «Пройдено», «Пора повторить» or «Закреплено» from that schedule.
+  The theory lives in `tools/grammar.mjs`; `tools/build-grammar.mjs` writes `grammar.json`.
 
 ### 3.2 Lesson
 Segments `Текст · Правила · Слова`.
@@ -197,20 +216,26 @@ Shapes as used by the mockups. Names are suggestions; the relationships are the 
 | Note | target (lesson text or rule), text, optional quoted fragment with word range | |
 | Set | first lesson, last lesson | Progress is derived from card states |
 | Card state | word, status (new, learning, due, known), scheduling data | Depends on the algorithm in 6.2 |
+| Grammar workshop | id, title, subtitle, icon, level, theory blocks, questions | Hand-written in `tools/grammar.mjs` |
+| Grammar question | prompt, optional Russian translation, options, answer, explanation | Four or more per workshop |
+| Grammar review | card state, correct and total, attempts, last studied, last mistakes | One per workshop; same SM-2 states as cards |
 
 ## 6. What the mockups leave to the app
 
 Each item below is shown in the mockups only on hand-written samples, or not at all.
 
 ### 6.1 Persistence
-Notes, saved sets, card states and added words live in memory and vanish on reload. The app
-must store them on the device. Syncing between devices is not designed.
+Notes, saved sets, card states, added words and grammar results live in memory and vanish on
+reload. The app must store them on the device. Grammar results are additive: an older backup
+without them loads with an empty grammar schedule. Syncing between devices is not designed.
 
 ### 6.2 Spaced repetition
 The intervals on the grade buttons are fixed labels. The app needs a real scheduler: a pure
 function from (card state, grade, current time) to the next state and due date, with tests.
 Recommendation: SM-2 with four grades, as in classic Anki; it is small enough to own.
-FSRS, which Anki uses now, is the heavier alternative. The daily limit of new cards is not designed.
+FSRS, which Anki uses now, is the heavier alternative. The daily limit of new cards is not
+designed. Grammar tests use the same scheduler: the score maps to a grade (section 3.1a), so a
+topic returns for review on the same kind of interval as a card.
 
 ### 6.3 Transcription of arbitrary text
 All IPA and marks in `data.js` are typed by hand. The reader recognises three phrases.

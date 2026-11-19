@@ -8,8 +8,11 @@ material is French. Native SwiftUI with Liquid Glass, iOS 26 or later.
   liaisons as an arc, IPA under the word. Tap a word, or hold and sweep over a phrase, to see its
   sound and translation, hear it, open the rule that explains it, add it to the cards, open its
   forms or write a note.
+- **Grammar.** Eight short lessons — questions, the imperative, pronouns, `en` and `y`, `il y a`,
+  articles, `passé composé`, `imparfait` — each with theory and a multiple-choice test. A test
+  result is scheduled like a card, so the topic returns for review.
 - **Practice.** Anki-style cards (SM-2, grades «Снова · Трудно · Хорошо · Легко») over a range of
-  lessons saved as a set, and drills of conjugation, gender and number.
+  lessons saved as a set, topic decks, and drills of conjugation, gender and number.
 - **Analysis.** A reader that marks up any French phrase, and a word analysis that turns any form
   (`buvons`, `petites`) into its lemma and the table of all its forms.
 - **Dictionary.** Every word of the lessons, searchable in French and Russian, and the starred
@@ -66,6 +69,7 @@ node tools/build-dictionary.mjs                      # → App/Resources/diction
 node tools/build-reference.mjs                       # → App/Resources/reference.json
 node tools/build-nuances.mjs                         # → App/Resources/nuances.json
 node tools/build-themes.mjs                          # → App/Resources/themes.json
+node tools/build-grammar.mjs                         # → App/Resources/grammar.json
 node --test tools/*.test.mjs
 ```
 

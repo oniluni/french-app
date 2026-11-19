@@ -14,13 +14,15 @@ public struct UserData: Codable, Equatable, Sendable {
     /// Words starred by the learner, in the order they were added.
     public var favorites: [Word] = []
     public var lastLesson: Int?
+    /// Grammar workshops by id: the last test result and when to come back.
+    public var grammar: [String: GrammarReview] = [:]
 
     public init() {}
 
     /// "addedWords" is the name favourites had when they were words added to the cards; backups
     /// made then keep loading.
     private enum CodingKeys: String, CodingKey {
-        case version, cards, sets, notes, lastLesson
+        case version, cards, sets, notes, lastLesson, grammar
         case favorites = "addedWords"
     }
 
@@ -33,6 +35,7 @@ public struct UserData: Codable, Equatable, Sendable {
         notes = try container.decodeIfPresent([Note].self, forKey: .notes) ?? []
         favorites = try container.decodeIfPresent([Word].self, forKey: .favorites) ?? []
         lastLesson = try container.decodeIfPresent(Int.self, forKey: .lastLesson)
+        grammar = try container.decodeIfPresent([String: GrammarReview].self, forKey: .grammar) ?? [:]
     }
 
     public enum Failure: Error, Equatable {
@@ -73,6 +76,38 @@ public struct StudySet: Codable, Identifiable, Equatable, Sendable {
     }
 
     public var lessons: ClosedRange<Int> { first...last }
+}
+
+/// A grammar workshop the learner has tested, and when to return to it.
+public struct GrammarReview: Codable, Equatable, Sendable {
+    public var state: CardState
+    public var correct: Int
+    public var total: Int
+    public var attempts: Int
+    public var lastStudied: Date
+    /// Prompts of the questions answered wrong last time.
+    public var lastMistakes: [String]
+
+    public init(state: CardState, correct: Int, total: Int, attempts: Int = 1,
+                lastStudied: Date, lastMistakes: [String] = []) {
+        self.state = state
+        self.correct = correct
+        self.total = total
+        self.attempts = attempts
+        self.lastStudied = lastStudied
+        self.lastMistakes = lastMistakes
+    }
+
+    /// What the test result means for the schedule: perfect is easy, most right is good,
+    /// a pass is hard, and a poor result sends the topic back to the start.
+    public static func grade(correct: Int, total: Int) -> Grade {
+        guard total > 0 else { return .again }
+        let share = Double(correct) / Double(total)
+        if share >= 0.99 { return .easy }
+        if share >= 0.8 { return .good }
+        if share >= 0.6 { return .hard }
+        return .again
+    }
 }
 
 public struct Note: Codable, Identifiable, Equatable, Sendable {

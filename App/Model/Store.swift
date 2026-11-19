@@ -69,6 +69,26 @@ final class Store {
         Scheduler.status(data.cards[entry.id], now: now)
     }
 
+    // MARK: Grammar
+
+    func grammarStatus(_ id: String, now: Date = .now) -> CardStatus {
+        Scheduler.status(data.grammar[id]?.state, now: now)
+    }
+
+    func recordGrammar(_ id: String, correct: Int, total: Int, mistakes: [String], now: Date = .now) {
+        update { data in
+            let previous = data.grammar[id]
+            data.grammar[id] = GrammarReview(
+                state: Scheduler.next(previous?.state, grade: GrammarReview.grade(correct: correct, total: total), now: now),
+                correct: correct,
+                total: total,
+                attempts: (previous?.attempts ?? 0) + 1,
+                lastStudied: now,
+                lastMistakes: mistakes
+            )
+        }
+    }
+
     func isFavorite(_ word: String) -> Bool {
         let key = Content.bare(word)
         return data.favorites.contains { Content.bare($0.fr) == key }

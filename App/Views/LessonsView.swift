@@ -27,6 +27,13 @@ struct LessonsView: View {
                 .padding(.top, 12)
                 .accessibilityIdentifier("due-today")
 
+            let grammar = library.grammarWorkshops.workshops
+            if !grammar.isEmpty {
+                grammarTile(due: grammar.filter { store.grammarStatus($0.id) == .due }.count,
+                            total: grammar.count)
+                    .padding(.top, 12)
+            }
+
             SectionHeader(title: "Все уроки", trailing: "\(library.content.lessons.count)")
             Card {
                 ForEach(library.content.lessons) { lesson in
@@ -51,6 +58,27 @@ struct LessonsView: View {
             }
         }
         .navigationTitle("Уроки")
+    }
+
+    /// Grammar is a separate track: short theory plus a test, so it gets one entry above the
+    /// numbered lessons rather than another lesson row.
+    private func grammarTile(due: Int, total: Int) -> some View {
+        NavigationLink(value: Route.grammarTopics) {
+            HStack(spacing: 12) {
+                EmptyIcon(systemImage: "character.book.closed.fill",
+                          color: Theme.acc, fill: Theme.accSoft, size: 44)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Грамматика").font(Theme.bodyMedium)
+                    Text("\(total) тем · теория и тесты").font(Theme.subhead).foregroundStyle(Theme.t2)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                if due > 0 { Chip(text: "\(due) к повторению", tone: .due) }
+                Chevron()
+            }
+            .panel()
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier("grammar-topics")
     }
 
     private func continueCard(_ lesson: Lesson, cards: [String: CardState]) -> some View {

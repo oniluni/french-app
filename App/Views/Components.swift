@@ -71,14 +71,18 @@ struct Screen<Content: View>: View {
     @ViewBuilder let content: Content
 
     var body: some View {
-        ScrollView {
+        ScrollView(.vertical) {
             VStack(alignment: .leading, spacing: 0) { content }
-                .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
                 // Room for the floating tab bar.
                 .padding(.bottom, 32)
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
+        // The page is exactly as wide as the screen: a sideways drag must not
+        // reveal or rubber-band any extra width.
+        .frame(maxWidth: .infinity)
+        .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
         .scrollDismissesKeyboard(.interactively)
         .background(Theme.bg)
     }
